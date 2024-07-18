@@ -2,6 +2,7 @@ name: midy-custom
 recipe: lamp
 config:
   php: '8.3'
+  via: nginx
   webroot: public
   xdebug: 'debug,develop'
 services:
