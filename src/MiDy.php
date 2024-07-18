@@ -28,9 +28,12 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -38,9 +41,16 @@ use function DI\autowire;
 use function DI\get;
 use function DI\value;
 
-class MiDy
+class MiDy implements RequestHandlerInterface
 {
-    public function buildContainer(): ContainerInterface
+    public readonly ContainerInterface $container;
+
+    public function __construct()
+    {
+        $this->container = $this->buildContainer();
+    }
+
+    protected function buildContainer(): ContainerInterface
     {
 
         $containerBuilder = new ContainerBuilder();
@@ -116,15 +126,8 @@ class MiDy
         return $containerBuilder->build();
     }
 
-    public function run(): void
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $container = $this->buildContainer();
-
-        $serverRequest = $container->get(ServerRequestCreator::class)->fromGlobals();
-
-        $response = $container->get(StackMiddlewareKernel::class)->handle($serverRequest);
-
-        $container->get(SapiEmitter::class)->emit($response);
+        return $this->container->get(StackMiddlewareKernel::class)->handle($request);
     }
-
 }
