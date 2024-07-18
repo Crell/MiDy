@@ -7,6 +7,7 @@ namespace Crell\MiDy\Services;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\StreamInterface;
 
 readonly class ResponseBuilder
 {
@@ -15,13 +16,15 @@ readonly class ResponseBuilder
         private StreamFactoryInterface $streamFactory,
     ) {}
 
-    public function createResponse(int $code, string $body, ?string $contentType = null): ResponseInterface
+    public function createResponse(int $code, string|StreamInterface $body, ?string $contentType = null): ResponseInterface
     {
-        $stream = $this->streamFactory->createStream($body);
-        $stream->rewind();
+        if (is_string($body)) {
+            $body = $this->streamFactory->createStream($body);
+            $body->rewind();
+        }
         $response = $this->responseFactory
             ->createResponse($code)
-            ->withBody($stream);
+            ->withBody($body);
         if ($contentType) {
             $response = $response->withHeader('content-type', $contentType);
         }
@@ -29,7 +32,7 @@ readonly class ResponseBuilder
         return $response;
     }
 
-    public function ok(string $body, ?string $contentType = null): ResponseInterface
+    public function ok(string|StreamInterface $body, ?string $contentType = null): ResponseInterface
     {
         return $this->createResponse(200, $body, $contentType);
     }
@@ -74,17 +77,17 @@ readonly class ResponseBuilder
             ->withHeader('location', $location);
     }
 
-    public function notFound(string $body, ?string $contentType = null): ResponseInterface
+    public function notFound(string|StreamInterface $body, ?string $contentType = null): ResponseInterface
     {
         return $this->createResponse(404, $body, $contentType);
     }
 
-    public function forbidden(string $body, ?string $contentType = null): ResponseInterface
+    public function forbidden(string|StreamInterface $body, ?string $contentType = null): ResponseInterface
     {
         return $this->createResponse(403, $body, $contentType);
     }
 
-    public function gone(string $body, ?string $contentType = null): ResponseInterface
+    public function gone(string|StreamInterface $body, ?string $contentType = null): ResponseInterface
     {
         return $this->createResponse(410, $body, $contentType);
     }

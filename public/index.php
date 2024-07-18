@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Crell\MiDy\Services\Templates;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\ActionRunner;
 use Crell\MiDy\Middleware\CacheMiddleware;
@@ -16,7 +17,9 @@ use Crell\Tukio\DebugEventDispatcher;
 use Crell\Tukio\Dispatcher;
 use DI\ContainerBuilder;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
+use Crell\MiDy\Router\Router;
 
+use Latte\Engine;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
@@ -30,6 +33,7 @@ use Crell\Tukio\OrderedListenerProvider;
 
 use function DI\autowire;
 use function DI\get;
+use function DI\value;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -38,17 +42,19 @@ $containerBuilder->useAutowiring(true);
 
 $finder = new ClassFinder();
 
-$paths = [
+$codePaths = [
     '../src/',
 ];
 
-foreach ($paths as $path) {
+foreach ($codePaths as $path) {
     foreach ($finder->find($path) as $class) {
         $containerBuilder->addDefinitions([
             $class => autowire(),
         ]);
     }
 }
+
+$routesPath = \realpath('../routes');
 
 $containerBuilder->addDefinitions([
     StackMiddlewareKernel::class => autowire(StackMiddlewareKernel::class)
@@ -66,6 +72,9 @@ $containerBuilder->addDefinitions([
     ,
     SapiEmitter::class => autowire(SapiEmitter::class)
     ,
+    Router::class => autowire()->constructorParameter('routesPath', $routesPath),
+    \Crell\MiDy\Services\ActionInvoker::class => get(\Crell\MiDy\Services\RuntimeActionInvoker::class)
+    ,
     Dispatcher::class => autowire(),
             DebugEventDispatcher::class => autowire()
     ->constructorParameter('dispatcher', get(Dispatcher::class)),
@@ -80,7 +89,12 @@ $containerBuilder->addDefinitions([
             ResponseFactoryInterface::class => get(Psr17Factory::class),
             StreamFactoryInterface::class => get(Psr17Factory::class),
             RequestFactoryInterface::class => get(Psr17Factory::class),
-            ServerRequestFactoryInterface::class => get(Psr17Factory::class),
+            ServerRequestFactoryInterface::class => get(Psr17Factory::class)
+    ,
+    // Latte templates
+    'latte.cache' => value('cache/latte'),
+    Engine::class => autowire()->method('setTempDirectory', get('latte.cache')),
+    Templates::class => autowire()->constructor(templateDirectory: 'templates')
     ]);
 
 $container = $containerBuilder->build();

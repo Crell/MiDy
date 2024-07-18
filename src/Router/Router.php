@@ -4,36 +4,45 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Router;
 
-use Crell\MiDy\Documents\Product;
-use Crell\MiDy\Services\Actions\ProductCreate;
-use Crell\MiDy\Services\Actions\ProductGet;
-use Crell\MiDy\Services\Actions\StaticPath;
-use Psr\Http\Message\RequestInterface;
+use Crell\MiDy\PageHandlers\HtmlHandler;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Router
 {
     private array $routes = [];
 
-    public function __construct()
-    {
+    public function __construct(private string $routesPath) {}
 
+    public function route(ServerRequestInterface $request): RouteResult
+    {
+        return match ($request->getMethod()) {
+            'GET' => $this->get($request),
+            default => new RouteMethodNotAllowed(['GET', 'POST']),
+        };
     }
 
-    public function route(RequestInterface $request): RouteResult
+    private function get(ServerRequestInterface $request): RouteResult
     {
-        $routeSet = $this->routes[$request->getUri()->getPath()] ?? null;
+        $path = $request->getUri()->getPath();
 
-        if (is_null($routeSet)) {
-            return new RouteNotFound();
+        if ($path === '/') {
+            $path = '/home';
         }
 
-        $result = $routeSet[strtolower($request->getMethod())] ?? null;
+        $file = $this->routesPath . $path;
 
-        if (is_null($result)) {
-            return new RouteMethodNotAllowed(['GET', 'POST']);
+        $files = glob("$file.*");
+
+        if (in_array("$file.html", $files, true)) {
+            return new RouteSuccess(
+                action:HtmlHandler::class,
+                method: 'GET',
+                vars: [
+                    'file' => "$file.html",
+                ],
+            );
         }
 
-        return $result;
+        return new RouteNotFound();
     }
 }
