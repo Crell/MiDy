@@ -1,0 +1,12 @@
+name: midy-custom
+recipe: lamp
+config:
+  php: '8.3'
+  webroot: public
+  xdebug: 'debug,develop'
+services:
+  appserver:
+    overrides:
+      environment:
+        PHP_IDE_CONFIG: serverName=appserver
+        XDEBUG_SESSION_START: lando

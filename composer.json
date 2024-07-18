@@ -1,0 +1,43 @@
+{
+    "name": "crell/midy",
+    "require": {
+        "php": "~8.3",
+        "nyholm/psr7": "^1.8",
+        "nyholm/psr7-server": "^1.1",
+        "psr/log": "^3.0",
+        "latte/latte": "^3.0",
+        "php-di/php-di": "^7.0",
+        "laminas/laminas-httphandlerrunner": "^2.10",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "crell/tukio": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.2.0",
+        "phpbench/phpbench": "^1.3.1",
+        "phpstan/phpstan": "^1.11.7",
+        "vishnubob/wait-for-it": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Crell\\MiDy\\": "src",
+            "App\\Routes\\": "routes"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Crell\\MiDy\\": "tests",
+            "Crell\\MiDy\\Benchmarks\\": "benchmarks"
+        }
+    },
+    "scripts": {
+        "benchmarks": "vendor/bin/phpbench run benchmarks --report=aggregate",
+        "test": "phpunit",
+        "phpstan": "phpstan",
+        "coverage": "php -dextension=pcov.so -dpcov.enabled=1 -dpcov.directory=src vendor/bin/phpunit --coverage-text",
+        "all-checks": [
+            "phpunit",
+            "phpstan"
+        ]
+    }
+}
