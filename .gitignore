@@ -4,3 +4,9 @@ vendor
 build
 composer.lock
 tmp
+
+cache
+
+# IntelliJ files
+*.iml
+.idea
