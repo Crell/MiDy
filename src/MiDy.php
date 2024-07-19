@@ -118,8 +118,10 @@ class MiDy implements RequestHandlerInterface
                 )
             ,
             // Latte templates
-            'latte.cache' => value('cache/latte'),
-            Engine::class => autowire()->method('setTempDirectory', get('latte.cache')),
+            'latte.cache' => value('../cache/latte'),
+            'latte.templates' => value('../templates'),
+            Engine::class => autowire()
+                ->method('setTempDirectory', get('latte.cache')),
             Templates::class => autowire()->constructor(templateDirectory: 'templates')
         ]);
 

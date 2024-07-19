@@ -70,6 +70,15 @@
       <path value="$PROJECT_DIR$/vendor/crell/fp" />
       <path value="$PROJECT_DIR$/vendor/crell/tukio" />
       <path value="$PROJECT_DIR$/vendor/crell/ordered-collection" />
+      <path value="$PROJECT_DIR$/vendor/contributte/latte-parsedown-extra" />
+      <path value="$PROJECT_DIR$/vendor/erusev/parsedown" />
+      <path value="$PROJECT_DIR$/vendor/erusev/parsedown-extra" />
+      <path value="$PROJECT_DIR$/vendor/nette/utils" />
+      <path value="$PROJECT_DIR$/vendor/nette/robot-loader" />
+      <path value="$PROJECT_DIR$/vendor/nette/schema" />
+      <path value="$PROJECT_DIR$/vendor/nette/di" />
+      <path value="$PROJECT_DIR$/vendor/nette/neon" />
+      <path value="$PROJECT_DIR$/vendor/nette/php-generator" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

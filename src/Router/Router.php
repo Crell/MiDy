@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Crell\MiDy\Router;
 
 use Crell\MiDy\PageHandlers\HtmlHandler;
+use Crell\MiDy\PageHandlers\LatteHandler;
 use Psr\Http\Message\ServerRequestInterface;
+
+use function PHPUnit\Framework\isNan;
 
 class Router
 {
@@ -42,6 +45,17 @@ class Router
                 ],
             );
         }
+
+        if (in_array("$file.latte", $files, true)) {
+            return new RouteSuccess(
+                action:LatteHandler::class,
+                method: 'GET',
+                vars: [
+                    'file' => "$file.latte",
+                ],
+            );
+        }
+
 
         return new RouteNotFound();
     }
