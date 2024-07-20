@@ -10,7 +10,7 @@ use Crell\MiDy\Middleware\EnforceHeadMiddleware;
 use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
-use Crell\MiDy\Router\Router;
+use Crell\MiDy\Router\EventRouter;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\RuntimeActionInvoker;
@@ -48,6 +48,7 @@ class MiDy implements RequestHandlerInterface
     public function __construct()
     {
         $this->container = $this->buildContainer();
+        $this->setupListeners();
     }
 
     protected function buildContainer(): ContainerInterface
@@ -88,13 +89,15 @@ class MiDy implements RequestHandlerInterface
             ,
             SapiEmitter::class => autowire(SapiEmitter::class)
             ,
-            Router::class => autowire()->constructorParameter('routesPath', $routesPath),
+            EventRouter::class => autowire()->constructorParameter('routesPath', $routesPath),
             ActionInvoker::class => get(RuntimeActionInvoker::class)
             ,
+            // Tukio Event Dispatcher
             Dispatcher::class => autowire(),
             DebugEventDispatcher::class => autowire()
                 ->constructorParameter('dispatcher', get(Dispatcher::class)),
-            OrderedListenerProvider::class => autowire(),
+            OrderedListenerProvider::class => autowire()
+                ->constructorParameter('container', get(ContainerInterface::class)),
             ListenerProviderInterface::class => get(OrderedListenerProvider::class),
             EventDispatcherInterface::class => get(Dispatcher::class),
 
@@ -126,6 +129,24 @@ class MiDy implements RequestHandlerInterface
         ]);
 
         return $containerBuilder->build();
+    }
+
+
+    public function setupListeners(): void
+    {
+        /** @var OrderedListenerProvider $provider */
+        $provider = $this->container->get(OrderedListenerProvider::class);
+        $finder = new ClassFinder();
+
+        $listenerList = static function () use ($finder) {
+            yield from $finder->find('../src/PageHandlers');
+        };
+
+        foreach ($listenerList() as $class) {
+            // For the moment, only support class listeners and don't compile things.
+            // We can optimize later with a compiled provider.
+            $provider->listenerService($class);
+        }
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface

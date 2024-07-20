@@ -22,7 +22,10 @@ readonly class RuntimeActionInvoker implements ActionInvoker
 
         $action = $routeResult?->action;
 
-        $definedParams = $this->getParameters($action);
+        $definedParams = match (true) {
+            is_string($action) => $this->getInvokableClassParameters($action),
+            is_callable($action) => $this->getCallableParameters($action),
+        };
 
         $available = $routeResult->vars;
 
@@ -38,10 +41,23 @@ readonly class RuntimeActionInvoker implements ActionInvoker
 
         $args = array_intersect_key($available, $definedParams);
 
-        return $this->container->get($routeResult->action)(...$args);
+        if (is_string($action)) {
+            $action = $this->container->get($routeResult->action);
+        }
+
+        return $action(...$args);
     }
 
-    private function getParameters(string $action): array
+    private function getCallableParameters(\Closure $action): array
+    {
+        $rAction = new \ReflectionFunction($action);
+        foreach ($rAction?->getParameters() ?? [] as $rParam) {
+            $params[$rParam->name] = $rParam->getType()?->getName();
+        }
+        return $params;
+    }
+
+    private function getInvokableClassParameters(string $action): array
     {
         $params = [];
         $rAction = new \ReflectionClass($action);

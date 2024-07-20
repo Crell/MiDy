@@ -14,7 +14,7 @@ readonly class RouteSuccess extends RouteResult
      *
      */
     public function __construct(
-        public string $action,
+        public string|\Closure $action,
         public string $method,
         public ?string $permission = null,
         public array $parameters = [],
