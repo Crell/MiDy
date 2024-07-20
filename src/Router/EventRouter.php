@@ -7,7 +7,7 @@ namespace Crell\MiDy\Router;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class EventRouter implements Router
+readonly class EventRouter implements Router
 {
     public function __construct(
         private string $routesPath,
@@ -16,8 +16,8 @@ class EventRouter implements Router
 
     public function route(ServerRequestInterface $request): RouteResult
     {
-        $requestPath = $this->getRequestPath($request);
-        $candidates = $this->getFilePaths($requestPath);
+        [$requestPath, $ext] = $this->getRequestPath($request);
+        $candidates = $this->getFilePaths($requestPath, $ext);
 
         if (!$candidates) {
             return new RouteNotFound();
@@ -33,7 +33,7 @@ class EventRouter implements Router
         return $event->routeResult ?? new RouteMethodNotAllowed([]);
     }
 
-    private function getRequestPath(ServerRequestInterface $request): string
+    private function getRequestPath(ServerRequestInterface $request): array
     {
         $path = $request->getUri()->getPath();
 
@@ -41,11 +41,17 @@ class EventRouter implements Router
             $path = '/home';
         }
 
-        return $this->routesPath . $path;
+        if (str_contains($path, '.')) {
+            [$path, $ext] = \explode('.', $path);
+        } else {
+            $ext = '*';
+        }
+
+        return [$this->routesPath . $path, $ext];
     }
 
-    private function getFilePaths(string $requestPath): array
+    private function getFilePaths(string $requestPath, string $ext = '*'): array
     {
-        return glob("$requestPath.*");
+        return glob("$requestPath.$ext");
     }
 }
