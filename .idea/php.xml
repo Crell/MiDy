@@ -79,6 +79,8 @@
       <path value="$PROJECT_DIR$/vendor/nette/di" />
       <path value="$PROJECT_DIR$/vendor/nette/neon" />
       <path value="$PROJECT_DIR$/vendor/nette/php-generator" />
+      <path value="$PROJECT_DIR$/vendor/crell/config" />
+      <path value="$PROJECT_DIR$/vendor/crell/serde" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

@@ -4,6 +4,17 @@ declare(strict_types=1);
 
 namespace Crell\MiDy;
 
+use Crell\AttributeUtils\Analyzer;
+use Crell\AttributeUtils\ClassAnalyzer;
+use Crell\AttributeUtils\FuncAnalyzer;
+use Crell\AttributeUtils\FunctionAnalyzer;
+use Crell\AttributeUtils\MemoryCacheAnalyzer;
+use Crell\AttributeUtils\MemoryCacheFunctionAnalyzer;
+use Crell\Config\ConfigLoader;
+use Crell\Config\IniFileSource;
+use Crell\Config\LayeredLoader;
+use Crell\Config\PhpFileSource;
+use Crell\Config\SerializedFilesystemCache;
 use Crell\MiDy\Middleware\CacheMiddleware;
 use Crell\MiDy\Middleware\DeriveFormatMiddleware;
 use Crell\MiDy\Middleware\EnforceHeadMiddleware;
@@ -15,6 +26,8 @@ use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\RuntimeActionInvoker;
 use Crell\MiDy\Services\Templates;
+use Crell\Serde\Serde;
+use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
 use Crell\Tukio\Dispatcher;
 use Crell\Tukio\OrderedListenerProvider;
@@ -38,6 +51,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 use function DI\autowire;
+use function DI\factory;
 use function DI\get;
 use function DI\value;
 
@@ -71,9 +85,18 @@ class MiDy implements RequestHandlerInterface
             }
         }
 
-        $routesPath = \realpath('../routes');
+        $containerBuilder->addDefinitions([
+            // Paths.  Todo: Make this configurable.
+            'paths.routes' => value(\realpath('../routes')),
+            'paths.config' => value(\realpath('../configuration')),
+            'paths.cache' => value(\realpath('../cache')),
+            'paths.cache.config' => value(\realpath('../cache/config')),
+            'paths.cache.latte' => value(\realpath('../cache/latte')),
+            'paths.templates' => value(\realpath('../templates')),
+        ]);
 
         $containerBuilder->addDefinitions([
+
             StackMiddlewareKernel::class => autowire(StackMiddlewareKernel::class)
                 ->constructor(baseHandler: get(ActionRunner::class))
                 // These will run last to first, ie, the earlier listed ones are "more inner."
@@ -89,7 +112,7 @@ class MiDy implements RequestHandlerInterface
             ,
             SapiEmitter::class => autowire(SapiEmitter::class)
             ,
-            EventRouter::class => autowire()->constructorParameter('routesPath', $routesPath),
+            EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
             ActionInvoker::class => get(RuntimeActionInvoker::class)
             ,
             // Tukio Event Dispatcher
@@ -101,6 +124,29 @@ class MiDy implements RequestHandlerInterface
             ListenerProviderInterface::class => get(OrderedListenerProvider::class),
             EventDispatcherInterface::class => get(Dispatcher::class),
 
+            // AttributeUtils
+            ClassAnalyzer::class => autowire(),
+            FuncAnalyzer::class => autowire(),
+            MemoryCacheAnalyzer::class => autowire()->constructorParameter('analyzer', get(ClassAnalyzer::class)),
+            MemoryCacheFunctionAnalyzer::class => autowire()->constructorParameter('analyzer', get(FuncAnalyzer::class)),
+            Analyzer::class => get(MemoryCacheAnalyzer::class),
+            FunctionAnalyzer::class => get(FuncAnalyzer::class),
+
+            // Serde
+            SerdeCommon::class => autowire(),
+            Serde::class => get(SerdeCommon::class),
+
+            // Configuration
+            IniFileSource::class => autowire()->constructorParameter('directory', get('paths.config')),
+            PhpFileSource::class => autowire()->constructorParameter('directory', get('paths.config')),
+            LayeredLoader::class => autowire()->constructorParameter('sources', [get(IniFileSource::class), get(PhpFileSource::class)]),
+            SerializedFilesystemCache::class => autowire()
+                ->constructorParameter('loader', get(LayeredLoader::class))
+                ->constructorParameter('directory', get('paths.cache.config'))
+            ,
+            ConfigLoader::class => get(SerializedFilesystemCache::class),
+
+            // Logging
             NullLogger::class => autowire(),
             PrintLogger::class => autowire(),
             LoggerInterface::class => get(NullLogger::class),
@@ -121,12 +167,23 @@ class MiDy implements RequestHandlerInterface
                 )
             ,
             // Latte templates
-            'latte.cache' => value('../cache/latte'),
-            'latte.templates' => value('../templates'),
             Engine::class => autowire()
-                ->method('setTempDirectory', get('latte.cache')),
-            Templates::class => autowire()->constructor(templateDirectory: 'templates')
+                ->method('setTempDirectory', get('paths.cache.latte')),
         ]);
+
+        $configPaths = [
+            '../src/config',
+        ];
+
+        foreach ($configPaths as $path) {
+            foreach ($finder->find($path) as $class) {
+                $containerBuilder->addDefinitions([
+                    $class => factory(fn(ContainerInterface $c) => $c->get(ConfigLoader::class)->load($class)),
+                ]);
+            }
+        }
+
+        $containerBuilder->addDefinitions([]);
 
         return $containerBuilder->build();
     }

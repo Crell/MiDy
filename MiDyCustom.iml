@@ -6,7 +6,6 @@
       <sourceFolder url="file://$MODULE_DIR$/benchmarks" isTestSource="true" packagePrefix="Crell\MiDy\Benchmarks\" />
       <sourceFolder url="file://$MODULE_DIR$/routes" isTestSource="false" packagePrefix="App\Routes\" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" packagePrefix="Crell\MiDy\" />
-      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" packagePrefix="Crell\MiDy\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/contributte/latte-parsedown-extra" />
@@ -85,6 +84,8 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/theseer/tokenizer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/vishnubob/wait-for-it" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/webmozart/glob" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/crell/config" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/crell/serde" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
