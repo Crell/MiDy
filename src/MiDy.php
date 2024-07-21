@@ -15,6 +15,7 @@ use Crell\Config\IniFileSource;
 use Crell\Config\LayeredLoader;
 use Crell\Config\PhpFileSource;
 use Crell\Config\SerializedFilesystemCache;
+use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
 use Crell\MiDy\Middleware\CacheMiddleware;
 use Crell\MiDy\Middleware\DeriveFormatMiddleware;
@@ -22,6 +23,7 @@ use Crell\MiDy\Middleware\EnforceHeadMiddleware;
 use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
+use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
 use Crell\MiDy\Router\EventRouter;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
@@ -193,6 +195,15 @@ class MiDy implements RequestHandlerInterface
 
         $containerBuilder->addDefinitions([
             CommonMarkExtension::class => autowire(),
+        ]);
+
+        // MarkdownLatteHandler related stuff
+        $containerBuilder->addDefinitions([
+            MarkdownLatteHandler::class => autowire()
+                ->constructorParameter('templateRoot', get('paths.templates')),
+            // Because the file name it gets passed will already be absolute.
+            MarkdownPageLoader::class => autowire()
+                ->constructorParameter('root', '/')
         ]);
 
         // Latte templates
