@@ -94,8 +94,20 @@ class MiDy implements RequestHandlerInterface
             'paths.templates' => value(\realpath('../templates')),
         ]);
 
+        // Configuration
         $containerBuilder->addDefinitions([
+            IniFileSource::class => autowire()->constructorParameter('directory', get('paths.config')),
+            PhpFileSource::class => autowire()->constructorParameter('directory', get('paths.config')),
+            LayeredLoader::class => autowire()->constructorParameter('sources', [get(IniFileSource::class), get(PhpFileSource::class)]),
+            SerializedFilesystemCache::class => autowire()
+                ->constructorParameter('loader', get(LayeredLoader::class))
+                ->constructorParameter('directory', get('paths.cache.config'))
+            ,
+            ConfigLoader::class => get(SerializedFilesystemCache::class),
+        ]);
 
+        // Core middleware and execution pipeline.
+        $containerBuilder->addDefinitions([
             StackMiddlewareKernel::class => autowire(StackMiddlewareKernel::class)
                 ->constructor(baseHandler: get(ActionRunner::class))
                 // These will run last to first, ie, the earlier listed ones are "more inner."
@@ -113,8 +125,10 @@ class MiDy implements RequestHandlerInterface
             ,
             EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
             ActionInvoker::class => get(RuntimeActionInvoker::class)
-            ,
-            // Tukio Event Dispatcher
+        ]);
+
+        // Tukio Event Dispatcher
+        $containerBuilder->addDefinitions([
             Dispatcher::class => autowire(),
             DebugEventDispatcher::class => autowire()
                 ->constructorParameter('dispatcher', get(Dispatcher::class)),
@@ -123,7 +137,11 @@ class MiDy implements RequestHandlerInterface
             ListenerProviderInterface::class => get(OrderedListenerProvider::class),
             EventDispatcherInterface::class => get(Dispatcher::class),
 
-            // AttributeUtils
+        ]);
+
+        // AttributeUtils
+        // Serde
+        $containerBuilder->addDefinitions([
             ClassAnalyzer::class => autowire(),
             FuncAnalyzer::class => autowire(),
             MemoryCacheAnalyzer::class => autowire()->constructorParameter('analyzer', get(ClassAnalyzer::class)),
@@ -131,26 +149,19 @@ class MiDy implements RequestHandlerInterface
             Analyzer::class => get(MemoryCacheAnalyzer::class),
             FunctionAnalyzer::class => get(FuncAnalyzer::class),
 
-            // Serde
             SerdeCommon::class => autowire(),
             Serde::class => get(SerdeCommon::class),
+        ]);
 
-            // Configuration
-            IniFileSource::class => autowire()->constructorParameter('directory', get('paths.config')),
-            PhpFileSource::class => autowire()->constructorParameter('directory', get('paths.config')),
-            LayeredLoader::class => autowire()->constructorParameter('sources', [get(IniFileSource::class), get(PhpFileSource::class)]),
-            SerializedFilesystemCache::class => autowire()
-                ->constructorParameter('loader', get(LayeredLoader::class))
-                ->constructorParameter('directory', get('paths.cache.config'))
-            ,
-            ConfigLoader::class => get(SerializedFilesystemCache::class),
-
-            // Logging
+        // Logging
+        $containerBuilder->addDefinitions([
             NullLogger::class => autowire(),
             PrintLogger::class => autowire(),
             LoggerInterface::class => get(NullLogger::class),
+        ]);
 
-            // HTTP handling.
+        // HTTP handling.
+        $containerBuilder->addDefinitions([
             ResponseFactoryInterface::class => get(Psr17Factory::class),
             StreamFactoryInterface::class => get(Psr17Factory::class),
             RequestFactoryInterface::class => get(Psr17Factory::class),
@@ -164,8 +175,10 @@ class MiDy implements RequestHandlerInterface
                     uploadedFileFactory: get(Psr17Factory::class),
                     streamFactory: get(StreamFactoryInterface::class),
                 )
-            ,
-            // Latte templates
+        ]);
+
+        // Latte templates
+        $containerBuilder->addDefinitions([
             Engine::class => autowire()
                 ->method('setTempDirectory', get('paths.cache.latte')),
         ]);
@@ -186,7 +199,6 @@ class MiDy implements RequestHandlerInterface
 
         return $containerBuilder->build();
     }
-
 
     public function setupListeners(): void
     {
