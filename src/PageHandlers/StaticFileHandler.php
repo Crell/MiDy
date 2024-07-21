@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageHandlers;
 
-use Crell\MiDy\config\StaticRoutes;
+use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\Router\RouteResolution;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;

@@ -214,7 +214,7 @@ class MiDy implements RequestHandlerInterface
         ]);
 
         $configPaths = [
-            '../src/config',
+            '../src/Config',
         ];
 
         foreach ($configPaths as $path) {
