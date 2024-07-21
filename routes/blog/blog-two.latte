@@ -1,0 +1,36 @@
+{layout ../../templates/layout.latte}
+{var $name = "larry garfield"}
+{var $md = "## Subtitle"}
+
+
+{var $mdItalic = "*something* is broken"}
+{var $mdList = "
+* A list
+* Goes here"}
+{block title}{$name|capitalize}{/block}
+
+{block content}
+
+    {='# Title here'|markdown}
+
+    {$md|markdown}
+
+{* This doesn't work yet for reasons I do not understand. It gets wrapped with pre tags. *}
+    {block |markdown}
+        * A list
+        * Goes here
+
+        *something* is broken
+    {/block}
+
+{$mdItalic|markdown}
+{$mdList|markdown}
+
+<div>
+{block |indent}
+<p>Hello</p>
+{/block}
+</div>
+
+
+{/block}

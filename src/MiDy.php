@@ -15,6 +15,7 @@ use Crell\Config\IniFileSource;
 use Crell\Config\LayeredLoader;
 use Crell\Config\PhpFileSource;
 use Crell\Config\SerializedFilesystemCache;
+use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
 use Crell\MiDy\Middleware\CacheMiddleware;
 use Crell\MiDy\Middleware\DeriveFormatMiddleware;
 use Crell\MiDy\Middleware\EnforceHeadMiddleware;
@@ -190,9 +191,14 @@ class MiDy implements RequestHandlerInterface
             MarkdownConverter::class =>get(GithubFlavoredMarkdownConverter::class),
         ]);
 
+        $containerBuilder->addDefinitions([
+            CommonMarkExtension::class => autowire(),
+        ]);
+
         // Latte templates
         $containerBuilder->addDefinitions([
             Engine::class => autowire()
+                ->method('addExtension', get(CommonMarkExtension::class))
                 ->method('setTempDirectory', get('paths.cache.latte')),
         ]);
 
