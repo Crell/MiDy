@@ -33,6 +33,10 @@ use Crell\Tukio\OrderedListenerProvider;
 use DI\ContainerBuilder;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Latte\Engine;
+use League\CommonMark\CommonMarkConverter;
+use League\CommonMark\ConverterInterface;
+use League\CommonMark\GithubFlavoredMarkdownConverter;
+use League\CommonMark\MarkdownConverter;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Container\ContainerInterface;
@@ -175,6 +179,15 @@ class MiDy implements RequestHandlerInterface
                     uploadedFileFactory: get(Psr17Factory::class),
                     streamFactory: get(StreamFactoryInterface::class),
                 )
+        ]);
+
+        // Commonmark
+        // @todo Configure this better so it's configurable somehow?
+        $containerBuilder->addDefinitions([
+            CommonMarkConverter::class => autowire(),
+            GithubFlavoredMarkdownConverter::class => autowire(),
+            ConverterInterface::class => get(GithubFlavoredMarkdownConverter::class),
+            MarkdownConverter::class =>get(GithubFlavoredMarkdownConverter::class),
         ]);
 
         // Latte templates
