@@ -10,7 +10,6 @@ use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
 use Latte\Engine;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 readonly class MarkdownLatteHandler
 {
