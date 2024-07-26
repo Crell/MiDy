@@ -7,6 +7,9 @@ tmp
 
 cache
 
+.phpunit.cache
+.phpunit.result.cache
+
 # IntelliJ files
 *.iml
 .idea
