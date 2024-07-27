@@ -23,11 +23,15 @@ use Crell\MiDy\Middleware\EnforceHeadMiddleware;
 use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
-use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
+use Crell\MiDy\PageHandlerListeners\MarkdownLatteHandler;
+use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter;
+use Crell\MiDy\Router\MappedRouter;
+use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\RuntimeActionInvoker;
+use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -122,6 +126,7 @@ class MiDy implements RequestHandlerInterface
                 ->method('addMiddleware', get(ParamConverterMiddleware::class))
 //        ->method('addMiddleware', get(AuthorizationMiddleware::class))
                 ->method('addMiddleware', get(RoutingMiddleware::class))
+                ->method('addMiddleware', get(RequestPathMiddleware::class))
                 ->method('addMiddleware', get(DeriveFormatMiddleware::class))
 //        ->method('addMiddleware', get(AuthenticationMiddleware::class))
                 ->method('addMiddleware', get(CacheMiddleware::class))
