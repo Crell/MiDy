@@ -11,7 +11,7 @@ use Latte\Engine;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-readonly class LatteHandler
+readonly class LatteHandlerListener
 {
     public function __construct(
         private ResponseBuilder $builder,

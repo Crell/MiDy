@@ -11,7 +11,7 @@ use Crell\MiDy\Router\RouteSuccess;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-readonly class NewPhpHandler implements PageHandler
+readonly class PhpHandler implements PageHandler
 {
     public function __construct(
         private ContainerInterface $container,

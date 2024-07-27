@@ -2,16 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageHandlerListeners;
+namespace Crell\MiDy\PageHandlers;
 
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
+use Crell\MiDy\Router\PageHandler;
 use Crell\MiDy\Router\RouteResolution;
+use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
 use Latte\Engine;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-readonly class MarkdownLatteHandler
+readonly class MarkdownLatteHandler implements PageHandler
 {
     public function __construct(
         private ResponseBuilder $builder,
@@ -20,23 +23,25 @@ readonly class MarkdownLatteHandler
         private string $templateRoot,
     ) {}
 
-    public function __invoke(RouteResolution $event): void
+    public function supportedMethods(): array
     {
-        if ($event->request->getMethod() !== 'GET') {
-            return;
-        }
+        return ['GET'];
+    }
 
-        if (in_array("{$event->routesPath}{$event->requestPath->normalizedPath}.md", $event->candidates, true)) {
-            $event->routingResult(
-                new RouteSuccess(
-                    action: $this->action(...),
-                    method: 'GET',
-                    vars: [
-                        'file' => "{$event->routesPath}{$event->requestPath->normalizedPath}.md",
-                    ],
-                )
-            );
-        }
+    public function supportedExtensions(): array
+    {
+        return ['md'];
+    }
+
+    public function handle(ServerRequestInterface $request, string $file, string $ext): ?RouteResult
+    {
+        return new RouteSuccess(
+            action: $this->action(...),
+            method: 'GET',
+            vars: [
+                'file' => $file,
+            ],
+        );
     }
 
     public function action(string $file): ResponseInterface

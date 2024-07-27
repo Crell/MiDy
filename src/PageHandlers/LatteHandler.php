@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageHandlers;
 
-use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\Router\PageHandler;
-use Crell\MiDy\Router\RouteResolution;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
@@ -14,13 +12,11 @@ use Latte\Engine;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-readonly class NewMarkdownLatteHandler implements PageHandler
+readonly class LatteHandler implements PageHandler
 {
     public function __construct(
         private ResponseBuilder $builder,
         private Engine $latte,
-        private MarkdownPageLoader $loader,
-        private string $templateRoot,
     ) {}
 
     public function supportedMethods(): array
@@ -30,7 +26,7 @@ readonly class NewMarkdownLatteHandler implements PageHandler
 
     public function supportedExtensions(): array
     {
-        return ['md'];
+        return ['latte'];
     }
 
     public function handle(ServerRequestInterface $request, string $file, string $ext): ?RouteResult
@@ -46,10 +42,8 @@ readonly class NewMarkdownLatteHandler implements PageHandler
 
     public function action(string $file): ResponseInterface
     {
-        $page = $this->loader->load($file);
-        $template = $this->templateRoot . '/' . ($page->template ?: 'blog-page.latte');
-        $output = $this->latte->renderToString($template, $page->toTemplateParameters());
+        $page = $this->latte->renderToString($file);
 
-        return $this->builder->ok($output);
+        return $this->builder->ok($page);
     }
 }

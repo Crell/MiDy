@@ -24,15 +24,14 @@ use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
-use Crell\MiDy\PageHandlerListeners\MarkdownLatteHandler;
-use Crell\MiDy\PageHandlers\NewLatteHandler;
-use Crell\MiDy\PageHandlers\NewMarkdownLatteHandler;
-use Crell\MiDy\PageHandlers\NewPhpHandler;
-use Crell\MiDy\PageHandlers\NewStaticFileHandler;
+use Crell\MiDy\PageHandlerListeners\MarkdownLatteHandlerListener;
+use Crell\MiDy\PageHandlers\LatteHandler;
+use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
+use Crell\MiDy\PageHandlers\PhpHandler;
+use Crell\MiDy\PageHandlers\StaticFileHandler;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter;
 use Crell\MiDy\Router\HandlerRouter;
-use Crell\MiDy\Router\MappedRouter;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
@@ -152,13 +151,13 @@ class MiDy implements RequestHandlerInterface
             EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
             HandlerRouter::class => autowire()
                 ->constructorParameter('routesPath', get('paths.routes'))
-                ->method('addHandler', get(NewStaticFileHandler::class))
-                ->method('addHandler', get(NewLatteHandler::class))
-                ->method('addHandler', get(NewMarkdownLatteHandler::class))
-                ->method('addHandler', get(NewPhpHandler::class))
+                ->method('addHandler', get(StaticFileHandler::class))
+                ->method('addHandler', get(LatteHandler::class))
+                ->method('addHandler', get(MarkdownLatteHandler::class))
+                ->method('addHandler', get(PhpHandler::class))
             ,
             Router::class => get(DelegatingRouter::class),
-            NewMarkdownLatteHandler::class => autowire()
+            MarkdownLatteHandler::class => autowire()
                 ->constructorParameter('templateRoot', get('paths.templates'))
             ,
         ]);
@@ -228,7 +227,7 @@ class MiDy implements RequestHandlerInterface
 
         // MarkdownLatteHandler related stuff
         $containerBuilder->addDefinitions([
-            MarkdownLatteHandler::class => autowire()
+            MarkdownLatteHandlerListener::class => autowire()
                 ->constructorParameter('templateRoot', get('paths.templates')),
             // Because the file name it gets passed will already be absolute.
             MarkdownPageLoader::class => autowire()
@@ -266,10 +265,10 @@ class MiDy implements RequestHandlerInterface
         $finder = new ClassFinder();
 
         $listenerList = function () use ($finder) {
-            yield from $finder->find($this->appRoot . '/src/PageHandlerListeners');
+            //yield from $finder->find($this->appRoot . '/src/PageHandlerListeners');
         };
 
-        foreach ($listenerList() as $class) {
+        foreach ($listenerList() ?? [] as $class) {
             // For the moment, only support class listeners and don't compile things.
             // We can optimize later with a compiled provider.
             $provider->listenerService($class);

@@ -8,7 +8,7 @@ use Crell\MiDy\Router\RouteResolution;
 use Crell\MiDy\Router\RouteSuccess;
 use Psr\Container\ContainerInterface;
 
-class PhpHandler
+class PhpHandlerListener
 {
     private array $supportedMethods = [
         'get', 'post', 'head', 'put', 'delete'

@@ -12,7 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
-readonly class StaticFileHandler
+readonly class StaticFileHandlerListener
 {
     public function __construct(
         private ResponseBuilder $builder,
