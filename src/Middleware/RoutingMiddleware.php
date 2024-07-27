@@ -11,7 +11,6 @@ use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
-use Crell\MiDy\Router\EventRouter;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Psr\EventDispatcher\EventDispatcherInterface;
