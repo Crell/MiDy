@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageHandlers;
+namespace Crell\MiDy\PageHandlerListeners;
 
 use Crell\MiDy\Router\RouteResolution;
 use Crell\MiDy\Router\RouteSuccess;
@@ -24,13 +24,13 @@ readonly class LatteHandler
             return;
         }
 
-        if (in_array("{$event->path}.latte", $event->candidates, true)) {
+        if (in_array("{$event->routesPath}{$event->requestPath->normalizedPath}.latte", $event->candidates, true)) {
             $event->routingResult(
                 new RouteSuccess(
                     action: $this->action(...),
                     method: 'GET',
                     vars: [
-                        'file' => "{$event->path}.latte",
+                        'file' => "{$event->routesPath}{$event->requestPath->normalizedPath}.latte",
                     ],
                 )
             );

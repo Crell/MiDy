@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageHandlers;
+namespace Crell\MiDy\PageHandlerListeners;
 
 use Crell\MiDy\Router\RouteResolution;
 use Crell\MiDy\Router\RouteSuccess;
@@ -20,8 +20,8 @@ class PhpHandler
 
     public function __invoke(RouteResolution $event): void
     {
-        if (in_array("{$event->path}.php", $event->candidates, true)) {
-            $actionObject = $this->loadAction("{$event->path}.php");
+        if (in_array("{$event->routesPath}{$event->requestPath->normalizedPath}.php", $event->candidates, true)) {
+            $actionObject = $this->loadAction("{$event->routesPath}{$event->requestPath->normalizedPath}.php");
 
             $method = $event->request->getMethod();
             if (method_exists($actionObject, $method)) {
@@ -30,7 +30,7 @@ class PhpHandler
                         action: $actionObject->$method(...),
                         method: strtoupper($method),
                         vars: [
-                            'file' => "{$event->path}.php",
+                            'file' => "{$event->routesPath}{$event->requestPath->normalizedPath}.php",
                         ],
                     )
                 );

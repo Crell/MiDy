@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageHandlers;
+namespace Crell\MiDy\PageHandlerListeners;
 
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\Router\RouteResolution;
@@ -26,13 +26,13 @@ readonly class MarkdownLatteHandler
             return;
         }
 
-        if (in_array("{$event->path}.md", $event->candidates, true)) {
+        if (in_array("{$event->routesPath}{$event->requestPath->normalizedPath}.md", $event->candidates, true)) {
             $event->routingResult(
                 new RouteSuccess(
                     action: $this->action(...),
                     method: 'GET',
                     vars: [
-                        'file' => "{$event->path}.md",
+                        'file' => "{$event->routesPath}{$event->requestPath->normalizedPath}.md",
                     ],
                 )
             );
@@ -42,9 +42,7 @@ readonly class MarkdownLatteHandler
     public function action(string $file): ResponseInterface
     {
         $page = $this->loader->load($file);
-
         $template = $this->templateRoot . '/' . ($page->template ?: 'blog-page.latte');
-
         $output = $this->latte->renderToString($template, $page->toTemplateParameters());
 
         return $this->builder->ok($output);

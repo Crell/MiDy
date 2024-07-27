@@ -13,8 +13,9 @@ class RouteResolution implements StoppableEventInterface
 
     public function __construct(
         public readonly ServerRequestInterface $request,
-        public readonly string $path,
+        public readonly RequestPath $requestPath,
         public readonly array $candidates,
+        public readonly string $routesPath,
     ) {}
 
     public function routingResult(RouteResult $result): void

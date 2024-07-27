@@ -16,8 +16,9 @@ readonly class EventRouter implements Router
 
     public function route(ServerRequestInterface $request): RouteResult
     {
-        [$requestPath, $ext] = $this->getRequestPath($request);
-        $candidates = $this->getFilePaths($requestPath, $ext);
+        /** @var RequestPath $requestPath */
+        $requestPath = $request->getAttribute(RequestPath::class);
+        $candidates = $this->getFilePaths($requestPath);
 
         if (!$candidates) {
             return new RouteNotFound();
@@ -28,30 +29,14 @@ readonly class EventRouter implements Router
             $request,
             $requestPath,
             $candidates,
+            $this->routesPath,
         ));
 
         return $event->routeResult ?? new RouteMethodNotAllowed([]);
     }
 
-    private function getRequestPath(ServerRequestInterface $request): array
+    private function getFilePaths(RequestPath $requestPath): array
     {
-        $path = $request->getUri()->getPath();
-
-        if ($path === '/') {
-            $path = '/home';
-        }
-
-        if (str_contains($path, '.')) {
-            [$path, $ext] = \explode('.', $path);
-        } else {
-            $ext = '*';
-        }
-
-        return [$this->routesPath . $path, $ext];
-    }
-
-    private function getFilePaths(string $requestPath, string $ext = '*'): array
-    {
-        return glob("$requestPath.$ext");
+        return glob("{$this->routesPath}{$requestPath->normalizedPath}.{$requestPath->ext}");
     }
 }
