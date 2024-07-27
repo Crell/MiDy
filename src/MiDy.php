@@ -22,16 +22,18 @@ use Crell\MiDy\Middleware\DeriveFormatMiddleware;
 use Crell\MiDy\Middleware\EnforceHeadMiddleware;
 use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
+use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
 use Crell\MiDy\PageHandlerListeners\MarkdownLatteHandler;
+use Crell\MiDy\PageHandlers\NewStaticFileHandler;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter;
+use Crell\MiDy\Router\HandlerRouter;
 use Crell\MiDy\Router\MappedRouter;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\RuntimeActionInvoker;
-use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -141,10 +143,14 @@ class MiDy implements RequestHandlerInterface
         // Routing
         $containerBuilder->addDefinitions([
             DelegatingRouter::class => autowire()
-                ->constructorParameter('default', get(EventRouter::class))
+                ->constructorParameter('default', get(HandlerRouter::class))
                 ->method('delegateTo', '/aggregateblog', get(MappedRouter::class))
             ,
             EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
+            HandlerRouter::class => autowire()
+                ->constructorParameter('routesPath', get('paths.routes'))
+                ->method('addHandler', get(NewStaticFileHandler::class))
+            ,
             MappedRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
             Router::class => get(DelegatingRouter::class),
         ]);
