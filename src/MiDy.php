@@ -65,7 +65,7 @@ class MiDy implements RequestHandlerInterface
 {
     public readonly ContainerInterface $container;
 
-    public function __construct()
+    public function __construct(private readonly string $appRoot = '..')
     {
         $this->container = $this->buildContainer();
         $this->setupListeners();
@@ -80,7 +80,7 @@ class MiDy implements RequestHandlerInterface
         $finder = new ClassFinder();
 
         $codePaths = [
-            '../src/',
+            $this->appRoot . '/src/',
         ];
 
         foreach ($codePaths as $path) {
@@ -93,12 +93,12 @@ class MiDy implements RequestHandlerInterface
 
         $containerBuilder->addDefinitions([
             // Paths.  Todo: Make this configurable.
-            'paths.routes' => value(\realpath('../routes')),
-            'paths.config' => value(\realpath('../configuration')),
-            'paths.cache' => value(\realpath('../cache')),
-            'paths.cache.config' => value(\realpath('../cache/config')),
-            'paths.cache.latte' => value(\realpath('../cache/latte')),
-            'paths.templates' => value(\realpath('../templates')),
+            'paths.routes' => value(\realpath($this->appRoot . '/routes')),
+            'paths.config' => value(\realpath($this->appRoot . '/configuration')),
+            'paths.cache' => value(\realpath($this->appRoot . '/cache')),
+            'paths.cache.config' => value(\realpath($this->appRoot . '/cache/config')),
+            'paths.cache.latte' => value(\realpath($this->appRoot . '/cache/latte')),
+            'paths.templates' => value(\realpath($this->appRoot . '/templates')),
         ]);
 
         // Configuration
@@ -214,7 +214,7 @@ class MiDy implements RequestHandlerInterface
         ]);
 
         $configPaths = [
-            '../src/Config',
+            $this->appRoot . '/src/Config',
         ];
 
         foreach ($configPaths as $path) {
@@ -236,8 +236,8 @@ class MiDy implements RequestHandlerInterface
         $provider = $this->container->get(OrderedListenerProvider::class);
         $finder = new ClassFinder();
 
-        $listenerList = static function () use ($finder) {
-            yield from $finder->find('../src/PageHandlers');
+        $listenerList = function () use ($finder) {
+            yield from $finder->find($this->appRoot . '/src/PageHandlerListeners');
         };
 
         foreach ($listenerList() as $class) {
