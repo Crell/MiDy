@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDyMiDy\Middleware;
+namespace Crell\MiDy\Middleware;
 
 use Crell\MiDy\Documents\User;
 use Crell\MiDy\Services\Authentication\UserAuthenticator;
