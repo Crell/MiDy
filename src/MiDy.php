@@ -25,6 +25,9 @@ use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
 use Crell\MiDy\PageHandlerListeners\MarkdownLatteHandler;
+use Crell\MiDy\PageHandlers\NewLatteHandler;
+use Crell\MiDy\PageHandlers\NewMarkdownLatteHandler;
+use Crell\MiDy\PageHandlers\NewPhpHandler;
 use Crell\MiDy\PageHandlers\NewStaticFileHandler;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter;
@@ -150,8 +153,14 @@ class MiDy implements RequestHandlerInterface
             HandlerRouter::class => autowire()
                 ->constructorParameter('routesPath', get('paths.routes'))
                 ->method('addHandler', get(NewStaticFileHandler::class))
+                ->method('addHandler', get(NewLatteHandler::class))
+                ->method('addHandler', get(NewMarkdownLatteHandler::class))
+                ->method('addHandler', get(NewPhpHandler::class))
             ,
             Router::class => get(DelegatingRouter::class),
+            NewMarkdownLatteHandler::class => autowire()
+                ->constructorParameter('templateRoot', get('paths.templates'))
+            ,
         ]);
 
         // Tukio Event Dispatcher

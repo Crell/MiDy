@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageHandlers;
 
-use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\Router\PageHandler;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
+use Latte\Engine;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 
-readonly class NewStaticFileHandler implements PageHandler
+readonly class NewLatteHandler implements PageHandler
 {
     public function __construct(
         private ResponseBuilder $builder,
-        private StreamFactoryInterface $streamFactory,
-        private StaticRoutes $config,
+        private Engine $latte,
     ) {}
 
     public function supportedMethods(): array
@@ -28,28 +26,24 @@ readonly class NewStaticFileHandler implements PageHandler
 
     public function supportedExtensions(): array
     {
-        return array_keys($this->config->allowedExtensions);
+        return ['latte'];
     }
 
     public function handle(ServerRequestInterface $request, string $file, string $ext): ?RouteResult
     {
-        $contentType = $this->config->allowedExtensions[$ext];
-
         return new RouteSuccess(
             action: $this->action(...),
-            method: $request->getMethod(),
+            method: 'GET',
             vars: [
                 'file' => $file,
-                'contentType' => $contentType,
             ],
         );
     }
 
-    public function action(string $file, string $contentType): ResponseInterface
+    public function action(string $file): ResponseInterface
     {
-        $stream = $this->streamFactory->createStreamFromFile($file);
-        $stream->rewind();
+        $page = $this->latte->renderToString($file);
 
-        return $this->builder->ok($stream, $contentType);
+        return $this->builder->ok($page);
     }
 }
