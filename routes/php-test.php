@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace App\Routes;
-
 use Crell\MiDy\Services\ResponseBuilder;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
