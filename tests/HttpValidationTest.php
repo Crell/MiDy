@@ -44,6 +44,7 @@ class HttpValidationTest extends TestCase
             ['/md-test'],
             ['/png-test'],
             ['/php-test'],
+            ['/png-test.png'],
         ];
     }
     
