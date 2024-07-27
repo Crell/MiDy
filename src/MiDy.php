@@ -144,14 +144,13 @@ class MiDy implements RequestHandlerInterface
         $containerBuilder->addDefinitions([
             DelegatingRouter::class => autowire()
                 ->constructorParameter('default', get(HandlerRouter::class))
-                ->method('delegateTo', '/aggregateblog', get(MappedRouter::class))
+//                ->method('delegateTo', '/aggregateblog', get(MappedRouter::class))
             ,
             EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
             HandlerRouter::class => autowire()
                 ->constructorParameter('routesPath', get('paths.routes'))
                 ->method('addHandler', get(NewStaticFileHandler::class))
             ,
-            MappedRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
             Router::class => get(DelegatingRouter::class),
         ]);
 
