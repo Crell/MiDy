@@ -135,8 +135,18 @@ class MiDy implements RequestHandlerInterface
             ,
             SapiEmitter::class => autowire(SapiEmitter::class)
             ,
-            EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
             ActionInvoker::class => get(RuntimeActionInvoker::class)
+        ]);
+
+        // Routing
+        $containerBuilder->addDefinitions([
+            DelegatingRouter::class => autowire()
+                ->constructorParameter('default', get(EventRouter::class))
+                ->method('delegateTo', '/aggregateblog', get(MappedRouter::class))
+            ,
+            EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
+            MappedRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
+            Router::class => get(DelegatingRouter::class),
         ]);
 
         // Tukio Event Dispatcher

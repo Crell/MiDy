@@ -7,6 +7,7 @@ namespace Crell\MiDy\Middleware;
 use Crell\MiDy\Errors\MethodNotAllowed;
 use Crell\MiDy\Errors\NotFound;
 use Crell\MiDy\Events\HandleError;
+use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
@@ -22,7 +23,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 readonly class RoutingMiddleware implements MiddlewareInterface
 {
     public function __construct(
-        private EventRouter $router,
+        private Router $router,
         private ResponseBuilder $responseBuilder,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
