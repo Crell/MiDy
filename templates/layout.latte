@@ -1,8 +1,9 @@
 {default $title = 'Untitled'}
+{default $siteName = ''}
 
 <html>
 <head>
-    <title>{block title}{/block}</title>
+    <title>{$siteName}: {block title}{/block}</title>
 </head>
 <body>
     <h1>{$title}</h1>

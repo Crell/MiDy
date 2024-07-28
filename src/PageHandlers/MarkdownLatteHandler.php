@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageHandlers;
 
+use Crell\MiDy\Config\TemplateVariables;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\Router\PageHandler;
 use Crell\MiDy\Router\RouteResolution;
@@ -21,6 +22,7 @@ readonly class MarkdownLatteHandler implements PageHandler
         private Engine $latte,
         private MarkdownPageLoader $loader,
         private string $templateRoot,
+        private TemplateVariables $templateVariables,
     ) {}
 
     public function supportedMethods(): array
@@ -48,7 +50,8 @@ readonly class MarkdownLatteHandler implements PageHandler
     {
         $page = $this->loader->load($file);
         $template = $this->templateRoot . '/' . ($page->template ?: 'blog-page.latte');
-        $output = $this->latte->renderToString($template, $page->toTemplateParameters());
+        $args = $page->toTemplateParameters() + $this->templateVariables->variables;
+        $output = $this->latte->renderToString($template, $args);
 
         return $this->builder->ok($output);
     }
