@@ -266,9 +266,10 @@ class MiDy implements RequestHandlerInterface
 
         $listenerList = function () use ($finder) {
             //yield from $finder->find($this->appRoot . '/src/PageHandlerListeners');
+            yield from $finder->find($this->appRoot . '/src/Listeners');
         };
 
-        foreach ($listenerList() ?? [] as $class) {
+        foreach ($listenerList() as $class) {
             // For the moment, only support class listeners and don't compile things.
             // We can optimize later with a compiled provider.
             $provider->listenerService($class);

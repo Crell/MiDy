@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageHandlers;
 
-use Crell\MiDy\Config\TemplateVariables;
 use Crell\MiDy\Router\PageHandler;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
-use Latte\Engine;
+use Crell\MiDy\Services\TemplateRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -17,8 +16,7 @@ readonly class LatteHandler implements PageHandler
 {
     public function __construct(
         private ResponseBuilder $builder,
-        private Engine $latte,
-        private TemplateVariables $templateVariables,
+        private TemplateRenderer $renderer,
     ) {}
 
     public function supportedMethods(): array
@@ -44,7 +42,7 @@ readonly class LatteHandler implements PageHandler
 
     public function action(string $file): ResponseInterface
     {
-        $page = $this->latte->renderToString($file, $this->templateVariables->variables);
+        $page = $this->renderer->render($file);
 
         return $this->builder->ok($page);
     }
