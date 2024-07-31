@@ -84,6 +84,7 @@ class MiDy implements RequestHandlerInterface
 
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->useAutowiring(true);
+        $containerBuilder->useAttributes(true);
 
         $finder = new ClassFinder();
 
