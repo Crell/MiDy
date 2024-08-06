@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-class PageList implements \Countable, \IteratorAggregate
+readonly class PageList implements \Countable, \IteratorAggregate
 {
     public function __construct(
         private array $nodes,

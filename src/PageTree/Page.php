@@ -8,7 +8,7 @@ class Page extends \SplFileInfo
 {
     public function __construct(
         string $filename,
-        public string $urlPath,
+        readonly public string $urlPath,
     ) {
         parent::__construct($filename);
     }

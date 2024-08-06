@@ -17,7 +17,7 @@ class Folder extends Page implements \Countable, \IteratorAggregate
     public function __construct(
         string $filename,
         string $urlPath,
-        private array $providers = [],
+        readonly private array $providers = [],
     ) {
         parent::__construct($filename, $urlPath);
     }
