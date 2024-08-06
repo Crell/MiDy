@@ -24,7 +24,6 @@ use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
-use Crell\MiDy\PageHandlerListeners\MarkdownLatteHandlerListener;
 use Crell\MiDy\PageHandlers\LatteHandler;
 use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
 use Crell\MiDy\PageHandlers\PhpHandler;
@@ -33,8 +32,9 @@ use Crell\MiDy\PageTree\DirectFileSystemProvider;
 use Crell\MiDy\PageTree\FlattenedFileSystemProvider;
 use Crell\MiDy\PageTree\Folder;
 use Crell\MiDy\Router\DelegatingRouter;
-use Crell\MiDy\Router\EventRouter;
-use Crell\MiDy\Router\HandlerRouter;
+use Crell\MiDy\Router\EventRouter\EventRouter;
+use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
+use Crell\MiDy\Router\HandlerRouter\HandlerRouter;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
@@ -279,7 +279,7 @@ class MiDy implements RequestHandlerInterface
         $finder = new ClassFinder();
 
         $listenerList = function () use ($finder) {
-            //yield from $finder->find($this->appRoot . '/src/PageHandlerListeners');
+            //yield from $finder->find($this->appRoot . '/src/Router\EventRouter\PageHandlerListeners');
             yield from $finder->find($this->appRoot . '/src/Listeners');
         };
 

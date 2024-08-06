@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Crell\MiDy\Router;
 
 use Crell\MiDy\MiDy;
+use Crell\MiDy\Router\HandlerRouter\HandlerRouter;
+use Crell\MiDy\Router\HandlerRouter\PageHandler;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use PHPUnit\Framework\Attributes\Test;

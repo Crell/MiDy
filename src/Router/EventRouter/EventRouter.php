@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Router;
+namespace Crell\MiDy\Router\EventRouter;
 
+use Crell\MiDy\Router\RequestPath;
+use Crell\MiDy\Router\RouteMethodNotAllowed;
+use Crell\MiDy\Router\RouteNotFound;
+use Crell\MiDy\Router\Router;
+use Crell\MiDy\Router\RouteResult;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

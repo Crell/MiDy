@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Router;
+namespace Crell\MiDy\Router\EventRouter;
 
+use Crell\MiDy\Router\RequestPath;
+use Crell\MiDy\Router\RouteResult;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

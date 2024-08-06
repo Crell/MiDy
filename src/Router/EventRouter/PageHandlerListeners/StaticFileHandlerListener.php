@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageHandlerListeners;
+namespace Crell\MiDy\Router\EventRouter\PageHandlerListeners;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\Router\RouteResolution;
+use Crell\MiDy\Router\EventRouter\RouteResolution;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
 readonly class StaticFileHandlerListener

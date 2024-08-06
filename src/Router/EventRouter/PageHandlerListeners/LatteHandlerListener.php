@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageHandlerListeners;
+namespace Crell\MiDy\Router\EventRouter\PageHandlerListeners;
 
-use Crell\MiDy\Router\RouteResolution;
+use Crell\MiDy\Router\EventRouter\RouteResolution;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
 use Latte\Engine;
