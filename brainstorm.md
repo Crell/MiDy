@@ -53,3 +53,41 @@ class Handler {
 ... Because the path branching and the handle selection are different levels and should be separate objects!
 
 OMG that worked!  Who knew?  Though I think the evented router still needs to change, as too much logic is living in the listeners/handlers.
+
+--------------------------
+
+OK, evented router replaced with something else.
+
+--------------------------
+
+Problem: Every file that will appear in the page tree needs metadata.  That's easy enough for Markdown files, but not for Latte or static files.  To say nothing of PHP files!
+
+Metadata we need, at minimum:
+
+* Title
+* Tags
+* Sort order
+* Publish date?
+
+Sort order is the really tricky one.  Ideally that can be done with the file name a la Grav, or with date stamps, or something.  But then translating a path to a file gets way, way trickier.
+
+For some files, a paired .meta file or similar with YAML could work.  But that will scale badly if you're building mostly Latte pages, or static, or anything but Markdown, really.
+
+It might be possible to squeeze a {frontmatter} block into Latte files, but that doesn't solve the main issue.  Excrement.
+
+Even then, performance becomes an issue.  Trying to query across the file system will be not-fast, unless it gets cached very effectively.  But with hand editing of files, it's really hard to know when to update the cache.
+
+So what data could be squeezed into the file system naming, in a consistent fashion, given the plan to have different paths have different rules???
+
+```php
+glob('foo/bar/*.*');
+```
+
+Thought: Just like different paths can have a different router, they can also have a different provider.  Or, maybe the provider is all we need?  The provider handles determining what paths map to what files in that subtree.
+
+Caching could be done at any level as needed.  Does the route provider differ from the handler?  Maybe...  For now, let's try just eating the cost of no-caching and see what happens.
+
+The page tree should then be lazy!  That way it can pull from selected parts of the tree as needed, only as far as needed.
+
+$page->children(): array<Page>
+
