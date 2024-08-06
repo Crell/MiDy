@@ -23,7 +23,28 @@ trait FakeFilesystem
     protected function getStructure(): array
     {
         return [
-            'cache' => [],
+            'multi_provider' => [
+                'grouped' => [
+                    '2021' => [
+                        'a.md' => '',
+                        'b.md' => '',
+                        'c.md' => '',
+                    ],
+                    '2022' => [
+                        'd.md' => '',
+                        'e.md' => '',
+                        'f.md' => '',
+                    ],
+                ],
+                'ungrouped' => [
+                    'a.md' => '',
+                    'b.md' => '',
+                    'c.md' => '',
+                    'd.md' => '',
+                    'e.md' => '',
+                    'f.md' => '',
+                ],
+            ],
             'data' => [
                 'empty' => [],
                 'dir1' => [

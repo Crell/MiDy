@@ -8,7 +8,7 @@ use Crell\MiDy\FakeFilesystem;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class DirectFileSystemProviderTest extends TestCase
+class FlattenedFileSystemProviderTest extends TestCase
 {
     use FakeFilesystem;
 
@@ -21,11 +21,11 @@ class DirectFileSystemProviderTest extends TestCase
     #[Test]
     public function basic() : void
     {
-        $filePath = $this->dataDir->url();
-        $provider = new DirectFileSystemProvider($filePath);
+        $filePath = $this->root->getChild('multi_provider')->url();
+        $provider = new FlattenedFileSystemProvider($filePath);
 
-        $children = $provider->children('/');
-        self::assertCount(7, $children);
+        $children = $provider->children('/grouped');
+        self::assertCount(6, $children);
     }
 
 }
