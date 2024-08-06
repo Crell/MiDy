@@ -9,12 +9,13 @@ class Page extends \SplFileInfo
     public function __construct(
         string $filename,
         readonly public string $urlPath,
+        readonly public string $title,
     ) {
         parent::__construct($filename);
     }
 
     public function title(): string
     {
-        return "Untitled";
+        return $this->title;
     }
 }
