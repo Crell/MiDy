@@ -8,13 +8,13 @@ If you believe you've found a security issue in software that is maintained in t
 
 | Version | In scope | Source code |
 | ------- | -------- | ----------- |
-| latest  | ✅ | https://github.com/Crell/fp |
+| latest  | ✅ | https://github.com/Crell/MiDy |
 
 Only the latest stable release of this library is supported.  In general, bug and security fixes will not be backported unless there is a substantial imminent threat to users in not doing so.  
 
 # How to Submit a Report
 
-To submit a vulnerability report, please contact us through [GitHub](https://github.com/Crell/fp/security). Your submission will be reviewed as soon as feasible, but as this is a volunteer project we cannot guarantee a response time.
+To submit a vulnerability report, please contact us through [GitHub](https://github.com/Crell/MiDy/security). Your submission will be reviewed as soon as feasible, but as this is a volunteer project we cannot guarantee a response time.
 
 # Safe Harbor
 
