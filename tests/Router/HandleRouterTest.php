@@ -58,8 +58,8 @@ class HandleRouterTest extends TestCase
             }
         });
 
-        $request = $this->makeRequest('/blog/blog-three')
-            ->withAttribute(RequestPath::class, new RequestPath('/blog/blog-three'))
+        $request = $this->makeRequest('/subdir/page-three')
+            ->withAttribute(RequestPath::class, new RequestPath('/subdir/page-three'))
             ->withAttribute(RequestFormat::class, new RequestFormat('text/html', 'text/html'));
 
         $result = $router->route($request);
