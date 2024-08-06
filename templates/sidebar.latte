@@ -1,7 +1,4 @@
-<ul>
-    <li><a href="html-test">html-test</a></li>
-    <li><a href="latte-test">latte-test</a></li>
-    <li><a href="md-test">md-test</a></li>
-    <li><a href="php-test">php-test</a></li>
-    <li><a href="png-test">png-test</a></li>
+
+<ul n:inner-foreach="$root->children() as $page">
+    <li><a href="{$page->urlPath}">{$page->title()}</a></li>
 </ul>
