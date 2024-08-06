@@ -1,9 +1,10 @@
-# Some Library
+# MiDy
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
 [![Total Downloads][ico-downloads]][link-downloads]
 
+A tool for building Mildly Dynamic websites, with morea features than you would expect.
 
 ## Contributing
 
