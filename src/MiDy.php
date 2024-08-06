@@ -168,7 +168,6 @@ class MiDy implements RequestHandlerInterface
             DirectFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
             FlattenedFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
             'path_root' => create(Folder::class)->constructor(
-                filename: get('paths.routes'),
                 urlPath: '/',
                 providers: [
                     '/' => get(DirectFileSystemProvider::class),

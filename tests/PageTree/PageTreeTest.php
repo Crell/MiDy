@@ -22,14 +22,14 @@ class PageTreeTest extends TestCase
     {
         $filePath = $this->dataDir->url();
         $provider = new DirectFileSystemProvider($filePath);
-        return new Folder($filePath, '/', ['/' => $provider]);
+        return new Folder('/', ['/' => $provider]);
     }
 
     #[Test]
     public function root_test(): void
     {
         $root = $this->root();
-        self::assertEquals('data', $root->getFilename());
+        self::assertEquals('Home', $root->title());
         self::assertFalse($root->isFile());
         self::assertTrue($root->isDir());
 

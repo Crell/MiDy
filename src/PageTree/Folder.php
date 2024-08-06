@@ -15,12 +15,11 @@ class Folder extends Page implements \Countable, \IteratorAggregate
      * @param array<string, RouteProvider> $providers
      */
     public function __construct(
-        string $filename,
         string $urlPath,
         readonly private array $providers = [],
         string $title = 'Home',
     ) {
-        parent::__construct($filename, $urlPath, $title);
+        parent::__construct($urlPath, $title);
     }
 
     public function getIterator(): \Traversable
@@ -31,6 +30,11 @@ class Folder extends Page implements \Countable, \IteratorAggregate
     public function count(): int
     {
         return count($this->children());
+    }
+
+    public function type(): PageType
+    {
+        return PageType::Folder;
     }
 
     public function child(string $name): Page|Folder|null
@@ -50,8 +54,8 @@ class Folder extends Page implements \Countable, \IteratorAggregate
         foreach ($children as $name => $filePath) {
             $childUrlPath = rtrim($this->urlPath, '/') . "/$name";
             $children[$name] = is_dir($filePath)
-                ? new Folder($filePath,  $childUrlPath, $relevantProviders, ucfirst($name))
-                : new Page($filePath, $childUrlPath, ucfirst($name));
+                ? new Folder($childUrlPath, $relevantProviders, ucfirst($name))
+                : new Page($childUrlPath, ucfirst($name));
         }
 
         // Sorting goes here, eventually.
