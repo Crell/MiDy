@@ -29,6 +29,9 @@ use Crell\MiDy\PageHandlers\LatteHandler;
 use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
 use Crell\MiDy\PageHandlers\PhpHandler;
 use Crell\MiDy\PageHandlers\StaticFileHandler;
+use Crell\MiDy\PageTree\DirectFileSystemProvider;
+use Crell\MiDy\PageTree\FlattenedFileSystemProvider;
+use Crell\MiDy\PageTree\Folder;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter;
 use Crell\MiDy\Router\HandlerRouter;
@@ -65,6 +68,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 use function DI\autowire;
+use function DI\create;
 use function DI\factory;
 use function DI\get;
 use function DI\value;
@@ -161,6 +165,16 @@ class MiDy implements RequestHandlerInterface
             MarkdownLatteHandler::class => autowire()
                 ->constructorParameter('templateRoot', get('paths.templates'))
             ,
+            DirectFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
+            FlattenedFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
+            'path_root' => create(Folder::class)->constructor(
+                filename: get('paths.routes'),
+                urlPath: '/',
+                providers: [
+                    '/' => get(DirectFileSystemProvider::class),
+                    '/aggregateblog' => get(FlattenedFileSystemProvider::class),
+                ],
+            ),
         ]);
 
         // Tukio Event Dispatcher

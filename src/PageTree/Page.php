@@ -12,4 +12,9 @@ class Page extends \SplFileInfo
     ) {
         parent::__construct($filename);
     }
+
+    public function title(): string
+    {
+        return "Untitled";
+    }
 }

@@ -25,6 +25,11 @@
 {$mdItalic|markdown}
 {$mdList|markdown}
 
+    <ul n:inner-foreach="$root->children() as $page">
+        <li><a href="{$page->urlPath}">{$page->title()}</a></li>
+    </ul>
+
+
 <div>
 {block |indent}
 <p>Hello</p>
