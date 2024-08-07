@@ -10,6 +10,8 @@ use function Crell\fp\afilterWithKeys;
 
 class Folder extends Page implements \Countable, \IteratorAggregate
 {
+    private readonly PageList $children;
+
     /**
      * @param array<string, Page> $pages
      * @param array<string, RouteProvider> $providers
@@ -43,6 +45,11 @@ class Folder extends Page implements \Countable, \IteratorAggregate
     }
 
     public function children(): PageList
+    {
+        return $this->children ??= $this->computeChildren();
+    }
+
+    public function computeChildren(): PageList
     {
         $relevantProviders = $this->findRelevantProviders();
 
