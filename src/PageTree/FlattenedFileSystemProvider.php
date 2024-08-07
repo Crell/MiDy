@@ -8,7 +8,8 @@ class FlattenedFileSystemProvider extends GlobFileSystemProvider
 {
     protected function getGlobPattern(string $path): string
     {
-        return $this->rootPath . rtrim($path, '/') . '/**/*.*';
+        $basePath = str_replace($path, '', $this->rootPath);
+        return $basePath . rtrim($path, '/') . '/**/*.*';
     }
 }
 

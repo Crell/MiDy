@@ -20,6 +20,11 @@ trait FakeFilesystem
         $this->dataDir = $this->root->getChild('data');
     }
 
+    protected function usingRoot(string $name): vfsStreamContent
+    {
+        return $this->root->getChild($name);
+    }
+
     protected function getStructure(): array
     {
         return [
@@ -43,6 +48,34 @@ trait FakeFilesystem
                     'd.md' => '',
                     'e.md' => '',
                     'f.md' => '',
+                ],
+            ],
+            'nested_provider' => [
+                'a.txt.' => '',
+                'b.txt.' => '',
+                'grouped' => [
+                    '2021' => [
+                        'a.md' => '',
+                        'b.md' => '',
+                        'c.md' => '',
+                    ],
+                    '2022' => [
+                        'd.md' => '',
+                        'e.md' => '',
+                        'f.md' => '',
+                    ],
+                ],
+            ],
+            'overlapping_provider' => [
+                'a.txt' => '',
+                'b.txt' => '',
+                '2021' => [
+                    'c.txt',
+                    'd.txt',
+                ],
+                '2022' => [
+                    'e.txt',
+                    'f.txt',
                 ],
             ],
             'data' => [

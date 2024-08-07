@@ -47,15 +47,21 @@ class Folder extends Page implements \Countable, \IteratorAggregate
         $relevantProviders = $this->findRelevantProviders();
 
         $children = [];
-        foreach ($relevantProviders as $provider) {
+        /** @var RouteProvider $provider */
+        foreach ($relevantProviders as $providerPrefix =>  $provider) {
             $providerChildren = $provider->children($this->urlPath);
-            $children += $providerChildren;
-        }
-        foreach ($children as $name => $filePath) {
-            $childUrlPath = rtrim($this->urlPath, '/') . "/$name";
-            $children[$name] = is_dir($filePath)
-                ? new Folder($childUrlPath, $relevantProviders, ucfirst($name))
-                : new Page($childUrlPath, ucfirst($name));
+            foreach ($providerChildren as $name => $filePath) {
+                // Because the file name is used as an array key,
+                // if it is numeric, PHP will helpfully coerce it to an int
+                // for us.  But that breaks using it as a string, so we have
+                // to undo that.  Silly PHP.
+                $name = (string)$name;
+                $childUrlPath = rtrim($this->urlPath, '/') . "/$name";
+                $childProviders = $this->findChildProviders($childUrlPath) ?: [$providerPrefix => $provider];
+                $children[$name] = is_dir($filePath)
+                    ? new Folder($childUrlPath, $childProviders, ucfirst($name))
+                    : new Page($childUrlPath, ucfirst($name));
+            }
         }
 
         // Sorting goes here, eventually.
@@ -71,5 +77,19 @@ class Folder extends Page implements \Countable, \IteratorAggregate
     private function relevantProvider(RouteProvider $provider, string $prefix): bool
     {
         return str_starts_with($this->urlPath, $prefix);
+    }
+
+    /**
+     * Returns just those providers that are relevant for the specified sub-path.
+     */
+    private function findChildProviders(string $path): iterable
+    {
+        $ret = [];
+        foreach ($this->providers as $prefix => $provider) {
+            if (str_starts_with($prefix, $path)) {
+                $ret[$prefix] = $provider;
+            }
+        }
+        return $ret;
     }
 }

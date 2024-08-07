@@ -9,8 +9,7 @@ class Page
     public function __construct(
         readonly public string $urlPath,
         readonly public string $title,
-    ) {
-    }
+    ) {}
 
     public function type(): PageType
     {

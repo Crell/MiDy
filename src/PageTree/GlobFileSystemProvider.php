@@ -20,10 +20,10 @@ abstract class GlobFileSystemProvider implements RouteProvider
     /**
      * @param string $path
      *   The relative path.
-     * @return iterable<string, string>
+     * @return array<string, string>
      *   The logical name of the child, mapped to its absolute file path.
      */
-    public function children(string $path): iterable
+    public function children(string $path): array
     {
         $files = Glob::glob($this->getGlobPattern($path));
 

@@ -6,5 +6,5 @@ namespace Crell\MiDy\PageTree;
 
 interface RouteProvider
 {
-    public function children(string $path): iterable;
+    public function children(string $path): array;
 }
