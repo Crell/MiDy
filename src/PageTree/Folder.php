@@ -57,10 +57,12 @@ class Folder extends Page implements \Countable, \IteratorAggregate
                 // to undo that.  Silly PHP.
                 $name = (string)$name;
                 $childUrlPath = rtrim($this->urlPath, '/') . "/$name";
-                $childProviders = $this->findChildProviders($childUrlPath) ?: [$providerPrefix => $provider];
-                $children[$name] = is_dir($filePath)
-                    ? new Folder($childUrlPath, $childProviders, ucfirst($name))
-                    : new Page($childUrlPath, ucfirst($name));
+                if (is_dir($filePath)) {
+                    $childProviders = $this->findChildProviders($childUrlPath) ?: [$providerPrefix => $provider];
+                    $children[$name] = new Folder($childUrlPath, $childProviders, ucfirst($name));
+                } else {
+                    $children[$name] = new Page($childUrlPath, ucfirst($name));
+                }
             }
         }
 
