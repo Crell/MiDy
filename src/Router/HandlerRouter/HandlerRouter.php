@@ -10,6 +10,7 @@ use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Router\RouteResult;
 use Psr\Http\Message\ServerRequestInterface;
+use Webmozart\Glob\Glob;
 
 class HandlerRouter implements Router
 {
@@ -58,6 +59,6 @@ class HandlerRouter implements Router
 
     private function getFilePaths(RequestPath $requestPath): array
     {
-        return glob("{$this->routesPath}{$requestPath->normalizedPath}.{$requestPath->ext}");
+        return Glob::glob("{$this->routesPath}{$requestPath->normalizedPath}.{$requestPath->ext}");
     }
 }
