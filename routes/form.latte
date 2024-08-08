@@ -1,0 +1,12 @@
+{layout $templateRoot . '/layout.latte'}
+
+{block title}Test Form{/block}
+
+{block content}
+
+<form action="/form" method="POST">
+    <label>Name: <input type="text" name="name"></label>
+    <input type="submit" value="Submit">
+</form>
+
+{/block}
