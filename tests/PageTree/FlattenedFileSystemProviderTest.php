@@ -12,19 +12,29 @@ class FlattenedFileSystemProviderTest extends TestCase
 {
     use FakeFilesystem;
 
-    protected function setUp(): void
+    private function groupedStructure(): array
     {
-        parent::setUp();
-        $this->setupFilesystem();
+        return [
+            '2021' => [
+                'a.md' => '',
+                'b.md' => '',
+                'c.md' => '',
+            ],
+            '2022' => [
+                'd.md' => '',
+                'e.md' => '',
+                'f.md' => '',
+            ],
+        ];
     }
 
     #[Test]
     public function basic() : void
     {
-        $filePath = $this->root->getChild('multi_provider')->url();
+        $filePath = $this->makeFilesystemFrom($this->groupedStructure(...))->url();
         $provider = new FlattenedFileSystemProvider($filePath);
 
-        $children = $provider->children('/grouped');
+        $children = $provider->children('/');
         self::assertCount(6, $children);
     }
 

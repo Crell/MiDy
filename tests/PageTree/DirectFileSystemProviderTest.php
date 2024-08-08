@@ -12,20 +12,14 @@ class DirectFileSystemProviderTest extends TestCase
 {
     use FakeFilesystem;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->setupFilesystem();
-    }
-
     #[Test]
     public function basic() : void
     {
-        $filePath = $this->dataDir->url();
+        $filePath = $this->makeFilesystemFrom($this->realisticStructure(...))->url();
+
         $provider = new DirectFileSystemProvider($filePath);
 
         $children = $provider->children('/');
         self::assertCount(7, $children);
     }
-
 }
