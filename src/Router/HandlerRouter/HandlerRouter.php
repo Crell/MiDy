@@ -39,22 +39,27 @@ class HandlerRouter implements Router
 
         $candidates = $this->getFilePaths($requestPath);
 
+        if (empty($candidates)) {
+            return new RouteNotFound();
+        }
+
+        $possibleMethods = [];
         foreach ($candidates as $candidate) {
             $ext = pathinfo($candidate, PATHINFO_EXTENSION);
-            $possibleMethods = $this->handlerMap[$ext] ?? [];
-            if (!isset($possibleMethods[$method])) {
-                return new RouteMethodNotAllowed($possibleMethods);
-            }
+            $possibleMethods += $this->handlerMap[$ext] ?? [];
 
             /** @var PageHandler $handler */
-            foreach ($this->handlerMap[$ext][$method] as $handler) {
+            foreach ($this->handlerMap[$ext][$method] ?? [] as $handler) {
                 if ($result = $handler->handle($request, $candidate, $ext)) {
                     return $result;
                 }
             }
         }
 
-        return new RouteNotFound();
+        // There was a candidate, so it's not unfound. But
+        // nothing handled it, which means nothing could deal with
+        // that file type and method.  So we'll call that a method error.
+        return new RouteMethodNotAllowed($possibleMethods);
     }
 
     private function getFilePaths(RequestPath $requestPath): array
