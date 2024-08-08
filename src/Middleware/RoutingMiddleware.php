@@ -43,7 +43,7 @@ readonly class RoutingMiddleware implements MiddlewareInterface
         if ($result instanceof RouteMethodNotAllowed) {
             /** @var HandleError $event */
             $event = $this->eventDispatcher->dispatch(new HandleError(new MethodNotAllowed($request, $result->allowedMethods), $request));
-            return $event->getResponse() ?? $this->responseBuilder->createResponse(405, 'Not Found', 'text/plain');
+            return $event->getResponse() ?? $this->responseBuilder->createResponse(405, 'Not Allowed', 'text/plain');
         }
 
         // It should be impossible to get here, for type reasons.
