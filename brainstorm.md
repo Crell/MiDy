@@ -91,3 +91,51 @@ The page tree should then be lazy!  That way it can pull from selected parts of 
 
 $page->children(): array<Page>
 
+-----------------
+
+The delegating path provider thingie seems to be working so far, give or take some renaming and caching.  The problem is I'm still not sure how that impacts routing in a performant way.  I also still don't know how to handle fancier PHP paths.
+
+Idea: Build a find() command into Folder, which takes a glob and passes that to the appropriate providers.  How does that work with nested provider paths?
+
+I'm also still unclear exactly how to handle different file types.  I will probably need to have each file type have its own definition class, which may or may not be an instantiated child of Page.
+
+PHP file loading is still an open question, as is how to deal with off-brand extensions (sitemap.xml, etc.)  PHP file paths also dstill don't support placeholders, only GET/POST, which is sub-optimal.  But doing otherwise seems highly weird in this model.
+
+Also still need to write a Form body deserializer, likely as a Param converter.
+
+So next tasks are:
+
+1. ParamConverter for form bodies.  (These should probably get renamed ArgumentConverter?)
+2. find() for Folder.  Returns a PageList, probably.
+3. Use find() in the router, see what happens.
+4. Class-per-file-type handlers.  Unclear how that overlaps with the existing routing handlers.  Probably merges with them?
+5. Tests for form handling.
+
+Fun fact: The Page tree system treats multiple same-extension files as a single entry, because it indexes just by name.  That... may be OK?  TBD.
+
+For paths:
+
+/ = 1
+/foo = 2
+/foo/bar = 3
+
+path: /baz
+current: 1
+relevant: 1
+
+path: /
+current: 1
+relevant: 1, 2, 3
+
+path: /foo
+current: 2
+relevant: 2, 3
+
+path: /foo/bar
+current: 3
+relevant: 3
+
+path: /foo/bar/beep
+current: 3
+relevant: 3
+
