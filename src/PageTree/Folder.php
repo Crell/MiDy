@@ -6,6 +6,8 @@ namespace Crell\MiDy\PageTree;
 
 use Traversable;
 
+use Webmozart\Glob\Glob;
+
 use function Crell\fp\afilterWithKeys;
 
 class Folder extends Page implements \Countable, \IteratorAggregate
@@ -18,7 +20,7 @@ class Folder extends Page implements \Countable, \IteratorAggregate
      */
     public function __construct(
         string $urlPath,
-        readonly private array $providers = [],
+        private readonly ProviderMap $providers,
         string $title = 'Home',
     ) {
         parent::__construct($urlPath, $title);
@@ -49,7 +51,7 @@ class Folder extends Page implements \Countable, \IteratorAggregate
         return $this->children ??= $this->computeChildren();
     }
 
-    public function computeChildren(): PageList
+    private function computeChildren(): PageList
     {
         $relevantProviders = $this->findRelevantProviders();
 
@@ -57,25 +59,58 @@ class Folder extends Page implements \Countable, \IteratorAggregate
         /** @var RouteProvider $provider */
         foreach ($relevantProviders as $providerPrefix =>  $provider) {
             $providerChildren = $provider->children($this->urlPath);
-            foreach ($providerChildren as $name => $filePath) {
-                // Because the file name is used as an array key,
-                // if it is numeric, PHP will helpfully coerce it to an int
-                // for us.  But that breaks using it as a string, so we have
-                // to undo that.  Silly PHP.
-                $name = (string)$name;
-                $childUrlPath = rtrim($this->urlPath, '/') . "/$name";
-                if (is_dir($filePath)) {
-                    $childProviders = $this->findChildProviders($childUrlPath) ?: [$providerPrefix => $provider];
-                    $children[$name] = new Folder($childUrlPath, $childProviders, ucfirst($name));
-                } else {
-                    $children[$name] = new Page($childUrlPath, ucfirst($name));
-                }
-            }
+            $children += $this->instantiateFindResults($providerPrefix, $providerChildren, $provider);
         }
 
         // Sorting goes here, eventually.
 
         return new PageList($children);
+    }
+
+    public function find(string $pattern): PageList
+    {
+        $absolutePattern = rtrim($this->urlPath, '/') . '/' . ltrim($pattern, '/');
+
+        $activeProvider = $this->providers->findForPath($absolutePattern);
+
+        $found = $activeProvider->find($absolutePattern) ?? [];
+
+        $children = [];
+        foreach ($found as $name => $filePath) {
+            // Because the file name is used as an array key,
+            // if it is numeric, PHP will helpfully coerce it to an int
+            // for us.  But that breaks using it as a string, so we have
+            // to undo that.  Silly PHP.
+            $name = (string)$name;
+            $childUrlPath = rtrim($this->urlPath, '/') . "/$name";
+            if (is_dir($filePath)) {
+                $childProviders = $this->providers->filterForGlob($childUrlPath);
+                $children[$name] = new Folder($childUrlPath, $childProviders, ucfirst($name));
+            } else {
+                $children[$name] = new Page($childUrlPath, ucfirst($name));
+            }
+        }
+        return new PageList($children);
+    }
+
+    private function instantiateFindResults(string $providerPrefix, array $providerChildren, RouteProvider $provider): array
+    {
+        $children = [];
+        foreach ($providerChildren as $name => $filePath) {
+            // Because the file name is used as an array key,
+            // if it is numeric, PHP will helpfully coerce it to an int
+            // for us.  But that breaks using it as a string, so we have
+            // to undo that.  Silly PHP.
+            $name = (string)$name;
+            $childUrlPath = rtrim($this->urlPath, '/') . "/$name";
+            if (is_dir($filePath)) {
+                $childProviders = $this->providers->filterForGlob($childUrlPath);
+                $children[$name] = new Folder($childUrlPath, $childProviders, ucfirst($name));
+            } else {
+                $children[$name] = new Page($childUrlPath, ucfirst($name));
+            }
+        }
+        return $children;
     }
 
     private function findRelevantProviders(): iterable
@@ -86,19 +121,5 @@ class Folder extends Page implements \Countable, \IteratorAggregate
     private function relevantProvider(RouteProvider $provider, string $prefix): bool
     {
         return str_starts_with($this->urlPath, $prefix);
-    }
-
-    /**
-     * Returns just those providers that are relevant for the specified sub-path.
-     */
-    private function findChildProviders(string $path): iterable
-    {
-        $ret = [];
-        foreach ($this->providers as $prefix => $provider) {
-            if (str_starts_with($prefix, $path)) {
-                $ret[$prefix] = $provider;
-            }
-        }
-        return $ret;
     }
 }

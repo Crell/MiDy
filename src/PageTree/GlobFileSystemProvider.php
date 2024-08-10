@@ -27,6 +27,11 @@ abstract class GlobFileSystemProvider implements RouteProvider
     {
         $files = Glob::glob($this->getGlobPattern($path));
 
+        return $this->indexFileListByName($files);
+    }
+
+    protected function indexFileListByName(array $files): array
+    {
         $ret = [];
         foreach ($files as $file) {
             $ret[$this->logicalName($file)] = $file;
@@ -42,7 +47,7 @@ abstract class GlobFileSystemProvider implements RouteProvider
      */
     abstract protected function getGlobPattern(string $path): string;
 
-    private function logicalName(string $path): string
+    protected function logicalName(string $path): string
     {
         $pathinfo = \pathinfo($path);
 

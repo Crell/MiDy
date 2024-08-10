@@ -31,6 +31,7 @@ use Crell\MiDy\PageHandlers\StaticFileHandler;
 use Crell\MiDy\PageTree\DirectFileSystemProvider;
 use Crell\MiDy\PageTree\FlattenedFileSystemProvider;
 use Crell\MiDy\PageTree\Folder;
+use Crell\MiDy\PageTree\RootFolder;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter\EventRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
@@ -167,7 +168,7 @@ class MiDy implements RequestHandlerInterface
             ,
             DirectFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
             FlattenedFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
-            'path_root' => create(Folder::class)->constructor(
+            'path_root' => create(RootFolder::class)->constructor(
                 urlPath: '/',
                 providers: [
                     '/' => get(DirectFileSystemProvider::class),

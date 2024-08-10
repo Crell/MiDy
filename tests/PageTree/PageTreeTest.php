@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\FakeFilesystem;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +18,7 @@ class PageTreeTest extends TestCase
     {
         $filePath = $this->makeFilesystemFrom($this->realisticStructure(...))->url();
         $provider = new DirectFileSystemProvider($filePath);
-        $root = new Folder('/', ['/' => $provider]);
+        $root = new RootFolder('/', ['/' => $provider]);
 
         self::assertEquals('Home', $root->title());
         self::assertFalse($root->isFile());
@@ -31,7 +32,7 @@ class PageTreeTest extends TestCase
     {
         $filePath = $this->makeFilesystemFrom($this->realisticStructure(...))->url();
         $provider = new DirectFileSystemProvider($filePath);
-        $root = new Folder('/', ['/' => $provider]);
+        $root = new RootFolder('/', ['/' => $provider]);
 
         $dir1 = $root->child('dir1');
 
@@ -45,7 +46,7 @@ class PageTreeTest extends TestCase
     {
         $filePath = $this->makeFilesystemFrom($this->realisticStructure(...))->url();
         $provider = new DirectFileSystemProvider($filePath);
-        $root = new Folder('/', ['/' => $provider]);
+        $root = new RootFolder('/', ['/' => $provider]);
 
         $dir2 = $root->child('dir1')->child('dir2');
 
@@ -59,7 +60,7 @@ class PageTreeTest extends TestCase
     {
         $filePath = $this->makeFilesystemFrom($this->realisticStructure(...))->url();
         $provider = new DirectFileSystemProvider($filePath);
-        $root = new Folder('/', ['/' => $provider]);
+        $root = new RootFolder('/', ['/' => $provider]);
 
         $file = $root->child('index');
 
@@ -72,7 +73,7 @@ class PageTreeTest extends TestCase
     {
         $filePath = $this->makeFilesystemFrom($this->realisticStructure(...))->url();
         $provider = new DirectFileSystemProvider($filePath);
-        $root = new Folder('/', ['/' => $provider]);
+        $root = new RootFolder('/', ['/' => $provider]);
 
         $file = $root->child('dir1')->child('apage');
 
@@ -104,7 +105,7 @@ class PageTreeTest extends TestCase
     public function nested_provider(): void
     {
         $filePath = $this->makeFilesystemFrom($this->nestedProviders(...))->url();
-        $root = new Folder('/', [
+        $root = new RootFolder('/', [
             '/' => new DirectFileSystemProvider($filePath),
             '/grouped' => new FlattenedFileSystemProvider($filePath . '/grouped'),
         ]);
@@ -124,7 +125,7 @@ class PageTreeTest extends TestCase
     public function multi_provider_sub_directory(): void
     {
         $filePath = $this->makeFilesystemFrom($this->multiProviderSubDirectory(...))->url();
-        $root = new Folder('/', [
+        $root = new RootFolder('/', [
             '/' => new DirectFileSystemProvider($filePath),
             '/ungrouped' => new DirectFileSystemProvider($filePath),
             '/grouped' => new FlattenedFileSystemProvider($filePath . '/grouped'),
@@ -164,5 +165,79 @@ class PageTreeTest extends TestCase
             ],
         ];
     }
+
+    #[Test, DataProvider('findGlobExamplesDirectOnly')]
+    public function simple_provider_find_glob(string $pattern, \Closure $check): void
+    {
+        $filePath = $this->makeFilesystemFrom($this->simpleStructure(...))->url();
+        $root = new RootFolder('/', [
+            '/' => new DirectFileSystemProvider($filePath),
+        ]);
+
+        $pages = $root->find($pattern);
+
+        $check($pages);
+    }
+
+    public static function findGlobExamplesDirectOnly(): iterable
+    {
+        yield 'simple top level file' => [
+            'pattern' => 'index.*',
+            'check' => function(PageList $pages) {
+                self::assertCount(1, $pages);
+            },
+        ];
+        yield 'simple lower-level file' => [
+            'pattern' => 'dir1/dir2/subfile1.md',
+            'check' => function(PageList $pages) {
+                self::assertCount(1, $pages);
+            },
+        ];
+        yield 'multiple files in subdir' => [
+            'pattern' => 'dir1/dir2/*',
+            'check' => function(PageList $pages) {
+                self::assertCount(2, $pages);
+            },
+        ];
+        // Because it indexes by name, this should have only a single result.
+        yield 'one name, multiple extensions' => [
+            'pattern' => 'dir1/double.*',
+            'check' => function(PageList $pages) {
+                self::assertCount(1, $pages);
+            },
+        ];
+    }
+
+    #[Test, DataProvider('findGlobExamplesMixedProvider')]
+    public function multi_provider_find_glob(string $pattern, \Closure $check): void
+    {
+        $filePath = $this->makeFilesystemFrom($this->multiProviderSubDirectory(...))->url();
+        $root = new RootFolder('/', [
+            '/' => new DirectFileSystemProvider($filePath),
+            '/ungrouped/' => new DirectFileSystemProvider($filePath),
+            '/grouped/' => new FlattenedFileSystemProvider($filePath . '/grouped'),
+        ]);
+
+        $pages = $root->find($pattern);
+
+        $check($pages);
+    }
+
+    public static function findGlobExamplesMixedProvider(): iterable
+    {
+        yield 'simple direct files' => [
+            'pattern' => 'ungrouped/*',
+            'check' => function(PageList $pages) {
+                self::assertCount(4, $pages);
+            },
+        ];
+        yield 'simple grouped files' => [
+            'pattern' => 'grouped/*',
+            'check' => function(PageList $pages) {
+                self::assertCount(6, $pages);
+            },
+        ];
+    }
+
 
 }
