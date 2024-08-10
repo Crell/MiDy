@@ -66,9 +66,7 @@ readonly class PathMap implements \IteratorAggregate, \Countable
         $newPaths = array_filter($this->paths, static fn (string $itemPath): bool => str_starts_with($itemPath, $pathToMatch), ARRAY_FILTER_USE_KEY);
 
         // This finds an entry that matches this path itself, but not its children.
-        if (!isset($newPaths[$pathToMatch])) {
-            $newPaths[$pathToMatch] = $this->findForPath($pathToMatch);
-        }
+        $newPaths[$pathToMatch] ??= $this->findForPath($pathToMatch);
 
         return new static($newPaths);
     }
