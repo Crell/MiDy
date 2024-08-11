@@ -15,7 +15,7 @@ use Webmozart\Glob\Glob;
 class HandlerRouter implements Router
 {
     public function __construct(
-        private string $routesPath,
+        private readonly string $routesPath,
     ) {}
 
     /**
