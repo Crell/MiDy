@@ -6,6 +6,7 @@ namespace Crell\MiDy\Listeners;
 
 use Crell\MiDy\Config\TemplateVariables;
 use Crell\MiDy\PageTree\Folder;
+use Crell\MiDy\PageTree\RootFolder;
 use Crell\MiDy\Services\TemplatePreRender;
 use Crell\Tukio\Listener;
 use DI\Attribute\Inject;
@@ -17,8 +18,7 @@ readonly class TemplateGlobalVariables
         private TemplateVariables $templateVariables,
         #[Inject('paths.templates')]
         private string $templatePath,
-        #[Inject('path_root')]
-        private Folder $root,
+        private RootFolder $root,
     ) {}
 
     public function __invoke(TemplatePreRender $event): void
