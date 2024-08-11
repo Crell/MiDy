@@ -17,7 +17,7 @@ class FlattenedFileSystemProvider extends GlobFileSystemProvider
         return $basePath . rtrim($path, '/') . '/**/*.*';
     }
 
-    public function find(string $pattern): array
+    public function find(string $pattern, Folder $parent): PageList
     {
         // This is to avoid duplicates in the path that appear both in the
         // root for this provider and in the pattern.
@@ -31,6 +31,6 @@ class FlattenedFileSystemProvider extends GlobFileSystemProvider
 
         $files = Glob::glob($newPattern);
 
-        return $this->indexFileListByName($files);
+        return $this->indexFileListByName($files, $parent);
     }
 }

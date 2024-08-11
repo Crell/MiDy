@@ -6,6 +6,12 @@ namespace Crell\MiDy\PageTree;
 
 class Page
 {
+    /**
+     * @param string $urlPath
+     * @param string $title
+     * @param array<string, string> $files
+     *   A map from a file extension to a file path on disk.
+     */
     public function __construct(
         readonly public string $urlPath,
         readonly public string $title,

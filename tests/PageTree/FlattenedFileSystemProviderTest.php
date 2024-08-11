@@ -33,8 +33,9 @@ class FlattenedFileSystemProviderTest extends TestCase
     {
         $filePath = $this->makeFilesystemFrom($this->groupedStructure(...))->url();
         $provider = new FlattenedFileSystemProvider($filePath);
+        $folder = new RootFolder('/', new ProviderMap(['/' => $provider]));
 
-        $children = $provider->children('/');
+        $children = $provider->children('/', $folder);
         self::assertCount(6, $children);
     }
 

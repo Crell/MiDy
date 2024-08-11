@@ -21,11 +21,11 @@ trait FakeFilesystem
             'empty' => [],
             'dir1' => [
                 'index.md'    => '',
-                'apage' => '',
-                'another' => '',
+                'apage.txt' => '',
+                'another.md' => '',
                 'dir2' => [
-                    'subfile1' => '',
-                    'subfile2' => '',
+                    'subfile1.txt' => '',
+                    'subfile2.txt' => '',
                 ],
             ],
             'index.md'    => '',

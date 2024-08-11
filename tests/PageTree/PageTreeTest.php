@@ -48,7 +48,8 @@ class PageTreeTest extends TestCase
         $provider = new DirectFileSystemProvider($filePath);
         $root = new RootFolder('/', ['/' => $provider]);
 
-        $dir2 = $root->child('dir1')->child('dir2');
+        $dir1 = $root->child('dir1');
+        $dir2 = $dir1->child('dir2');
 
         self::assertTrue($dir2->isDir());
         self::assertEquals('/dir1/dir2', $dir2->urlPath);

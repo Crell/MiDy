@@ -53,73 +53,20 @@ class Folder extends Page implements \Countable, \IteratorAggregate
 
     private function computeChildren(): PageList
     {
-        $relevantProviders = $this->findRelevantProviders();
-
-        $children = [];
-        /** @var RouteProvider $provider */
-        foreach ($relevantProviders as $providerPrefix =>  $provider) {
-            $providerChildren = $provider->children($this->urlPath);
-            $children += $this->instantiateFindResults($providerPrefix, $providerChildren, $provider);
-        }
-
-        // Sorting goes here, eventually.
-
-        return new PageList($children);
+        return $this->find('/*');
     }
 
     public function find(string $pattern): PageList
     {
         $absolutePattern = rtrim($this->urlPath, '/') . '/' . ltrim($pattern, '/');
 
-        $activeProvider = $this->providers->findForPath($absolutePattern);
-
-        $found = $activeProvider->find($absolutePattern) ?? [];
-
-        $children = [];
-        foreach ($found as $name => $filePath) {
-            // Because the file name is used as an array key,
-            // if it is numeric, PHP will helpfully coerce it to an int
-            // for us.  But that breaks using it as a string, so we have
-            // to undo that.  Silly PHP.
-            $name = (string)$name;
-            $childUrlPath = rtrim($this->urlPath, '/') . "/$name";
-            if (is_dir($filePath)) {
-                $childProviders = $this->providers->filterForGlob($childUrlPath);
-                $children[$name] = new Folder($childUrlPath, $childProviders, ucfirst($name));
-            } else {
-                $children[$name] = new Page($childUrlPath, ucfirst($name));
-            }
-        }
-        return new PageList($children);
+        return $this->providers
+            ->findForPath($absolutePattern)
+            ->find($absolutePattern, $this) ?? new PageList();
     }
 
-    private function instantiateFindResults(string $providerPrefix, array $providerChildren, RouteProvider $provider): array
+    public function findChildProviders($childUrlPath): ProviderMap
     {
-        $children = [];
-        foreach ($providerChildren as $name => $filePath) {
-            // Because the file name is used as an array key,
-            // if it is numeric, PHP will helpfully coerce it to an int
-            // for us.  But that breaks using it as a string, so we have
-            // to undo that.  Silly PHP.
-            $name = (string)$name;
-            $childUrlPath = rtrim($this->urlPath, '/') . "/$name";
-            if (is_dir($filePath)) {
-                $childProviders = $this->providers->filterForGlob($childUrlPath);
-                $children[$name] = new Folder($childUrlPath, $childProviders, ucfirst($name));
-            } else {
-                $children[$name] = new Page($childUrlPath, ucfirst($name));
-            }
-        }
-        return $children;
-    }
-
-    private function findRelevantProviders(): iterable
-    {
-        return afilterWithKeys($this->relevantProvider(...))($this->providers);
-    }
-
-    private function relevantProvider(RouteProvider $provider, string $prefix): bool
-    {
-        return str_starts_with($this->urlPath, $prefix);
+        return $this->providers->filterForGlob($childUrlPath);
     }
 }

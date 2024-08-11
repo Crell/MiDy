@@ -13,12 +13,12 @@ class DirectFileSystemProvider extends GlobFileSystemProvider
         return $this->rootPath . rtrim($path, '/') . '/*';
     }
 
-    public function find(string $pattern): array
+    public function find(string $pattern, Folder $parent): PageList
     {
         $globPattern = $this->rootPath . $pattern;
 
         $files = Glob::glob($globPattern);
 
-        return $this->indexFileListByName($files);
+        return $this->indexFileListByName($files, $parent);
     }
 }

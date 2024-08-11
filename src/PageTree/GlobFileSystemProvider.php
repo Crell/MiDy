@@ -6,6 +6,8 @@ namespace Crell\MiDy\PageTree;
 
 use Webmozart\Glob\Glob;
 
+use function Crell\fp\first;
+
 abstract class GlobFileSystemProvider implements RouteProvider
 {
     /**
@@ -23,20 +25,40 @@ abstract class GlobFileSystemProvider implements RouteProvider
      * @return array<string, string>
      *   The logical name of the child, mapped to its absolute file path.
      */
-    public function children(string $path): array
+    public function children(string $path, Folder $parent): PageList
     {
         $files = Glob::glob($this->getGlobPattern($path));
 
-        return $this->indexFileListByName($files);
+        return $this->indexFileListByName($files, $parent);
     }
 
-    protected function indexFileListByName(array $files): array
+    protected function indexFileListByName(array $files, Folder $parent): PageList
     {
-        $ret = [];
+        $vFiles = [];
         foreach ($files as $file) {
-            $ret[$this->logicalName($file)] = $file;
+            $pathinfo = \pathinfo($file);
+            $name = $pathinfo['basename'];
+            $name = empty($pathinfo['extension'])
+                ? $name
+                : str_replace(".{$pathinfo['extension']}", '', $name);
+
+            $vFiles[$name][$pathinfo['extension'] ?? ''] = $file;
         }
-        return $ret;
+
+        $ret = [];
+        foreach ($vFiles as $name => $paths) {
+            // @todo This will fail if there is both a file and folder
+            // with the same name.  I don't know how to deal with that.
+            $childUrlPath = rtrim($parent->urlPath, '/') . '/' . $name;
+            if (array_key_first($paths) === '') {
+                // It's a directory.
+                $ret[$name] = new Folder($childUrlPath, $parent->findChildProviders($childUrlPath), ucfirst($name));
+            } else {
+                $ret[$name] = new FilesystemPage($childUrlPath, ucfirst($name), $paths);
+            }
+        }
+
+        return new PageList($ret);
     }
 
     /**

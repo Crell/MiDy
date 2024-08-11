@@ -6,7 +6,7 @@ namespace Crell\MiDy\PageTree;
 
 interface RouteProvider
 {
-    public function children(string $path): array;
+    public function children(string $path, Folder $parent): PageList;
 
-    public function find(string $pattern): array;
+    public function find(string $pattern, Folder $parent): PageList;
 }

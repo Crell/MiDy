@@ -7,9 +7,8 @@ namespace Crell\MiDy\PageTree;
 readonly class PageList implements \Countable, \IteratorAggregate
 {
     public function __construct(
-        private array $nodes,
-    ) {
-    }
+        private array $nodes = [],
+    ) {}
 
     public function count(): int
     {
