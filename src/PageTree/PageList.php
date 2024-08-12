@@ -7,21 +7,21 @@ namespace Crell\MiDy\PageTree;
 readonly class PageList implements \Countable, \IteratorAggregate
 {
     public function __construct(
-        private array $nodes = [],
+        private array $pages = [],
     ) {}
 
     public function count(): int
     {
-        return count($this->nodes);
+        return count($this->pages);
     }
 
     public function getIterator(): \Traversable
     {
-        return new \ArrayIterator($this->nodes);
+        return new \ArrayIterator($this->pages);
     }
 
     public function get(string $name): Page|Folder|null
     {
-        return $this->nodes[$name] ?? null;
+        return $this->pages[$name] ?? null;
     }
 }
