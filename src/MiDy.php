@@ -115,6 +115,11 @@ class MiDy implements RequestHandlerInterface
             'paths.templates' => value(\realpath($this->appRoot . '/templates')),
         ]);
 
+        // General utilities
+        $containerBuilder->addDefinitions([
+            ClassFinder::class => autowire(),
+        ]);
+
         // Configuration
         $containerBuilder->addDefinitions([
             IniFileSource::class => autowire()->constructorParameter('directory', get('paths.config')),
@@ -236,6 +241,7 @@ class MiDy implements RequestHandlerInterface
             MarkdownConverter::class =>get(GithubFlavoredMarkdownConverter::class),
         ]);
 
+        // My Latte/Commonmark extension.
         $containerBuilder->addDefinitions([
             CommonMarkExtension::class => autowire(),
         ]);

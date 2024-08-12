@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageHandlers;
 
+use Crell\MiDy\ClassFinder;
 use Crell\MiDy\Router\HandlerRouter\PageHandler;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
-use Psr\Container\ContainerInterface;
+use DI\FactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 readonly class PhpHandler implements PageHandler
 {
+    /**
+     * @param FactoryInterface $container
+     *   If we ever change containers, this will be impacted.
+     */
     public function __construct(
-        private ContainerInterface $container,
+        private FactoryInterface $container,
+        private ClassFinder $finder,
     ) {}
 
     public function supportedMethods(): array
@@ -54,7 +60,9 @@ readonly class PhpHandler implements PageHandler
 
     private function loadAction(string $file): object
     {
-        $container = $this->container;
-        return require($file);
+        require $file;
+        $class = $this->finder->getClass($file);
+        // @todo Null/error handling.
+        return $this->container->make($class);
     }
 }

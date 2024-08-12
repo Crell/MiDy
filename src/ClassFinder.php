@@ -19,11 +19,7 @@ class ClassFinder
         $files = new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH);
 
         foreach ($files as $file) {
-            $body = file_get_contents($file[0]);
-            if (!$body) {
-                continue;
-            }
-            if ($className = $this->extractClassName($body)) {
+            if ($className = $this->getClass($file[0])) {
                 yield $className;
             }
         }
@@ -32,12 +28,14 @@ class ClassFinder
     /**
      * @return class-string|null
      */
-    private function extractClassName(string $file): ?string
+    public function getClass(string $file): ?string
     {
+        $body = file_get_contents($file);
+
         $namespace = null;
         $className = null;
 
-        $tokens = \PhpToken::tokenize($file);
+        $tokens = \PhpToken::tokenize($body);
         $count = count($tokens);
 
         for ($i = 2; $i < $count && !($namespace && $className); $i++) {
@@ -54,11 +52,14 @@ class ClassFinder
             }
         }
 
-        if ($namespace && $className) {
-            /** @var class-string $name */
-            $name = $namespace . '\\' . $className;
-            return $name;
+        if ($className) {
+            if ($namespace) {
+                /** @var class-string $name */
+                $className = $namespace . '\\' . $className;
+            }
+            return $className;
         }
+
         return null;
     }
 }
