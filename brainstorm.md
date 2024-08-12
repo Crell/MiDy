@@ -139,3 +139,23 @@ path: /foo/bar/beep
 current: 3
 relevant: 3
 
+--------------
+
+OK, new strategy.  The PageTree just made life way too difficult.  Instead, let's try Flysystem.
+
+It MAY be possible to build a "flattened adapter" that extends/wraps the LocalFilesystemAdapter and does the flattening.  It would have to override not just the lister, but also the reader. Hm.
+
+For a prefix order number, this will also require a new adapter.  It will need to extend LocalFileystemAdapter and override listContents(), replicating it entirely but using a different iterator.  (The iterator it uses is private, which sucks.)  That iterator will be a custom version of LocalFilsystemAdapter::listDirectory() that strips off numbers and orders by them.
+
+Then I'd also need a MultiplexAdapter to handle different paths working differently.  Sounds... I think doable.
+
+
+The bigger question is if this approach will get me the info I need in the router efficient.  I hope so, but...  I probably won't know without trying it.  Though I could try doing the "unadulterated" version first, before writing any adapters, to see if that much works at least.  That is probably wise.
+
+
+For PHP file loading, new strategy:
+
+* Define a concrete class, with DI
+* On routing, use ClassFinder to find the class the file defines, then manually require the file, then use $container->make() (which PHP-DI apparently does do) to load it.  That should handle the injection.
+* Then return the callable reference, the same as now.
+
