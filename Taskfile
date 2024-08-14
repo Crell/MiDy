@@ -1,6 +1,6 @@
 #!/bin/bash
 
-project="midycustom"
+project="midy"
 appContainer="php-fpm"
 
 function build {
