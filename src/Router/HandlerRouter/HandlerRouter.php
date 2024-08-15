@@ -59,7 +59,7 @@ class HandlerRouter implements Router
         // There was a candidate, so it's not unfound. But
         // nothing handled it, which means nothing could deal with
         // that file type and method.  So we'll call that a method error.
-        return new RouteMethodNotAllowed($possibleMethods);
+        return new RouteMethodNotAllowed(array_keys($possibleMethods));
     }
 
     private function getFilePaths(RequestPath $requestPath): array
