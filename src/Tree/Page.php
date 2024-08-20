@@ -8,6 +8,7 @@ readonly class Page
 {
     public int $lastModified;
 
+    // @todo Store info about each variant here, pulled from SplFileInfo.
 
     /**
      * @param string $logicalPath
