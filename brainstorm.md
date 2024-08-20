@@ -159,3 +159,27 @@ For PHP file loading, new strategy:
 * On routing, use ClassFinder to find the class the file defines, then manually require the file, then use $container->make() (which PHP-DI apparently does do) to load it.  That should handle the injection.
 * Then return the callable reference, the same as now.
 
+----------------------
+
+OK, streams don't work.  Cache it all.
+
+Every folder gets its own cache entry.
+The folder's child pages are embedded in it.
+The folder's child directories are represented as stubs, that point to another folder entry.
+That means every folder still needs access to the cache front-end to look up the folders lazily.
+This does mean lookups need to go through every folder... Hm.  Future optimization.
+
+FolderRef is what gets traversed.  It contains a lazy-loaded folder object, which has info on all pages in that folder.  Same interface, passthru.
+
+if (cached file mtime < real file mtime) {
+  // need to reindex.
+}
+
+Tree(Data)
+--Node
+--Node
+--Tree(Data)
+----Node
+----Tree
+
+Data has list of nodes, and stubs for sub-trees.  So... that means three different objects for branches: Logical, stored, and ref, where ref gets lazy-loaded into a logical.  The cache is only ever referenced on the logical object.

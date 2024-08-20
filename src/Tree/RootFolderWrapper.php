@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-class RootFolder extends Folder
+class RootFolderWrapper extends FolderWrapper
 {
     public function __construct(
         string $physicalPath,
-        FileBackedCache $cache,
+        PathCache $cache,
     ) {
         parent::__construct($physicalPath, '/', $cache);
     }

@@ -10,7 +10,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 
 trait FakeFilesystem
 {
-    protected function makeFilesystemFrom(\Closure $definition): vfsStreamContent
+    protected function makeFilesystemFrom(\Closure $definition): vfsStreamDirectory
     {
         return vfsStream::setup('root', null, iterator_to_array($definition()));
     }

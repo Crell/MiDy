@@ -15,9 +15,19 @@ class RootFolderTest extends TestCase
     #[Test]
     public function count_returns_correct_value(): void
     {
-        $filePath = $this->makeFilesystemFrom($this->simpleStructure(...))->url();
+        // This mess is because vfsstream doesn't let you create multiple streams
+        // at the same time.  Which is dumb.
+        $structure = function () {
+            return [
+                'cache' => [],
+                'data' => $this->simpleStructure(),
+            ];
+        };
+        $vfs = $this->makeFilesystemFrom($structure);
+        $filePath = $vfs->getChild('data')->url();
+        $cachePath = $vfs->getChild('cache')->url();
 
-        $r = new RootFolder($filePath, new FileBackedCache());
+        $r = new RootFolderWrapper($filePath, new PathCache($cachePath));
 
         self::assertCount(8, $r);
     }
@@ -25,13 +35,22 @@ class RootFolderTest extends TestCase
     #[Test]
     public function correct_child_types(): void
     {
-        $filePath = $this->makeFilesystemFrom($this->simpleStructure(...))->url();
+        // This mess is because vfsstream doesn't let you create multiple streams
+        // at the same time.  Which is dumb.
+        $structure = function () {
+            return [
+                'cache' => [],
+                'data' => $this->simpleStructure(),
+            ];
+        };
+        $vfs = $this->makeFilesystemFrom($structure);
+        $filePath = $vfs->getChild('data')->url();
+        $cachePath = $vfs->getChild('cache')->url();
 
-        $r = new RootFolder($filePath, new FileBackedCache());
+        $r = new RootFolderWrapper($filePath, new PathCache($cachePath));
 
         foreach ($r as $child) {
             self::assertTrue($child instanceof Page || $child instanceof Folder);
         }
     }
-
 }
