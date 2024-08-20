@@ -14,7 +14,7 @@ class FolderWrapper implements Folder
     public function __construct(
         public readonly string $physicalPath,
         public readonly string $logicalPath,
-        private PathCache $cache,
+        private readonly PathCache $cache,
     ) {}
 
     public function count(): int
@@ -24,16 +24,24 @@ class FolderWrapper implements Folder
 
     public function getIterator(): Traversable
     {
-        $children = iterator_to_array($this->getFolder());
-
         /** @var FolderRef|Page $child */
-        foreach ($children as $child) {
+        foreach ($this->getFolder()->children as $child) {
             if ($child instanceof FolderRef) {
                 yield new FolderWrapper($child->physicalPath, $child->logicalPath, $this->cache);
             } else {
                 yield $child;
             }
         }
+    }
+
+    public function child(string $name): Folder|Page|null
+    {
+        $child = $this->getFolder()->children[$name] ?? null;
+
+        if ($child instanceof FolderRef) {
+            return new FolderWrapper($child->physicalPath, $child->logicalPath, $this->cache);
+        }
+        return $child;
     }
 
     protected function getFolder(): FolderData
@@ -79,10 +87,11 @@ class FolderWrapper implements Folder
 
         $children = [];
         foreach ($toBuild as $logicalPath => $child) {
+            $fileName = pathinfo($logicalPath, PATHINFO_FILENAME);
             if ($child['type'] === 'folder') {
-                $children[$logicalPath] = new FolderRef($child['physicalPath'], $logicalPath);
+                $children[$fileName] = new FolderRef($child['physicalPath'], $logicalPath);
             } else {
-                $children[$logicalPath] = new Page($logicalPath, $child['variants']);
+                $children[$fileName] = new Page($logicalPath, $child['variants']);
             }
         }
 

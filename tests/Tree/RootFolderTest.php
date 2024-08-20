@@ -12,8 +12,7 @@ class RootFolderTest extends TestCase
 {
     use FakeFilesystem;
 
-    #[Test]
-    public function count_returns_correct_value(): void
+    protected function makeRootFolder(): RootFolder
     {
         // This mess is because vfsstream doesn't let you create multiple streams
         // at the same time.  Which is dumb.
@@ -29,28 +28,38 @@ class RootFolderTest extends TestCase
 
         $r = new RootFolder($filePath, new PathCache($cachePath));
 
+        return $r;
+    }
+
+    #[Test]
+    public function count_returns_correct_value(): void
+    {
+        $r = $this->makeRootFolder();
         self::assertCount(8, $r);
     }
 
     #[Test]
     public function correct_child_types(): void
     {
-        // This mess is because vfsstream doesn't let you create multiple streams
-        // at the same time.  Which is dumb.
-        $structure = function () {
-            return [
-                'cache' => [],
-                'data' => $this->simpleStructure(),
-            ];
-        };
-        $vfs = $this->makeFilesystemFrom($structure);
-        $filePath = $vfs->getChild('data')->url();
-        $cachePath = $vfs->getChild('cache')->url();
-
-        $r = new RootFolder($filePath, new PathCache($cachePath));
+        $r = $this->makeRootFolder();
 
         foreach ($r as $child) {
             self::assertTrue($child instanceof Page || $child instanceof Folder);
         }
+    }
+
+    #[Test]
+    public function can_read_specific_page_child(): void
+    {
+        $r = $this->makeRootFolder();
+
+        $child = $r->child('index');
+        self::assertInstanceOf(Page::class, $child);
+        self::assertEquals('/index', $child->path());
+
+        $child = $r->child('double');
+        self::assertInstanceOf(Page::class, $child);
+        self::assertEquals('/double', $child->path());
+
     }
 }

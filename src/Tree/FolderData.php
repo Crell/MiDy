@@ -11,7 +11,7 @@ class FolderData implements Folder
     public function __construct(
         protected readonly string $physicalPath,
         protected readonly string $logicalPath,
-        protected readonly array $children,
+        public readonly array $children,
     ) {}
 
     public function getIterator(): Traversable
@@ -21,23 +21,7 @@ class FolderData implements Folder
 
     public function child(string $name): Page|FolderData|null
     {
-        $path = ltrim($this->logicalPath, '/') . '/' . $name;
-        if (!array_key_exists($path, $this->children)) {
-            return null;
-        }
-
-        $child = $this->children[$path];
-        if ($child instanceof Page) {
-            return $child;
-        }
-        if ($child instanceof FolderRef) {
-            $this->children[$path] = new FolderData($child->physicalPath, $child->logicalPath, $this->cache);
-            return $this->children[$path];
-        }
-        if ($child instanceof FolderData) {
-            return $child;
-        }
-        return null;
+        var_dump($this->children);
     }
 
     public function count(): int
