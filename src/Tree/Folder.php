@@ -8,6 +8,8 @@ use Traversable;
 
 class Folder implements \Countable, \IteratorAggregate
 {
+    private array $children = [];
+
     public function __construct(
         protected readonly string $physicalPath,
         protected readonly string $logicalPath,
@@ -17,28 +19,49 @@ class Folder implements \Countable, \IteratorAggregate
     public function getIterator(): Traversable
     {
         $this->reindex();
-        foreach ($this->cache['folders'][$this->logicalPath]['children'] as $childPath) {
-            if (isset($this->cache['folders'][$childPath])) {
-                // It's a child folder.
-                yield new Folder($this->cache['folders'][$childPath]['physicalPath'], $childPath, $this->cache);
-            } elseif (isset($this->cache['files'][$childPath])) {
-                // It's a child page.
-                yield new Page($childPath, $this->cache);
-            } {
-                // @todo Error handling.
+
+        foreach ($this->children as $logicalPath => $child) {
+            if ($child instanceof FolderRef) {
+                $child = new Folder($child->physicalPath, $child->logicalPath, $this->cache);
+                $this->children[$logicalPath] = $child;
             }
+            yield $child;
         }
+    }
+
+    public function child(string $name): Page|Folder|null
+    {
+        $path = ltrim($this->logicalPath, '/') . '/' . $name;
+        if (!array_key_exists($path, $this->children)) {
+            return null;
+        }
+
+        $child = $this->children[$path];
+        if ($child instanceof Page) {
+            return $child;
+        }
+        if ($child instanceof FolderRef) {
+            $this->children[$path] = new Folder($child->physicalPath, $child->logicalPath, $this->cache);
+            return $this->children[$path];
+        }
+        if ($child instanceof Folder) {
+            return $child;
+        }
+        return null;
     }
 
     public function count(): int
     {
         $this->reindex();
-        return count($this->cache['folders'][$this->logicalPath]['children']);
+        return count($this->children);
     }
 
     public function reindex(): void
     {
         $iter = new \FilesystemIterator($this->physicalPath);
+
+        $toBuild = [];
+
         /** @var \SplFileInfo $file */
         foreach ($iter as $file) {
             if ($file->isFile()) {
@@ -47,23 +70,42 @@ class Folder implements \Countable, \IteratorAggregate
                 // @todo This gets more flexible.
                 $logicalPath = ltrim($this->logicalPath, '/') . '/' . $pathinfo['filename'];
 
-                $this->cache['files'][$logicalPath][$file->getExtension()] = [
-                    'physicalPath' => $physicalPath,
-                    'name' => $file->getFilename(),
-                    'mtime' => $file->getMTime(),
+                $toBuild[$logicalPath] ??= [
+                    'type' => 'page',
+                    'variants' => [],
                 ];
-                $this->cache->addChild($this->logicalPath, $logicalPath);
+
+                $toBuild[$logicalPath]['variants'][$file->getExtension()] = $file;
+
             } else {
                 $physicalPath = $file->getPathname();
                 // @todo This gets more flexible.
                 $logicalPath = ltrim($this->logicalPath, '/') . '/' . $file->getFilename();
-                $this->cache['folders'][$logicalPath] = [
-                    'physicalPah' => $physicalPath,
-                    'name' => $file->getFilename(),
-                    'mtime' => $file->getMTime(),
+
+                $toBuild[$logicalPath] ??= [
+                    'type' => 'folder',
+                    'physicalPath' => $physicalPath,
+                    'data' => '',
                 ];
-                $this->cache->addChild($this->logicalPath, $logicalPath);
+
+                $toBuild[$logicalPath]['data'] = $file;
+            }
+        }
+
+        foreach ($toBuild as $logicalPath => $child) {
+            if ($child['type'] === 'folder') {
+                $this->children[$logicalPath] = new FolderRef($child['physicalPath'], $logicalPath);
+            } else {
+                $this->children[$logicalPath] = new Page($logicalPath, $child['variants']);
             }
         }
     }
 }
+
+/*
+ Every folder gets its own cache entry.
+The folder's child pages are embedded in it.
+The folder's child directories are represented as stubs, that point to another folder entry.
+That means every folder still needs access to the cache front-end to look up the folders lazily.
+This does mean lookups need to go through every folder... Hm.  Future optimization.
+ */

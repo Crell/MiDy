@@ -8,13 +8,18 @@ readonly class Page
 {
     public function __construct(
         private string $logicalPath,
-        private FileBackedCache $cache,
+        private array $variants,
     ) {}
+
+    public function path(): string
+    {
+        return $this->logicalPath;
+    }
 
     public function mtime(): int
     {
         $mtime = 0;
-        foreach ($this->cache[$this->logicalPath] as $ext => $file) {
+        foreach ($this->variants as $ext => $file) {
             $mtime = max($file['mtime'], $mtime);
         }
         return $mtime;

@@ -22,4 +22,16 @@ class RootFolderTest extends TestCase
         self::assertCount(8, $r);
     }
 
+    #[Test]
+    public function correct_child_types(): void
+    {
+        $filePath = $this->makeFilesystemFrom($this->simpleStructure(...))->url();
+
+        $r = new RootFolder($filePath, new FileBackedCache());
+
+        foreach ($r as $child) {
+            self::assertTrue($child instanceof Page || $child instanceof Folder);
+        }
+    }
+
 }

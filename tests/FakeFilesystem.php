@@ -39,23 +39,23 @@ trait FakeFilesystem
     protected function simpleStructure(): array
     {
         return [
+            'index.md' => '',
             'empty' => [],
             'dir1' => [
-                'index.md'    => '',
+                'index.md' => '',
                 'apage.txt' => '',
                 'another.md' => '',
                 'dir2' => [
                     'subfile1.md' => '',
                     'subfile2.md' => '',
                 ],
-                'double.latte' => '',
-                'double.php' => '',
             ],
-            'index.md'    => '',
-            'php-test.php'    => '',
-            'yaml-test.yaml'    => '',
-            'md-test.md'    => '',
-            'latte-test.latte'    => '',
+            'double.latte' => '',
+            'double.php' => '',
+            'php-test.php' => '',
+            'yaml-test.yaml' => '',
+            'md-test.md' => '',
+            'latte-test.latte' => '',
         ];
     }
 }

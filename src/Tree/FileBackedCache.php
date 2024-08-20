@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace Crell\MiDy\Tree;
 
 /**
- * @todo Actually do the file write-throug logic.
+ * @todo Actually do the file write-through logic.
  */
 class FileBackedCache implements \ArrayAccess
 {
     private array $cache = [];
 
-    public function writeFile(string $path, array $data): void
+    private array $pages = [];
+    private array $folders = [];
+
+    public function writePage(string $path, array $data): void
     {
-        $this->cache['files'][$path] = $data;
+        $this->pages[$path] = $data;
     }
 
     public function updateFolder(string $path, array $data): void
