@@ -27,7 +27,7 @@ class RootFolderTest extends TestCase
         $filePath = $vfs->getChild('data')->url();
         $cachePath = $vfs->getChild('cache')->url();
 
-        $r = new RootFolderWrapper($filePath, new PathCache($cachePath));
+        $r = new RootFolder($filePath, new PathCache($cachePath));
 
         self::assertCount(8, $r);
     }
@@ -47,7 +47,7 @@ class RootFolderTest extends TestCase
         $filePath = $vfs->getChild('data')->url();
         $cachePath = $vfs->getChild('cache')->url();
 
-        $r = new RootFolderWrapper($filePath, new PathCache($cachePath));
+        $r = new RootFolder($filePath, new PathCache($cachePath));
 
         foreach ($r as $child) {
             self::assertTrue($child instanceof Page || $child instanceof Folder);

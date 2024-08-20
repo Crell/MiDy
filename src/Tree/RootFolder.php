@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-class RootFolderWrapper extends FolderWrapper
+class RootFolder extends FolderWrapper
 {
     public function __construct(
         string $physicalPath,
