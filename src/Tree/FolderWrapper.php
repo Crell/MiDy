@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-use Exception;
 use Traversable;
 
 class FolderWrapper implements Folder
