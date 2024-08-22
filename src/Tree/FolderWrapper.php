@@ -13,7 +13,7 @@ class FolderWrapper implements Folder
     public function __construct(
         public readonly string $physicalPath,
         public readonly string $logicalPath,
-        private readonly PathCache $cache,
+        protected readonly PathCache $cache,
     ) {}
 
     public function count(): int
@@ -33,14 +33,37 @@ class FolderWrapper implements Folder
         }
     }
 
+    public function children(): Traversable
+    {
+        return $this;
+    }
+
     public function child(string $name): Folder|Page|null
     {
-        $child = $this->getFolder()->children[$name] ?? null;
+        $pathinfo = pathinfo($name);
+
+        $child = $this->getFolder()->children[$pathinfo['filename']] ?? null;
 
         if ($child instanceof FolderRef) {
             return new FolderWrapper($child->physicalPath, $child->logicalPath, $this->cache);
         }
+        if (isset($pathinfo['extension'])) {
+            /** @var Page $child */
+            $child = $child->limitTo($pathinfo['extension']);
+        }
+
         return $child;
+    }
+
+    // @todo Make this better.
+    public function title(): string
+    {
+        return ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
+    }
+
+    public function path(): string
+    {
+        return $this->logicalPath;
     }
 
     protected function getFolder(): FolderData

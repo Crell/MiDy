@@ -69,6 +69,30 @@ class RootFolderTest extends TestCase
         $child = $r->child('double');
         self::assertInstanceOf(Page::class, $child);
         self::assertEquals('/double', $child->path());
-
     }
+
+    #[Test]
+    public function can_handle_child_with_extensions(): void
+    {
+        $r = $this->makeRootFolder();
+
+        file_put_contents('vfs://root/data/foo.txt', 'Foo');
+
+        $page = $r->child('foo.txt');
+
+        self::assertEquals('/foo', $page->path());
+    }
+
+    #[Test]
+    public function can_handle_find_with_extensions(): void
+    {
+        $r = $this->makeRootFolder();
+
+        file_put_contents('vfs://root/data/foo.txt', 'Foo');
+
+        $page = $r->find('/foo.txt');
+
+        self::assertEquals('/foo', $page->path());
+    }
+
 }
