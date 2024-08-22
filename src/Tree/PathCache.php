@@ -13,11 +13,6 @@ class PathCache
         private readonly string $cachePath,
     ) {}
 
-    public function writePage(string $path, array $data): void
-    {
-        $this->pages[$path] = $data;
-    }
-
     public function getIfOlderThan(string $logicalPath, int $origFilemTime, \Closure $regenerator): FolderData
     {
         $cacheFile = $this->cacheFile($logicalPath);
@@ -35,16 +30,6 @@ class PathCache
     public function writeFolder(FolderData $folder, $logicalPath): void
     {
         file_put_contents($this->cacheFile($logicalPath), serialize($folder));
-    }
-
-    public function readFolder(string $logicalPath): ?FolderData
-    {
-        $cacheFile = $this->cacheFile($logicalPath);
-        if (!file_exists($cacheFile)) {
-            return null;
-        }
-
-
     }
 
     private function cacheFile(string $logicalPath): string
