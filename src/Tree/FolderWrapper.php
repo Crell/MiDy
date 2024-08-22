@@ -33,6 +33,19 @@ class FolderWrapper implements Folder
         }
     }
 
+    public function find(string $path): Page|Folder|null
+    {
+        $dirParts = array_filter(explode('/', $path));
+
+        $child = $this;
+
+        foreach ($dirParts as $pathSegment) {
+            $child = $child?->child($pathSegment);
+        }
+
+        return $child;
+    }
+
     public function children(): Traversable
     {
         return $this;
