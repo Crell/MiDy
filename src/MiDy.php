@@ -36,8 +36,12 @@ use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\RuntimeActionInvoker;
-use Crell\MiDy\Tree\PathCache;
+use Crell\MiDy\TimedCache\FilesystemTimedCache;
+use Crell\MiDy\Tree\FolderData;
+use Crell\MiDy\Tree\FolderRef;
+use Crell\MiDy\Tree\Page;
 use Crell\MiDy\Tree\RootFolder;
+use Crell\MiDy\Tree\RouteFile;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -172,12 +176,13 @@ class MiDy implements RequestHandlerInterface
             ,
 //            DirectFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
 //            FlattenedFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
-            PathCache::class => autowire()->constructor(
-                cachePath: get('paths.cache.routes')
+             'path_cache' => autowire(FilesystemTimedCache::class)->constructor(
+                cachePath: get('paths.cache.routes'),
+                allowedClasses: [FolderData::class, FolderRef::class, Page::class, RouteFile::class],
             ),
             RootFolder::class => create(RootFolder::class)->constructor(
                 physicalPath: get('paths.routes'),
-                cache: get(PathCache::class),
+                cache: get('path_cache'),
             ),
         ]);
 

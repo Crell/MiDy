@@ -6,6 +6,7 @@ namespace Crell\MiDy\Tree;
 
 use bovigo\vfs\vfsDirectory;
 use Crell\MiDy\FakeFilesystem;
+use Crell\MiDy\TimedCache\FilesystemTimedCache;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -35,7 +36,7 @@ class RootFolderTest extends TestCase
         $filePath = $vfs->getChild('data')->url();
         $cachePath = $vfs->getChild('cache')->url();
 
-        $r = new RootFolder($filePath, new PathCache($cachePath));
+        $r = new RootFolder($filePath, new FilesystemTimedCache($cachePath));
 
         return $r;
     }

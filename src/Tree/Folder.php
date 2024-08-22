@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
+use Crell\MiDy\TimedCache\TimedCache;
 use Traversable;
 
 class Folder implements \Countable, \IteratorAggregate, Linkable
@@ -13,7 +14,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
     public function __construct(
         public readonly string $physicalPath,
         public readonly string $logicalPath,
-        protected readonly PathCache $cache,
+        protected readonly TimedCache $cache,
     ) {}
 
     public function count(): int
@@ -81,7 +82,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
 
     protected function getFolder(): FolderData
     {
-        return $this->folder ??= $this->cache->getIfOlderThan($this->logicalPath, filemtime($this->physicalPath), $this->reindex(...));
+        return $this->folder ??= $this->cache->get($this->logicalPath, filemtime($this->physicalPath), $this->reindex(...));
     }
 
     protected function reindex(): FolderData
