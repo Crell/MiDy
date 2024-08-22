@@ -64,4 +64,10 @@ class FlysystemTest extends TestCase
 
         var_dump(iterator_to_array($files));
     }
+
+    #[Test]
+    public function stet(): void
+    {
+        self::assertTrue(true);
+    }
 }
