@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
+use bovigo\vfs\vfsDirectory;
 use Crell\MiDy\FakeFilesystem;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +13,9 @@ class RootFolderTest extends TestCase
 {
     use FakeFilesystem;
 
-    protected function makeRootFolder(): RootFolder
+    protected vfsDirectory $vfs;
+
+    protected function initFilesystem(): vfsDirectory
     {
         // This mess is because vfsstream doesn't let you create multiple streams
         // at the same time.  Which is dumb.
@@ -22,7 +25,13 @@ class RootFolderTest extends TestCase
                 'data' => $this->simpleStructure(),
             ];
         };
-        $vfs = $this->makeFilesystemFrom($structure);
+
+        return $this->vfs = $this->makeFilesystemFrom($structure);
+    }
+
+    protected function makeRootFolder(): RootFolder
+    {
+        $vfs = $this->initFilesystem();
         $filePath = $vfs->getChild('data')->url();
         $cachePath = $vfs->getChild('cache')->url();
 

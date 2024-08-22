@@ -7,6 +7,7 @@ namespace Crell\MiDy\Router;
 use Crell\MiDy\MiDy;
 use Crell\MiDy\Router\HandlerRouter\HandlerRouter;
 use Crell\MiDy\Router\HandlerRouter\PageHandler;
+use Crell\MiDy\Tree\Page;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -54,7 +55,7 @@ class HandleRouterTest extends TestCase
                 return ['md'];
             }
 
-            public function handle(ServerRequestInterface $request, string $file, string $ext): ?RouteResult
+            public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
             {
                 return new RouteSuccess('action', 'GET', vars: ['a' => 1, 'b' => 2]);
             }
