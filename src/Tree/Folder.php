@@ -6,7 +6,7 @@ namespace Crell\MiDy\Tree;
 
 use Traversable;
 
-class FolderWrapper implements Folder
+class Folder implements \Countable, \IteratorAggregate, Linkable
 {
     private FolderData $folder;
 
@@ -26,7 +26,7 @@ class FolderWrapper implements Folder
         /** @var FolderRef|Page $child */
         foreach ($this->getFolder()->children as $child) {
             if ($child instanceof FolderRef) {
-                yield new FolderWrapper($child->physicalPath, $child->logicalPath, $this->cache);
+                yield new Folder($child->physicalPath, $child->logicalPath, $this->cache);
             } else {
                 yield $child;
             }
@@ -58,7 +58,7 @@ class FolderWrapper implements Folder
         $child = $this->getFolder()->children[$pathinfo['filename']] ?? null;
 
         if ($child instanceof FolderRef) {
-            return new FolderWrapper($child->physicalPath, $child->logicalPath, $this->cache);
+            return new Folder($child->physicalPath, $child->logicalPath, $this->cache);
         }
         if (isset($pathinfo['extension'])) {
             /** @var Page $child */

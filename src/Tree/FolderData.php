@@ -6,7 +6,7 @@ namespace Crell\MiDy\Tree;
 
 use Traversable;
 
-class FolderData implements Folder
+class FolderData implements \Countable, \IteratorAggregate
 {
     public function __construct(
         protected readonly string $physicalPath,

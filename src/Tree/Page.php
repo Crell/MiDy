@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-class Page
+class Page implements Linkable
 {
     // @todo Need to make this non-mutable somehow, while still allowing limitTo() or equivalent.
     public int $lastModified;
@@ -59,7 +59,7 @@ class Page
     {
         return new RouteFile(
             physicalPath: $this->variants[$ext],
-            logiclPath: $this->logicalPath,
+            logicalPath: $this->logicalPath,
             ext: $ext,
         );
     }
