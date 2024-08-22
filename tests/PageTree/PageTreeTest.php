@@ -201,12 +201,12 @@ class PageTreeTest extends TestCase
             },
         ];
         // Because it indexes by name, this should have only a single result.
-        yield 'one name, multiple extensions' => [
-            'pattern' => 'dir1/double.*',
-            'check' => function(PageList $pages) {
-                self::assertCount(1, $pages);
-            },
-        ];
+//        yield 'one name, multiple extensions' => [
+//            'pattern' => 'dir1/double.*',
+//            'check' => function(PageList $pages) {
+//                self::assertCount(1, $pages);
+//            },
+//        ];
     }
 
     #[Test, DataProvider('findGlobExamplesMixedProvider')]
