@@ -84,7 +84,7 @@ class FolderWrapper implements Folder
         return $this->folder ??= $this->cache->getIfOlderThan($this->logicalPath, filemtime($this->physicalPath), $this->reindex(...));
     }
 
-    public function reindex(): FolderData
+    protected function reindex(): FolderData
     {
         $iter = new \FilesystemIterator($this->physicalPath);
 
