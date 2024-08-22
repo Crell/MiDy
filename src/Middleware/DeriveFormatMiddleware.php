@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Middleware;
 
-use Crell\MiDy\Services\FormatDeriver;
 use Crell\MiDy\Router\RequestFormat;
+use Crell\MiDy\Services\FormatDeriver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;

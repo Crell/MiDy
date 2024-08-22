@@ -9,7 +9,6 @@ use Crell\MiDy\Router\HandlerRouter\HandlerRouter;
 use Crell\MiDy\Router\HandlerRouter\PageHandler;
 use Crell\MiDy\Tree\Folder;
 use Crell\MiDy\Tree\Page;
-use Crell\MiDy\Tree\PathCache;
 use Crell\MiDy\Tree\RootFolder;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;

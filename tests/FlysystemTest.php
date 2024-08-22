@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Crell\MiDy;
 
+use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemReader;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use League\Flysystem\StorageAttributes;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use League\Flysystem\Filesystem;
 
 class FlysystemTest extends TestCase
 {

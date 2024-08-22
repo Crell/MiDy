@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Crell\MiDy\Listeners;
 
 use Crell\MiDy\Config\TemplateVariables;
-use Crell\MiDy\Tree\RootFolder;
 use Crell\MiDy\Services\TemplatePreRender;
+use Crell\MiDy\Tree\RootFolder;
 use Crell\Tukio\Listener;
 use DI\Attribute\Inject;
 

@@ -28,8 +28,6 @@ use Crell\MiDy\PageHandlers\LatteHandler;
 use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
 use Crell\MiDy\PageHandlers\PhpHandler;
 use Crell\MiDy\PageHandlers\StaticFileHandler;
-use Crell\MiDy\PageTree\DirectFileSystemProvider;
-use Crell\MiDy\PageTree\FlattenedFileSystemProvider;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter\EventRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;

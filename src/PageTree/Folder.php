@@ -4,12 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Traversable;
-
-use Webmozart\Glob\Glob;
-
-use function Crell\fp\afilterWithKeys;
-
 class Folder extends Page implements \Countable, \IteratorAggregate
 {
     private readonly PageList $children;

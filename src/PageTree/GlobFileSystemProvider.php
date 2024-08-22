@@ -6,8 +6,6 @@ namespace Crell\MiDy\PageTree;
 
 use Webmozart\Glob\Glob;
 
-use function Crell\fp\first;
-
 abstract class GlobFileSystemProvider implements RouteProvider
 {
     /**
