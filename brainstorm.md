@@ -183,3 +183,63 @@ Tree(Data)
 ----Tree
 
 Data has list of nodes, and stubs for sub-trees.  So... that means three different objects for branches: Logical, stored, and ref, where ref gets lazy-loaded into a logical.  The cache is only ever referenced on the logical object.
+
+-----------------------------
+
+FolderWrapper
+--count
+--iterate
+--children (alias iterate)
+--find
+--child($name)
+--title
+--path
+FolderData
+--count (could skip)
+--iterate (not using?)
+FolderRef
+Page
+--limitTo (this is awful)
+--variants
+--variant($ext)
+--title
+--path
+RouteFile
+--?
+
+PageCache
+
+That's a lot of data structures...  And we may need more for the different file types.  Blargh.
+
+Different file types would extend from Page.  Or... actually RouteFile.  Does that mean Page is a pseudo-RouteFile?
+
+FolderRef is just a stub, so it needs no interface.
+
+FolderWrapper... should probably just be Folder.  FolderData is fully internal, so doesn't need a shared interface.  No one should ever be seeing it directly.
+
+Folder->x
+FolderWrapper->Folder
+FolderData->?
+interface Titled (Folder, Page)
+interface Linkable (Folder, Page, RouteFile), maybe extends Titled?
+
+RouteFile
+--::fromSpl()
+--title
+--path
+--mtime
+--ext
+
+Page
+--title
+--path
+--mtime
+
+A Folder should be represented page-ish as its index file, if any.  If not, fall back to its folder name, I guess?
+
+Still need to design magic .midy file for extra frontmatter.
+
+How can Page even have a title?  Its title is based on which variant is active, but we don't know that without routing.  Having those only work if there's only one variant is a land mine.  path() works, though.  Sort of.  But for static files it should probably include the extension.  Which is then variant dependent.  Arf.
+
+Page title could be just the path segment, if there's more than one file?  But no, that breaks blog posts with commonly named images.  Maybe it could be limited to pull from RouteFiles with specific interfaces, indicating there is metadata?
+
