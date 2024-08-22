@@ -19,7 +19,7 @@ class PathCache
 
         if (file_exists($cacheFile) && filemtime($cacheFile) >= $origFilemTime) {
             $data = file_get_contents($cacheFile);
-            return unserialize($data, ['allowed_classes' => [FolderData::class, Page::class]]);
+            return unserialize($data, ['allowed_classes' => [FolderData::class, FolderRef::class, Page::class]]);
         }
 
         $data = $regenerator();
