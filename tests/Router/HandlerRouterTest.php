@@ -7,14 +7,17 @@ namespace Crell\MiDy\Router;
 use Crell\MiDy\MiDy;
 use Crell\MiDy\Router\HandlerRouter\HandlerRouter;
 use Crell\MiDy\Router\HandlerRouter\PageHandler;
+use Crell\MiDy\Tree\Folder;
 use Crell\MiDy\Tree\Page;
+use Crell\MiDy\Tree\PathCache;
+use Crell\MiDy\Tree\RootFolder;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
-class HandleRouterTest extends TestCase
+class HandlerRouterTest extends TestCase
 {
     private Midy $app;
 
@@ -42,7 +45,25 @@ class HandleRouterTest extends TestCase
     #[Test]
     public function test(): void
     {
-        $router = new HandlerRouter('/app/routes');
+
+        $root = new class extends RootFolder
+        {
+            public function __construct() {}
+
+            public function find(string $path): Page|Folder|null
+            {
+                return new Page('/foo/bar', ['md' => new class extends \SplFileInfo {
+                    public function __construct() {}
+
+                    public function getMTime(): int|false
+                    {
+                        return time() - 20;
+                    }
+                }]);
+            }
+        };
+
+        $router = new HandlerRouter($root);
 
         $router->addHandler(new class implements PageHandler {
             public function supportedMethods(): array

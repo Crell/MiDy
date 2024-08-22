@@ -9,6 +9,7 @@ use Crell\MiDy\Router\HandlerRouter\PageHandler;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
+use Crell\MiDy\Tree\Page;
 use DI\FactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -33,9 +34,9 @@ readonly class PhpHandler implements PageHandler
         return ['php'];
     }
 
-    public function handle(ServerRequestInterface $request, string $file, string $ext): ?RouteResult
+    public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
     {
-        $actionObject = $this->loadAction($file);
+        $actionObject = $this->loadAction($page->variant($ext)->physicalPath);
 
         $method = $request->getMethod();
         if (method_exists($actionObject, $method)) {
@@ -43,7 +44,7 @@ readonly class PhpHandler implements PageHandler
                 action: $actionObject->$method(...),
                 method: strtoupper($method),
                 vars: [
-                    'file' => $file,
+                    'file' => $page,
                 ],
             );
         }

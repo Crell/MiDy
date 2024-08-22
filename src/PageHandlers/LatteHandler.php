@@ -9,6 +9,7 @@ use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Services\TemplateRenderer;
+use Crell\MiDy\Tree\Page;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -29,13 +30,13 @@ readonly class LatteHandler implements PageHandler
         return ['latte'];
     }
 
-    public function handle(ServerRequestInterface $request, string $file, string $ext): ?RouteResult
+    public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
     {
         return new RouteSuccess(
             action: $this->action(...),
             method: 'GET',
             vars: [
-                'file' => $file,
+                'file' => $page->variant($ext)->physicalPath,
             ],
         );
     }

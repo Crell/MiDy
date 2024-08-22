@@ -1,4 +1,6 @@
 
+
+
 <ul n:inner-foreach="$root->children() as $page">
-    <li><a href="{$page->urlPath}">{$page->title()}</a></li>
+    <li><a href="{$page->path()}">{$page->title()}</a></li>
 </ul>

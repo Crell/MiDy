@@ -30,8 +30,6 @@ use Crell\MiDy\PageHandlers\PhpHandler;
 use Crell\MiDy\PageHandlers\StaticFileHandler;
 use Crell\MiDy\PageTree\DirectFileSystemProvider;
 use Crell\MiDy\PageTree\FlattenedFileSystemProvider;
-use Crell\MiDy\PageTree\Folder;
-use Crell\MiDy\PageTree\RootFolder;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter\EventRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
@@ -40,6 +38,8 @@ use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\RuntimeActionInvoker;
+use Crell\MiDy\Tree\PathCache;
+use Crell\MiDy\Tree\RootFolder;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -110,6 +110,7 @@ class MiDy implements RequestHandlerInterface
             'paths.routes' => value(\realpath($this->appRoot . '/routes')),
             'paths.config' => value(\realpath($this->appRoot . '/configuration')),
             'paths.cache' => value(\realpath($this->appRoot . '/cache')),
+            'paths.cache.routes' => value(\realpath($this->appRoot . '/cache/routes')),
             'paths.cache.config' => value(\realpath($this->appRoot . '/cache/config')),
             'paths.cache.latte' => value(\realpath($this->appRoot . '/cache/latte')),
             'paths.templates' => value(\realpath($this->appRoot . '/templates')),
@@ -161,7 +162,7 @@ class MiDy implements RequestHandlerInterface
             ,
             EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
             HandlerRouter::class => autowire()
-                ->constructorParameter('routesPath', get('paths.routes'))
+                ->constructorParameter('root', get(RootFolder::class))
                 ->method('addHandler', get(StaticFileHandler::class))
                 ->method('addHandler', get(LatteHandler::class))
                 ->method('addHandler', get(MarkdownLatteHandler::class))
@@ -171,14 +172,14 @@ class MiDy implements RequestHandlerInterface
             MarkdownLatteHandler::class => autowire()
                 ->constructorParameter('templateRoot', get('paths.templates'))
             ,
-            DirectFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
-            FlattenedFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
+//            DirectFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
+//            FlattenedFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
+            PathCache::class => autowire()->constructor(
+                cachePath: get('paths.cache.routes')
+            ),
             RootFolder::class => create(RootFolder::class)->constructor(
-                urlPath: '/',
-                providers: [
-                    '/' => get(DirectFileSystemProvider::class),
-                    '/aggregateblog' => get(FlattenedFileSystemProvider::class),
-                ],
+                physicalPath: get('paths.routes'),
+                cache: get(PathCache::class),
             ),
         ]);
 

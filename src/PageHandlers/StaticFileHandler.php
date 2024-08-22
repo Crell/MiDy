@@ -9,6 +9,7 @@ use Crell\MiDy\Router\HandlerRouter\PageHandler;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
+use Crell\MiDy\Tree\Page;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -31,7 +32,7 @@ readonly class StaticFileHandler implements PageHandler
         return array_keys($this->config->allowedExtensions);
     }
 
-    public function handle(ServerRequestInterface $request, string $file, string $ext): ?RouteResult
+    public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
     {
         $contentType = $this->config->allowedExtensions[$ext];
 
@@ -39,7 +40,7 @@ readonly class StaticFileHandler implements PageHandler
             action: $this->action(...),
             method: $request->getMethod(),
             vars: [
-                'file' => $file,
+                'file' => $page->variant($ext)->physicalPath,
                 'contentType' => $contentType,
             ],
         );

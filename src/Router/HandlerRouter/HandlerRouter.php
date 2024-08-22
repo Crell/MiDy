@@ -9,13 +9,14 @@ use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Router\RouteResult;
+use Crell\MiDy\Tree\RootFolder;
 use Psr\Http\Message\ServerRequestInterface;
 use Webmozart\Glob\Glob;
 
 class HandlerRouter implements Router
 {
     public function __construct(
-        private readonly string $routesPath,
+        private readonly RootFolder $root,
     ) {}
 
     /**
@@ -34,23 +35,21 @@ class HandlerRouter implements Router
 
     public function route(ServerRequestInterface $request): RouteResult
     {
-        $requestPath = $request->getAttribute(RequestPath::class);
         $method = $request->getMethod();
 
-        $candidates = $this->getFilePaths($requestPath);
+        $page = $this->root->find($request->getUri()->getPath());
 
-        if (empty($candidates)) {
+        if (!$page) {
             return new RouteNotFound();
         }
 
         $possibleMethods = [];
-        foreach ($candidates as $candidate) {
-            $ext = pathinfo($candidate, PATHINFO_EXTENSION);
+        foreach ($page->variants() as $ext => $file) {
             $possibleMethods += $this->handlerMap[$ext] ?? [];
 
             /** @var PageHandler $handler */
             foreach ($this->handlerMap[$ext][$method] ?? [] as $handler) {
-                if ($result = $handler->handle($request, $candidate, $ext)) {
+                if ($result = $handler->handle($request, $page, $ext)) {
                     return $result;
                 }
             }
@@ -60,10 +59,5 @@ class HandlerRouter implements Router
         // nothing handled it, which means nothing could deal with
         // that file type and method.  So we'll call that a method error.
         return new RouteMethodNotAllowed(array_keys($possibleMethods));
-    }
-
-    private function getFilePaths(RequestPath $requestPath): array
-    {
-        return Glob::glob("{$this->routesPath}{$requestPath->normalizedPath}.{$requestPath->ext}");
     }
 }
