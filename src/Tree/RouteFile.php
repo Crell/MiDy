@@ -10,6 +10,9 @@ readonly class RouteFile implements Linkable
         public string $physicalPath,
         public string $logicalPath,
         public string $ext,
+        public int $mtime,
+        public string $title,
+        public int $order,
     ) {}
 
     // @todo Make this better.
