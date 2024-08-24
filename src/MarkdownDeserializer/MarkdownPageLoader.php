@@ -30,19 +30,48 @@ class MarkdownPageLoader
 
     public function load(string $file): MarkdownPage|MarkdownError
     {
-        $file = trim($file, '/');
+        if (!str_contains($file, '://')) {
+            $file = $this->root . '/' . trim($file, '/');
+        }
 
-        $fileSource = file_get_contents($this->root . '/' . $file);
+        $fileSource = file_get_contents($file);
 
         if ($fileSource === false) {
             return MarkdownError::FileNotFound;
         }
 
-        [$empty, $header, $content] = \explode('---', $fileSource);
+        [$header, $content] = $this->extractFrontMatter($fileSource);
 
         $document = $this->serde->deserialize($header, from: 'yaml', to: MarkdownPage::class);
         $document->{$this->documentStructure->contentField} = $content;
 
         return $document;
+    }
+
+    private function extractFrontMatter(string $source)
+    {
+        // There is no header, so fall back to defaults.
+        if (!str_starts_with($source, '---')) {
+            // If the file begins with an H1, assume that's the title and split it off.
+            // @todo Should the h1 be included or no?
+            if (str_starts_with($source, '# ')) {
+                $firstNewline = strpos($source, PHP_EOL);
+                $title = trim(substr($source, 2, $firstNewline - 2));
+                $content = trim(substr($source, $firstNewline));
+                return ['title: ' . $title, $content];
+            }
+            // Otherwise it's just a raw markdown file, return as is.
+            return ['', $source];
+        }
+
+        $withoutLeadingHeaderStart = substr($source, 4);
+
+        $endHeaderPos = strpos($withoutLeadingHeaderStart, '---');
+
+        $header = substr($withoutLeadingHeaderStart, 0, $endHeaderPos);
+        $content = substr($withoutLeadingHeaderStart, $endHeaderPos + 4);
+
+        return [$header, $content];
+
     }
 }

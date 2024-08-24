@@ -14,6 +14,7 @@ class MarkdownPage
         public string $content,
         public string $title = '',
         public string $template = '',
+        public ?string $slug = null,
         #[Field(flatten: true)]
         public array $other = [],
     ) {}
