@@ -39,6 +39,33 @@ readonly class FilesystemTimedCache implements TimedCache
         return (bool)file_put_contents($this->cacheFile($key), serialize($data));
     }
 
+    public function delete(string $key): void
+    {
+        $cacheFile = $this->cacheFile($key);
+        if (file_exists($cacheFile)) {
+            unlink($cacheFile);
+        }
+    }
+
+    public function clear(\DateTimeInterface|int $olderThan = null): void
+    {
+        $iter = new \DirectoryIterator($this->cachePath);
+
+        if ($olderThan instanceof \DateTimeInterface) {
+            $olderThan = $olderThan->getTimestamp();
+        }
+        if ($olderThan !== null) {
+            $iter = new \CallbackFilterIterator($iter, fn (\DirectoryIterator $f) => $f->getMTime() < $olderThan);
+        }
+
+        $iter = new \CallbackFilterIterator($iter, fn (\DirectoryIterator $f) => !$f->isDot());
+
+        /** @var \SplFileInfo $file */
+        foreach ($iter as $file) {
+            unlink($file->getPathname());
+        }
+    }
+
     private function cacheFile(string $key): string
     {
         return $this->cachePath . '/' . $this->cacheId($key);
