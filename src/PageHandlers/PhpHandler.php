@@ -61,7 +61,7 @@ readonly class PhpHandler implements PageHandler
 
     private function loadAction(string $file): object
     {
-        require $file;
+        require_once $file;
         $class = $this->finder->getClass($file);
         // @todo Null/error handling.
         return $this->container->make($class);

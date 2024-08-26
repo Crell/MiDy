@@ -11,7 +11,8 @@ class RootFolder extends Folder
     public function __construct(
         string $physicalPath,
         FilesystemTimedCache $cache,
+        FileInterpreter $interpreter,
     ) {
-        parent::__construct($physicalPath, '/', $cache);
+        parent::__construct($physicalPath, '/', $cache, $interpreter);
     }
 }

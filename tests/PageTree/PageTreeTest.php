@@ -170,7 +170,7 @@ class PageTreeTest extends TestCase
     #[Test, DataProvider('findGlobExamplesDirectOnly')]
     public function simple_provider_find_glob(string $pattern, \Closure $check): void
     {
-        $filePath = $this->makeFilesystemFrom($this->simpleStructure(...))->url();
+        $filePath = $this->makeFilesystemFrom(self::simpleStructure(...))->url();
         $root = new RootFolder('/', [
             '/' => new DirectFileSystemProvider($filePath),
         ]);

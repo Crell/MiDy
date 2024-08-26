@@ -5,8 +5,13 @@ declare(strict_types=1);
 namespace Crell\MiDy\Tree;
 
 use bovigo\vfs\vfsDirectory;
+use bovigo\vfs\vfsStream;
+use Crell\MiDy\ClassFinder;
+use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\FakeFilesystem;
+use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\TimedCache\FilesystemTimedCache;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -14,38 +19,55 @@ class RootFolderTest extends TestCase
 {
     use FakeFilesystem;
 
-    protected vfsDirectory $vfs;
+    /**
+     * The VFS needs to be static so it's reused, so the require_once() call in the PHP interpreter
+     * can not require the "same" file multiple times, leading to double-declaration errors.
+     */
+    protected static vfsDirectory $vfs;
 
-    protected function initFilesystem(): vfsDirectory
+    #[BeforeClass]
+    public static function initFilesystem(): vfsDirectory
     {
         // This mess is because vfsstream doesn't let you create multiple streams
         // at the same time.  Which is dumb.
-        $structure = function () {
-            return [
-                'cache' => [],
-                'data' => $this->simpleStructure(),
-            ];
-        };
+        $structure = [
+            'cache' => [],
+            'data' => self::simpleStructure(),
+        ];
 
-        return $this->vfs = $this->makeFilesystemFrom($structure);
+        return self::$vfs = vfsStream::setup('root', null, $structure);
     }
 
     protected function makeRootFolder(): RootFolder
     {
-        $vfs = $this->initFilesystem();
-        $filePath = $vfs->getChild('data')->url();
-        $cachePath = $vfs->getChild('cache')->url();
+        $filePath = self::$vfs->getChild('data')->url();
+        $cachePath = self::$vfs->getChild('cache')->url();
 
-        $r = new RootFolder($filePath, new FilesystemTimedCache($cachePath));
+        $cache = new FilesystemTimedCache($cachePath);
+
+        $cache->clear();
+
+        $r = new RootFolder($filePath, $cache, $this->makeFileInterpreter());
 
         return $r;
+    }
+
+    protected function makeFileInterpreter(): FileInterpreter
+    {
+        $i = new MultiplexedFileInterpreter();
+        $i->addInterpreter(new StaticFileInterpreter(new StaticRoutes()));
+        $i->addInterpreter(new PhpFileInterpreter(new ClassFinder()));
+        $i->addInterpreter(new LatteFileInterpreter());
+        $i->addInterpreter(new MarkdownLatteFileInterpreter(new MarkdownPageLoader()));
+
+        return $i;
     }
 
     #[Test]
     public function count_returns_correct_value(): void
     {
         $r = $this->makeRootFolder();
-        self::assertCount(8, $r);
+        self::assertCount(7, $r);
     }
 
     #[Test]
@@ -77,9 +99,9 @@ class RootFolderTest extends TestCase
     {
         $r = $this->makeRootFolder();
 
-        file_put_contents('vfs://root/data/foo.txt', 'Foo');
+        file_put_contents('vfs://root/data/foo.md', 'Foo');
 
-        $page = $r->child('foo.txt');
+        $page = $r->child('foo.md');
 
         self::assertEquals('/foo', $page->path());
     }
@@ -89,11 +111,11 @@ class RootFolderTest extends TestCase
     {
         $r = $this->makeRootFolder();
 
-        file_put_contents('vfs://root/data/foo.txt', 'Foo');
+        file_put_contents('vfs://root/data/bar.md', 'Bar');
 
-        $page = $r->find('/foo.txt');
+        $page = $r->find('/bar.md');
 
-        self::assertEquals('/foo', $page->path());
+        self::assertEquals('/bar', $page->path());
     }
 
 }

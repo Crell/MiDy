@@ -15,6 +15,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
         public readonly string $physicalPath,
         public readonly string $logicalPath,
         protected readonly TimedCache $cache,
+        protected readonly FileInterpreter $interpreter,
     ) {}
 
     public function count(): int
@@ -27,7 +28,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
         /** @var FolderRef|Page $child */
         foreach ($this->getFolder()->children as $child) {
             if ($child instanceof FolderRef) {
-                yield new Folder($child->physicalPath, $child->logicalPath, $this->cache);
+                yield new Folder($child->physicalPath, $child->logicalPath, $this->cache, $this->interpreter);
             } else {
                 yield $child;
             }
@@ -59,9 +60,9 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
         $child = $this->getFolder()->children[$pathinfo['filename']] ?? null;
 
         if ($child instanceof FolderRef) {
-            return new Folder($child->physicalPath, $child->logicalPath, $this->cache);
+            return new Folder($child->physicalPath, $child->logicalPath, $this->cache, $this->interpreter);
         }
-        if (isset($pathinfo['extension'])) {
+        if ($child && isset($pathinfo['extension'])) {
             /** @var Page $child */
             $child = $child->limitTo($pathinfo['extension']);
         }
@@ -94,17 +95,20 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
         /** @var \SplFileInfo $file */
         foreach ($iter as $file) {
             if ($file->isFile()) {
-                $physicalPath = $file->getPathname();
-                $pathinfo = pathinfo($physicalPath);
-                // @todo This gets more flexible.
-                $logicalPath = ltrim($this->logicalPath, '/') . '/' . $pathinfo['filename'];
+                $routeFile = $this->interpreter->map($file, $this->logicalPath);
 
-                $toBuild[$logicalPath] ??= [
+                if ($routeFile === FileInterpreterError::FileNotSupported) {
+                    // For now, just ignore unsupported file types.
+                    // @todo This should probably get logged, at least.
+                    continue;
+                }
+
+                $toBuild[$routeFile->logicalPath] ??= [
                     'type' => 'page',
                     'variants' => [],
                 ];
 
-                $toBuild[$logicalPath]['variants'][$file->getExtension()] = $file;
+                $toBuild[$routeFile->logicalPath]['variants'][$file->getExtension()] = $routeFile;
 
             } else {
                 $physicalPath = $file->getPathname();

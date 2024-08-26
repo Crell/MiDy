@@ -11,34 +11,15 @@ class Page implements Linkable
 
     // @todo Store info about each variant here, pulled from SplFileInfo.
 
-    /**
-     * @var array<string, string>
-     *   A map from extension to physical path.
-     *
-     * This really needs aviz.
-     *
-     */
-    protected array $variants = [];
-
-    /**
+     /**
      * @param string $logicalPath
-     * @param array<string, \SplFileInfo> $variants
+     * @param array<string, RouteFile> $variants
      */
     public function __construct(
         private readonly string $logicalPath,
-        array $variants,
+        protected array $variants,
     ) {
-        $mtime = 0;
-
-        /**
-         * @var string $ext
-         * @var \SplFileInfo $file
-         */
-        foreach ($variants as $ext => $file) {
-            $mtime = max($mtime, $file->getMTime());
-            $this->variants[$ext] = $file->getPathname();
-        }
-        $this->lastModified = $mtime;
+        $this->lastModified = count($this->variants) ? max(array_map(static fn(RouteFile $r) => $r->mtime, $variants)) : 0;
     }
 
     // @todo This is a bad approach, and a sign that we need to merge Page and RouteFile into a single interface, probably.
@@ -55,18 +36,15 @@ class Page implements Linkable
         return $this->variants;
     }
 
-    public function variant(string $ext): RouteFile
+    public function variant(string $ext): ?RouteFile
     {
-        return new RouteFile(
-            physicalPath: $this->variants[$ext],
-            logicalPath: $this->logicalPath,
-            ext: $ext,
-        );
+        return $this->variants[$ext] ?? null;
     }
 
     // @todo Make this better.
     public function title(): string
     {
+        reset($this->variants)->title;
         return ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
     }
 

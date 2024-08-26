@@ -35,7 +35,7 @@ trait FakeFilesystem
         ];
     }
 
-    protected function simpleStructure(): array
+    protected static function simpleStructure(): array
     {
         return [
             'index.md' => '',
@@ -50,9 +50,16 @@ trait FakeFilesystem
                 ],
             ],
             'double.latte' => '',
-            'double.php' => '',
-            'php-test.php' => '',
-            'yaml-test.yaml' => '',
+            'double.php' => <<<END
+            <?php
+            
+            class Double {}
+            END,
+            'php-test.php' => <<<END
+            <?php
+            
+            class PhpFake {}
+            END,
             'md-test.md' => '',
             'latte-test.latte' => '',
         ];

@@ -39,9 +39,14 @@ use Crell\MiDy\Services\RuntimeActionInvoker;
 use Crell\MiDy\TimedCache\FilesystemTimedCache;
 use Crell\MiDy\Tree\FolderData;
 use Crell\MiDy\Tree\FolderRef;
+use Crell\MiDy\Tree\LatteFileInterpreter;
+use Crell\MiDy\Tree\MarkdownLatteFileInterpreter;
+use Crell\MiDy\Tree\MultiplexedFileInterpreter;
 use Crell\MiDy\Tree\Page;
+use Crell\MiDy\Tree\PhpFileInterpreter;
 use Crell\MiDy\Tree\RootFolder;
 use Crell\MiDy\Tree\RouteFile;
+use Crell\MiDy\Tree\StaticFileInterpreter;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -180,9 +185,16 @@ class MiDy implements RequestHandlerInterface
                 cachePath: get('paths.cache.routes'),
                 allowedClasses: [FolderData::class, FolderRef::class, Page::class, RouteFile::class],
             ),
+            MultiplexedFileInterpreter::class => autowire()
+                ->method('addInterpreter', get(StaticFileInterpreter::class))
+                ->method('addInterpreter', get(LatteFileInterpreter::class))
+                ->method('addInterpreter', get(MarkdownLatteFileInterpreter::class))
+                ->method('addInterpreter', get(PhpFileInterpreter::class))
+            ,
             RootFolder::class => create(RootFolder::class)->constructor(
                 physicalPath: get('paths.routes'),
                 cache: get('path_cache'),
+                interpreter: get(MultiplexedFileInterpreter::class),
             ),
         ]);
 

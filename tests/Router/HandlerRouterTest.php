@@ -10,6 +10,7 @@ use Crell\MiDy\Router\HandlerRouter\PageHandler;
 use Crell\MiDy\Tree\Folder;
 use Crell\MiDy\Tree\Page;
 use Crell\MiDy\Tree\RootFolder;
+use Crell\MiDy\Tree\RouteFile;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -51,14 +52,9 @@ class HandlerRouterTest extends TestCase
 
             public function find(string $path): Page|Folder|null
             {
-                return new Page('/foo/bar', ['md' => new class extends \SplFileInfo {
-                    public function __construct() {}
-
-                    public function getMTime(): int|false
-                    {
-                        return time() - 20;
-                    }
-                }]);
+                return new Page('/foo/bar', [
+                    'md' => new RouteFile('','', 'md', time(), '',0),
+                ]);
             }
         };
 
