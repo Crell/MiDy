@@ -229,6 +229,7 @@ RouteFile
 --path
 --mtime
 --ext
+--physicalFile (needed for routing)
 
 Page
 --title
@@ -241,5 +242,14 @@ Still need to design magic .midy file for extra frontmatter.
 
 How can Page even have a title?  Its title is based on which variant is active, but we don't know that without routing.  Having those only work if there's only one variant is a land mine.  path() works, though.  Sort of.  But for static files it should probably include the extension.  Which is then variant dependent.  Arf.
 
-Page title could be just the path segment, if there's more than one file?  But no, that breaks blog posts with commonly named images.  Maybe it could be limited to pull from RouteFiles with specific interfaces, indicating there is metadata?
+Page title could be just the path segment, if there's more than one file?  But no, that breaks blog posts with commonly named images, or forms with a same-name processor.  Maybe it could be limited to pull from RouteFiles with specific interfaces, indicating there is metadata?
+
+RouteFile implements Linkable, not Titled
+|-StaticFile implements Routable
+|-PhpFile implements Routable, maybe title?
+|-LatteFile implements Routable, HasTitle
+|-MarkdownFile implements Routable, HasTitle
+ |-MarkdownLatteFile
+
+... Do I need to integrate language variants now?  Yeesh.  I hope not.
 
