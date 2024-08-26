@@ -6,5 +6,11 @@ namespace Crell\MiDy\Tree;
 
 interface FileInterpreter
 {
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile;
+    /**
+     * @return array<string>
+     *     A list of supported file extensions.
+     */
+    public function supportedExtensions(): array;
+
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile|FileInterpreterError;
 }

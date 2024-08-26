@@ -4,9 +4,21 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-class StaticFileInterpreter implements FileInterpreter
+use Crell\MiDy\Config\StaticRoutes;
+
+readonly class StaticFileInterpreter implements FileInterpreter
 {
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile
+
+    public function __construct(
+        private StaticRoutes $config,
+    ) {}
+
+    public function supportedExtensions(): array
+    {
+        return array_keys($this->config->allowedExtensions);
+    }
+
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile|FileInterpreterError
     {
         // SPL is so damned stupid...
         $basename = $fileInfo->getBasename('.' . $fileInfo->getExtension());

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
+use Crell\MiDy\Config\StaticRoutes;
+
 class StaticFileInterpreterTest extends FileInterpreterTestBase
 {
     protected static array $files = [
@@ -21,6 +23,6 @@ class StaticFileInterpreterTest extends FileInterpreterTestBase
 
     protected function getInterpreter(): FileInterpreter
     {
-        return new StaticFileInterpreter();
+        return new StaticFileInterpreter(new StaticRoutes());
     }
 }

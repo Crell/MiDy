@@ -12,7 +12,12 @@ class MarkdownLatteFileInterpreter implements FileInterpreter
         private MarkdownPageLoader $loader,
     ) {}
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile
+    public function supportedExtensions(): array
+    {
+        return ['md'];
+    }
+
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile|FileInterpreterError
     {
         // SPL is so damned stupid...
         $basename = $fileInfo->getBasename('.' . $fileInfo->getExtension());

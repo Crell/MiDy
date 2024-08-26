@@ -9,7 +9,12 @@ namespace Crell\MiDy\Tree;
  */
 class LatteFileInterpreter implements FileInterpreter
 {
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile
+    public function supportedExtensions(): array
+    {
+        return ['latte'];
+    }
+
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile|FileInterpreterError
     {
         // SPL is so damned stupid...
         $basename = $fileInfo->getBasename('.' . $fileInfo->getExtension());

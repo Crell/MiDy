@@ -7,13 +7,18 @@ namespace Crell\MiDy\Tree;
 use Crell\MiDy\ClassFinder;
 use Crell\MiDy\Tree\Attributes\PageRoute;
 
-class PhpFileInterpreter implements FileInterpreter
+readonly class PhpFileInterpreter implements FileInterpreter
 {
     public function __construct(
         private ClassFinder $finder,
     ) {}
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile
+    public function supportedExtensions(): array
+    {
+        return ['php'];
+    }
+
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile|FileInterpreterError
     {
         // SPL is so damned stupid...
         $basename = $fileInfo->getBasename('.' . $fileInfo->getExtension());
