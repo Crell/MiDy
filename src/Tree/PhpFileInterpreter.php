@@ -37,8 +37,12 @@ class PhpFileInterpreter implements FileInterpreter
 
     private function frontmatter(string $physicalPath): ?PageRoute
     {
-        require $physicalPath;
+        require_once $physicalPath;
         $class = $this->finder->getClass($physicalPath);
+
+        if (!$class) {
+            return null;
+        }
 
         $attribs = array_map(fn(\ReflectionAttribute $a) => $a->newInstance(),  (new \ReflectionClass($class))->getAttributes(PageRoute::class));
 
