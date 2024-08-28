@@ -55,7 +55,7 @@ class MarkdownPageLoader
             // If the file begins with an H1, assume that's the title and split it off.
             // @todo Should the h1 be included or no?
             if (str_starts_with($source, '# ')) {
-                $firstNewline = strpos($source, PHP_EOL);
+                $firstNewline = strpos($source, PHP_EOL) ?: strlen($source);
                 $title = trim(substr($source, 2, $firstNewline - 2));
                 $content = trim(substr($source, $firstNewline));
                 return ['title: ' . $title, $content];
