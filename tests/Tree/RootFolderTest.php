@@ -118,4 +118,33 @@ class RootFolderTest extends TestCase
         self::assertEquals('/bar', $page->path());
     }
 
+    #[Test]
+    public function folder_displays_as_index_file(): void
+    {
+        mkdir('vfs://root/data/afolder');
+        file_put_contents('vfs://root/data/afolder/index.md', '# Title here');
+
+        $r = $this->makeRootFolder();
+
+        $page = $r->find('/afolder');
+
+        self::assertEquals('/afolder', $page->path());
+        self::assertEquals('Title here', $page->title());
+    }
+
+    #[Test]
+    public function folder_with_no_index_file_displays_own_name(): void
+    {
+        mkdir('vfs://root/data/somefolder');
+        // This should not actually impact anything.
+        file_put_contents('vfs://root/data/somefolder/beep.md', '# Title here');
+
+        $r = $this->makeRootFolder();
+
+        $page = $r->find('/somefolder');
+
+        self::assertEquals('/somefolder', $page->path());
+        self::assertEquals('Somefolder', $page->title());
+    }
+
 }

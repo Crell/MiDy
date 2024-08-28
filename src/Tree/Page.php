@@ -44,8 +44,7 @@ class Page implements Linkable
     // @todo Make this better.
     public function title(): string
     {
-        reset($this->variants)->title;
-        return ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
+        return reset($this->variants)->title;
     }
 
     public function path(): string

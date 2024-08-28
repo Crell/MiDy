@@ -73,7 +73,8 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
     // @todo Make this better.
     public function title(): string
     {
-        return ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
+        return $this->child('index')?->title()
+            ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
     }
 
     public function path(): string
