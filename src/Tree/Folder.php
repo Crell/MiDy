@@ -7,9 +7,11 @@ namespace Crell\MiDy\Tree;
 use Crell\MiDy\TimedCache\TimedCache;
 use Traversable;
 
-class Folder implements \Countable, \IteratorAggregate, Linkable
+class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 {
     private FolderData $folder;
+
+    private ?Page $indexPage;
 
     public function __construct(
         public readonly string $physicalPath,
@@ -33,6 +35,30 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
                 yield $child;
             }
         }
+    }
+
+    public function limitTo(string $variant): static
+    {
+        /** @var ?Page $page */
+        $page = $this->child('index');
+        if (!$page) {
+            return $this;
+        }
+
+        $folder = new Folder($this->physicalPath, $this->logicalPath, $this->cache, $this->interpreter);
+
+        $folder->indexPage = $page->limitTo($variant);
+        return $folder;
+    }
+
+    public function variants(): array
+    {
+        return $this->getIndexPage()?->variants() ?? [];
+    }
+
+    public function variant(string $ext): ?RouteFile
+    {
+        return $this->getIndexPage()?->variant('ext');
     }
 
     public function find(string $path): Page|Folder|null
@@ -70,16 +96,20 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
         return $child;
     }
 
-    // @todo Make this better.
     public function title(): string
     {
-        return $this->child('index')?->title()
+        return $this->getIndexPage()?->title()
             ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
     }
 
     public function path(): string
     {
         return $this->logicalPath;
+    }
+
+    public function getIndexPage(): ?Page
+    {
+        return $this->indexPage ??= $this->child('index');
     }
 
     protected function getFolder(): FolderData
@@ -138,6 +168,4 @@ class Folder implements \Countable, \IteratorAggregate, Linkable
 
         return new FolderData($this->physicalPath, $this->logicalPath, $children);
     }
-
-
 }

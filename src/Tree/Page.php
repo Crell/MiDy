@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-class Page implements Linkable
+class Page implements Linkable, MultiType
 {
     // @todo Need to make this non-mutable somehow, while still allowing limitTo() or equivalent.
     public int $lastModified;
@@ -23,7 +23,7 @@ class Page implements Linkable
     }
 
     // @todo This is a bad approach, and a sign that we need to merge Page and RouteFile into a single interface, probably.
-    public function limitTo(string $variant): Page
+    public function limitTo(string $variant): static
     {
         $new = new Page($this->logicalPath, []);
         $new->variants[$variant] = $this->variants[$variant];

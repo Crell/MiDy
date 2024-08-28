@@ -8,6 +8,7 @@ use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Router\RouteResult;
+use Crell\MiDy\Tree\Folder;
 use Crell\MiDy\Tree\RootFolder;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -37,6 +38,11 @@ class HandlerRouter implements Router
 
         $page = $this->root->find($request->getUri()->getPath());
 
+        if ($page instanceof Folder) {
+            $page = $page->getIndexPage();
+        }
+
+        // A folder with no index page is non-routable.
         if (!$page) {
             return new RouteNotFound();
         }
