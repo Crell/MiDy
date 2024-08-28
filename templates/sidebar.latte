@@ -2,5 +2,10 @@
 
 
 <ul n:inner-foreach="$root->children() as $page">
-    <li><a href="{$page->path()}">{$page->title()}</a></li>
+    <li>
+        <a href="{$page->path()}">{$page->title()}</a>
+        {if $page instanceof Crell\MiDy\Tree\Folder}
+            {include sidebar.latte, root: $page}
+        {/if}
+    </li>
 </ul>
