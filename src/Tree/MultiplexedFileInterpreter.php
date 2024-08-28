@@ -26,7 +26,7 @@ class MultiplexedFileInterpreter implements FileInterpreter
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile|FileInterpreterError
     {
         /** @var FileInterpreter $i */
-        foreach ($this->interpreters[$fileInfo->getExtension()] as $i) {
+        foreach ($this->interpreters[$fileInfo->getExtension()] ?? [] as $i) {
             if (($routeFile = $i->map($fileInfo, $parentLogicalPath)) instanceof RouteFile) {
                 return $routeFile;
             }
