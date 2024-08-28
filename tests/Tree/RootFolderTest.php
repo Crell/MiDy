@@ -47,9 +47,7 @@ class RootFolderTest extends TestCase
 
         $cache->clear();
 
-        $r = new RootFolder($filePath, $cache, $this->makeFileInterpreter());
-
-        return $r;
+        return new RootFolder($filePath, $cache, $this->makeFileInterpreter());
     }
 
     protected function makeFileInterpreter(): FileInterpreter
@@ -147,4 +145,33 @@ class RootFolderTest extends TestCase
         self::assertEquals('Somefolder', $page->title());
     }
 
+    #[Test]
+    public function folder_with_order_prefixes_respects_order(): void
+    {
+        mkdir('vfs://root/data/ordered');
+        mkdir('vfs://root/data/ordered/07_a');
+        // The "natural" order of files will be the order created, unless the ordering works.
+        file_put_contents('vfs://root/data/ordered/05_j.md', '# J');
+        file_put_contents('vfs://root/data/ordered/01_z.md', '# Z');
+        file_put_contents('vfs://root/data/ordered/07_a/index.md', '# A');
+        file_put_contents('vfs://root/data/ordered/02_k.md', '# K');
+
+        $r = $this->makeRootFolder();
+
+        $folder = $r->find('/ordered');
+
+        self::assertInstanceOf(Folder::class, $folder);
+
+        $children = iterator_to_array($folder);
+
+        self::assertEquals('Z', $children[0]->title());
+        self::assertEquals('K', $children[1]->title());
+        self::assertEquals('J', $children[2]->title());
+        self::assertEquals('A', $children[3]->title());
+
+        self::assertEquals('/ordered/z', $children[0]->path());
+        self::assertEquals('/ordered/k', $children[1]->path());
+        self::assertEquals('/ordered/j', $children[2]->path());
+        self::assertEquals('/ordered/a', $children[3]->path());
+    }
 }

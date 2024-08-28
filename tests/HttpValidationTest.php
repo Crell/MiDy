@@ -62,4 +62,27 @@ class HttpValidationTest extends TestCase
         self::assertEquals(200, $response->getStatusCode());
     }
 
+    #[Test]
+    public function tree_ordering(): void
+    {
+        $app = $this->app;
+
+        $serverRequest = $this->makeRequest('/');
+
+        $response = $app->handle($serverRequest);
+
+        self::assertEquals(200, $response->getStatusCode());
+
+        $body = $response->getBody()->getContents();
+        $zpos = strpos($body, 'ordered/z');
+        $kpos = strpos($body, 'ordered/k');
+        $jpos = strpos($body, 'ordered/j');
+
+        self::assertNotFalse($zpos);
+        self::assertNotFalse($kpos);
+        self::assertNotFalse($jpos);
+        self::assertTrue($zpos < $kpos);
+        self::assertTrue($kpos < $jpos);
+    }
+
 }
