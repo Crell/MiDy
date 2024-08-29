@@ -11,7 +11,6 @@ use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Services\TemplateRenderer;
 use Crell\MiDy\Tree\Page;
-use Latte\Engine;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -19,7 +18,6 @@ readonly class MarkdownLatteHandler implements PageHandler
 {
     public function __construct(
         private ResponseBuilder $builder,
-        private Engine $latte,
         private MarkdownPageLoader $loader,
         private string $templateRoot,
         private TemplateRenderer $renderer,
