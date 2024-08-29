@@ -128,7 +128,8 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         /** @var \SplFileInfo $file */
         foreach ($iter as $file) {
             if ($file->isFile()) {
-                [$basename, $order] = $this->parseName($file);
+                // SPL is so damned stupid...
+                [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
 
                 $routeFile = $this->interpreter->map($file, $this->logicalPath, $basename);
 
@@ -148,7 +149,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
                 $toBuild[$routeFile->logicalPath]['variants'][$file->getExtension()] = $routeFile;
 
             } else {
-                [$basename, $order] = $this->parseName($file);
+                [$basename, $order] = $this->parseName($file->getFilename());
 
                 $physicalPath = $file->getPathname();
                 // @todo This gets more flexible.
@@ -181,14 +182,8 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         return new FolderData($this->physicalPath, $this->logicalPath, $children);
     }
 
-    protected function parseName(\SplFileInfo $file): array
+    protected function parseName(string $basename): array
     {
-        // SPL is so damned stupid...
-        $basename = $file->isFile()
-            ? $file->getBasename('.' . $file->getExtension())
-            : $file->getFilename()
-        ;
-
         preg_match(self::StripPrefix, $basename, $matches);
 
         $order = 0;
