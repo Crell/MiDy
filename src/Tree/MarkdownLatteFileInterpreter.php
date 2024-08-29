@@ -31,7 +31,6 @@ class MarkdownLatteFileInterpreter implements FileInterpreter
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
             title: $page->title ?? ucfirst($basename),
-            order: $page->order ?? 0,
         );
     }
 }

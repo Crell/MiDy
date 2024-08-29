@@ -33,7 +33,6 @@ readonly class PhpFileInterpreter implements FileInterpreter
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
             title: $attrib?->title ?? ucfirst($basename),
-            order: 0,
         );
     }
 

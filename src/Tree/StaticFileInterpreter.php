@@ -28,7 +28,6 @@ readonly class StaticFileInterpreter implements FileInterpreter
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
             title: ucfirst($basename),
-            order: 0,
         );
     }
 }
