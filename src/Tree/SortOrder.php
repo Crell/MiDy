@@ -9,8 +9,11 @@ enum SortOrder
     case Asc;
     case Desc;
 
-    public static function fromString(string $order): ?self
+    public static function fromString(?string $order): ?self
     {
+        if (!$order) {
+            return null;
+        }
         return match (strtolower($order)) {
             'asc' => self::Asc,
             'desc' => self::Desc,
