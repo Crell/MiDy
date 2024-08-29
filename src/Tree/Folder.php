@@ -125,9 +125,26 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 
         $toBuild = [];
 
+        $sortOrder = SortOrder::Asc;
+
         /** @var \SplFileInfo $file */
         foreach ($iter as $file) {
             if ($file->isFile()) {
+
+                // This folder is magic, and provides extra metadata to the folder itself.
+                if ($file->getBasename() === 'folder.midy') {
+                    // @todo We can probably do better than this manual nonsense, but I'd prefer to not
+                    //   inject Serde into the Folder tree as well.
+                    $contents = file_get_contents($file->getPathname());
+                    try {
+                        $def = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+                        $sortOrder = SortOrder::fromString($def['order'] ?? null) ?? SortOrder::Asc;
+                    } catch (\JsonException) {
+                        // @todo Log this, but otherwise we don't care.
+                    }
+                    continue;
+                }
+
                 // SPL is so damned stupid...
                 [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
 
@@ -166,7 +183,10 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         }
 
         // @todo Figure out how to get the title in here somehow.
-        $comparator = static fn (array $a, array $b) => [$a['order']] <=> [$b['order']];
+        $comparator = match ($sortOrder) {
+            SortOrder::Asc => static fn (array $a, array $b) => [$a['order']] <=> [$b['order']],
+            SortOrder::Desc => static fn (array $a, array $b) => [$b['order']] <=> [$a['order']],
+        };
         uasort($toBuild, $comparator);
 
         $children = [];

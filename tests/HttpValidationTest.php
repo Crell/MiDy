@@ -105,4 +105,26 @@ class HttpValidationTest extends TestCase
         self::assertTrue($kpos < $jpos);
     }
 
+    #[Test]
+    public function tree_ordering_reversed(): void
+    {
+        $app = $this->app;
+
+        $serverRequest = $this->makeRequest('/');
+
+        $response = $app->handle($serverRequest);
+
+        self::assertEquals(200, $response->getStatusCode());
+
+        $body = $response->getBody()->getContents();
+        $zpos = strpos($body, 'reversed/z');
+        $kpos = strpos($body, 'reversed/k');
+        $jpos = strpos($body, 'reversed/j');
+
+        self::assertNotFalse($zpos);
+        self::assertNotFalse($kpos);
+        self::assertNotFalse($jpos);
+        self::assertTrue($jpos < $kpos);
+        self::assertTrue($kpos < $zpos);
+    }
 }
