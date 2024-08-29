@@ -21,6 +21,25 @@ class HttpValidationTest extends TestCase
         $this->app = new MiDy('.');
     }
 
+    #[Before]
+    public function clearCaches(): void
+    {
+        $this->clearDirectory('./cache/routes');
+        $this->clearDirectory('./cache/latte');
+        $this->clearDirectory('./cache/config');
+    }
+
+    protected function clearDirectory(string $path): void
+    {
+        $files = glob($path . '/*');
+
+        foreach($files as $file) {
+            if(is_file($file)) {
+                unlink($file);
+            }
+        }
+    }
+
     protected function makeRequest(string $path, string $method = 'GET'): ServerRequestInterface
     {
         /** @var ServerRequestCreatorInterface $creator */
