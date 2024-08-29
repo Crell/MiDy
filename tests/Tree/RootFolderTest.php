@@ -176,6 +176,36 @@ class RootFolderTest extends TestCase
     }
 
     #[Test]
+    public function folder_with_date_prefixes_respects_order(): void
+    {
+        mkdir('vfs://root/data/dated');
+        mkdir('vfs://root/data/dated/2024-07-01_a');
+        // The "natural" order of files will be the order created, unless the ordering works.
+        file_put_contents('vfs://root/data/dated/2024-05-01_j.md', '# J');
+        file_put_contents('vfs://root/data/dated/2024-01-01_z.md', '# Z');
+        file_put_contents('vfs://root/data/dated/2024-07-01_a/index.md', '# A');
+        file_put_contents('vfs://root/data/dated/2024-02-01_k.md', '# K');
+
+        $r = $this->makeRootFolder();
+
+        $folder = $r->find('/dated');
+
+        self::assertInstanceOf(Folder::class, $folder);
+
+        $children = iterator_to_array($folder);
+
+        self::assertEquals('Z', $children[0]->title());
+        self::assertEquals('K', $children[1]->title());
+        self::assertEquals('J', $children[2]->title());
+        self::assertEquals('A', $children[3]->title());
+
+        self::assertEquals('/dated/z', $children[0]->path());
+        self::assertEquals('/dated/k', $children[1]->path());
+        self::assertEquals('/dated/j', $children[2]->path());
+        self::assertEquals('/dated/a', $children[3]->path());
+    }
+
+    #[Test]
     public function folder_with_order_prefixes_respects_order_reversed(): void
     {
         mkdir('vfs://root/data/reversed');
