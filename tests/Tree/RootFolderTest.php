@@ -235,4 +235,45 @@ class RootFolderTest extends TestCase
         self::assertEquals('/reversed/j', $children[1]->path());
         self::assertEquals('/reversed/a', $children[0]->path());
     }
+
+    #[Test]
+    public function folder_with_flattening_renders_correctly(): void
+    {
+        mkdir('vfs://root/data/flattened');
+        // The directories will be listed in the order created. That may or may not
+        // cause an issue, depending on use case.  See @todo in Folder.
+        mkdir('vfs://root/data/flattened/2022');
+        mkdir('vfs://root/data/flattened/2023');
+        mkdir('vfs://root/data/flattened/2024');
+        file_put_contents('vfs://root/data/flattened/folder.midy', '{"flatten": true}');
+        file_put_contents('vfs://root/data/flattened/2024/e.md', '# E');
+        file_put_contents('vfs://root/data/flattened/2024/f.md', '# F');
+        file_put_contents('vfs://root/data/flattened/2022/a.md', '# A');
+        file_put_contents('vfs://root/data/flattened/2022/b.md', '# B');
+        file_put_contents('vfs://root/data/flattened/2023/c.md', '# C');
+        file_put_contents('vfs://root/data/flattened/2023/d.md', '# D');
+
+        $r = $this->makeRootFolder();
+
+        $folder = $r->find('/flattened');
+
+        self::assertInstanceOf(Folder::class, $folder);
+
+        $children = iterator_to_array($folder);
+
+        self::assertEquals('A', $children[0]->title());
+        self::assertEquals('B', $children[1]->title());
+        self::assertEquals('C', $children[2]->title());
+        self::assertEquals('D', $children[3]->title());
+        self::assertEquals('E', $children[4]->title());
+        self::assertEquals('F', $children[5]->title());
+
+        self::assertEquals('/flattened/a', $children[0]->path());
+        self::assertEquals('/flattened/b', $children[1]->path());
+        self::assertEquals('/flattened/c', $children[2]->path());
+        self::assertEquals('/flattened/d', $children[3]->path());
+        self::assertEquals('/flattened/e', $children[4]->path());
+        self::assertEquals('/flattened/f', $children[5]->path());
+    }
+
 }

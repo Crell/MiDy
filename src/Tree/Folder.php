@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Crell\MiDy\Tree;
 
 use Crell\MiDy\TimedCache\TimedCache;
+use FilesystemIterator;
 use Traversable;
 
 class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 {
     private const string StripPrefix = '/^([\d_-]+)_(.*)/m';
+
+    private const string ControlFile = 'folder.midy';
 
     private FolderData $folder;
 
@@ -123,9 +126,10 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
     {
         $toBuild = [];
         $sortOrder = SortOrder::Asc;
+        $flatten = false;
 
-        // This folder is magic, and provides extra metadata to the folder itself.
-        $folderFile = $this->physicalPath . '/folder.midy';
+        // The control file provides extra metadata to the folder itself.
+        $folderFile = $this->physicalPath . '/' . self::ControlFile;
         if (file_exists($folderFile)) {
             // @todo We can probably do better than this manual nonsense, but I'd prefer to not
             //   inject Serde into the Folder tree as well.
@@ -133,19 +137,30 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
             try {
                 $def = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
                 $sortOrder = SortOrder::fromString($def['order'] ?? null) ?? SortOrder::Asc;
+                $flatten = $def['flatten'] ?? false;
             } catch (\JsonException) {
                 // @todo Log this, but otherwise we don't care.
             }
         }
 
-        /** @var \SplFileInfo $file */
-        foreach (new \FilesystemIterator($this->physicalPath) as $file) {
-            if ($file->isFile()) {
-                // Never show the control file.
-                if ($file->getBasename() === 'folder.midy') {
-                    continue;
-                }
+        // @todo This approach has one limitation: The order of the skipped directories has no effect.
+        //   If the files themselves have a logical ordering, that's no issue. If not, that could be
+        //   unexpected.  I'm not sure how to address that other than doing all the recursion manually
+        //   in an entirely separate routine, so I'm skipping that for now.
+        $flags = FilesystemIterator::KEY_AS_PATHNAME|FilesystemIterator::CURRENT_AS_FILEINFO|FilesystemIterator::SKIP_DOTS;
+        if ($flatten) {
+            $filter = static fn(\SplFileInfo $f) => $f->isFile();
+            $iter = new \CallbackFilterIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->physicalPath, flags: $flags)), $filter);
+        } else {
+            $iter = new \FilesystemIterator($this->physicalPath, flags: $flags);
+        }
 
+        // Never show the control file.
+        $iter = new \CallbackFilterIterator($iter, static fn(\SplFileInfo $f) => $f->getBasename() !== self::ControlFile);
+
+        /** @var \SplFileInfo $file */
+        foreach ($iter as $file) {
+            if ($file->isFile()) {
                 // SPL is so damned stupid...
                 [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
 
@@ -165,7 +180,6 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
                 ];
 
                 $toBuild[$routeFile->logicalPath]['variants'][$file->getExtension()] = $routeFile;
-
             } else {
                 [$basename, $order] = $this->parseName($file->getFilename());
 
