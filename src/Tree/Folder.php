@@ -152,7 +152,6 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
                 [$basename, $order] = $this->parseName($file->getFilename());
 
                 $physicalPath = $file->getPathname();
-                // @todo This gets more flexible.
                 $logicalPath = rtrim($this->logicalPath, '/') . '/' . $basename;
 
                 $toBuild[$logicalPath] ??= [

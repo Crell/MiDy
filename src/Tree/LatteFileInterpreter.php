@@ -16,7 +16,6 @@ class LatteFileInterpreter implements FileInterpreter
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): RouteFile|FileInterpreterError
     {
-        // @todo This gets more flexible.
         $logicalPath = rtrim($parentLogicalPath, '/') . '/' . $basename;
 
         return new RouteFile(
