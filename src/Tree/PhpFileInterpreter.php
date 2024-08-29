@@ -18,11 +18,8 @@ readonly class PhpFileInterpreter implements FileInterpreter
         return ['php'];
     }
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile|FileInterpreterError
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): RouteFile|FileInterpreterError
     {
-        // SPL is so damned stupid...
-        $basename = $fileInfo->getBasename('.' . $fileInfo->getExtension());
-
         $physicalPath = $fileInfo->getPathname();
 
         $attrib = $this->frontmatter($physicalPath);

@@ -55,7 +55,9 @@ abstract class FileInterpreterTestBase extends TestCase
 
         $file = $this->vfs->getChild($filename)?->lastModified($mtime);
 
-        $result = $i->map(new \SplFileInfo($file->url()), '/files');
+        $basename = pathinfo($filename, PATHINFO_FILENAME);
+
+        $result = $i->map(new \SplFileInfo($file->url()), '/files', $basename);
 
         self::assertEquals($expectedTitle, $result->title);
         self::assertEquals($mtime, $result->mtime);

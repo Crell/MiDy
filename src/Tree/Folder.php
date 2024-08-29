@@ -9,6 +9,8 @@ use Traversable;
 
 class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 {
+    private const string StripPrefix = '/^([\d_-]+)_(.*)/m';
+
     private FolderData $folder;
 
     private ?Page $indexPage;
@@ -126,7 +128,9 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         /** @var \SplFileInfo $file */
         foreach ($iter as $file) {
             if ($file->isFile()) {
-                $routeFile = $this->interpreter->map($file, $this->logicalPath);
+                [$basename, $order] = $this->parseName($file);
+
+                $routeFile = $this->interpreter->map($file, $this->logicalPath, $basename);
 
                 if ($routeFile === FileInterpreterError::FileNotSupported) {
                     // For now, just ignore unsupported file types.
@@ -137,35 +141,62 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
                 $toBuild[$routeFile->logicalPath] ??= [
                     'type' => 'page',
                     'variants' => [],
+                    'order' => $order,
+                    'fileName' => pathinfo($routeFile->logicalPath, PATHINFO_FILENAME),
                 ];
 
                 $toBuild[$routeFile->logicalPath]['variants'][$file->getExtension()] = $routeFile;
 
             } else {
+                [$basename, $order] = $this->parseName($file);
+
                 $physicalPath = $file->getPathname();
                 // @todo This gets more flexible.
-                $logicalPath = ltrim($this->logicalPath, '/') . '/' . $file->getFilename();
+                $logicalPath = rtrim($this->logicalPath, '/') . '/' . $basename;
 
                 $toBuild[$logicalPath] ??= [
                     'type' => 'folder',
                     'physicalPath' => $physicalPath,
-                    'data' => '',
+                    'order' => $order,
+                    'fileName' => $basename,
                 ];
 
                 $toBuild[$logicalPath]['data'] = $file;
             }
         }
 
+        // @todo Figure out how to get the title in here somehow.
+        $comparator = static fn (array $a, array $b) => [$a['order']] <=> [$b['order']];
+        uasort($toBuild, $comparator);
+
         $children = [];
         foreach ($toBuild as $logicalPath => $child) {
-            $fileName = pathinfo($logicalPath, PATHINFO_FILENAME);
             if ($child['type'] === 'folder') {
-                $children[$fileName] = new FolderRef($child['physicalPath'], $logicalPath);
+                $children[$child['fileName']] = new FolderRef($child['physicalPath'], $logicalPath);
             } else {
-                $children[$fileName] = new Page($logicalPath, $child['variants']);
+                $children[$child['fileName']] = new Page($logicalPath, $child['variants']);
             }
         }
 
         return new FolderData($this->physicalPath, $this->logicalPath, $children);
+    }
+
+    protected function parseName(\SplFileInfo $file): array
+    {
+        // SPL is so damned stupid...
+        $basename = $file->isFile()
+            ? $file->getBasename('.' . $file->getExtension())
+            : $file->getFilename()
+        ;
+
+        preg_match(self::StripPrefix, $basename, $matches);
+
+        $order = 0;
+        if (array_key_exists(1, $matches)) {
+            $order = str_replace(['_', '-'], '', ltrim($matches[1], '0')) ?: 0;
+            $basename = $matches[2];
+        }
+
+        return [$basename, $order];
     }
 }

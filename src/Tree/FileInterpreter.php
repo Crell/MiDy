@@ -12,5 +12,5 @@ interface FileInterpreter
      */
     public function supportedExtensions(): array;
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath): RouteFile|FileInterpreterError;
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): RouteFile|FileInterpreterError;
 }
