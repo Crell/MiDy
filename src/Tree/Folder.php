@@ -121,27 +121,28 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 
     protected function reindex(): FolderData
     {
-        $iter = new \FilesystemIterator($this->physicalPath);
-
         $toBuild = [];
-
         $sortOrder = SortOrder::Asc;
 
-        /** @var \SplFileInfo $file */
-        foreach ($iter as $file) {
-            if ($file->isFile()) {
+        // This folder is magic, and provides extra metadata to the folder itself.
+        $folderFile = $this->physicalPath . '/folder.midy';
+        if (file_exists($folderFile)) {
+            // @todo We can probably do better than this manual nonsense, but I'd prefer to not
+            //   inject Serde into the Folder tree as well.
+            $contents = file_get_contents($folderFile);
+            try {
+                $def = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+                $sortOrder = SortOrder::fromString($def['order'] ?? null) ?? SortOrder::Asc;
+            } catch (\JsonException) {
+                // @todo Log this, but otherwise we don't care.
+            }
+        }
 
-                // This folder is magic, and provides extra metadata to the folder itself.
+        /** @var \SplFileInfo $file */
+        foreach (new \FilesystemIterator($this->physicalPath) as $file) {
+            if ($file->isFile()) {
+                // Never show the control file.
                 if ($file->getBasename() === 'folder.midy') {
-                    // @todo We can probably do better than this manual nonsense, but I'd prefer to not
-                    //   inject Serde into the Folder tree as well.
-                    $contents = file_get_contents($file->getPathname());
-                    try {
-                        $def = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-                        $sortOrder = SortOrder::fromString($def['order'] ?? null) ?? SortOrder::Asc;
-                    } catch (\JsonException) {
-                        // @todo Log this, but otherwise we don't care.
-                    }
                     continue;
                 }
 
