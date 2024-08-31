@@ -316,4 +316,22 @@ class RootFolderTest extends TestCase
         self::assertEquals('/flatreversed/f', $children[0]->path());
     }
 
+    #[Test]
+    public function folder_listing_excludes_index_file(): void
+    {
+        mkdir('vfs://root/data/hideindex');
+        file_put_contents('vfs://root/data/hideindex/index.md', '# Title here');
+        file_put_contents('vfs://root/data/hideindex/a.md', '# A');
+        file_put_contents('vfs://root/data/hideindex/b.md', '# B');
+
+        $r = $this->makeRootFolder();
+
+        $page = $r->find('/hideindex');
+
+        $children = iterator_to_array($page->children());
+
+        self::assertCount(2, $children);
+
+    }
+
 }

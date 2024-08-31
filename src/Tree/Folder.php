@@ -14,6 +14,8 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 
     private const string ControlFile = 'folder.midy';
 
+    private const string IndexPageName = 'index';
+
     private FolderData $folder;
 
     private ?Page $indexPage;
@@ -36,7 +38,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         foreach ($this->getFolder()->children as $child) {
             if ($child instanceof FolderRef) {
                 yield new Folder($child->physicalPath, $child->logicalPath, $this->cache, $this->interpreter);
-            } else {
+            } elseif (!$child->hidden) {
                 yield $child;
             }
         }
@@ -45,7 +47,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
     public function limitTo(string $variant): static
     {
         /** @var ?Page $page */
-        $page = $this->child('index');
+        $page = $this->child(self::IndexPageName);
         if (!$page) {
             return $this;
         }
@@ -114,7 +116,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 
     public function getIndexPage(): ?Page
     {
-        return $this->indexPage ??= $this->child('index');
+        return $this->indexPage ??= $this->child(self::IndexPageName);
     }
 
     protected function getFolder(): FolderData
@@ -176,8 +178,13 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
                     'type' => 'page',
                     'variants' => [],
                     'order' => $order,
+                    'hidden' => false,
                     'fileName' => pathinfo($routeFile->logicalPath, PATHINFO_FILENAME),
                 ];
+
+                if ($basename === self::IndexPageName) {
+                    $toBuild[$routeFile->logicalPath]['hidden'] = true;
+                }
 
                 $toBuild[$routeFile->logicalPath]['variants'][$file->getExtension()] = $routeFile;
             } else {
@@ -209,7 +216,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
             if ($child['type'] === 'folder') {
                 $children[$child['fileName']] = new FolderRef($child['physicalPath'], $logicalPath);
             } else {
-                $children[$child['fileName']] = new Page($logicalPath, $child['variants']);
+                $children[$child['fileName']] = new Page($logicalPath, $child['variants'], $child['hidden']);
             }
         }
 
