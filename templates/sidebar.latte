@@ -1,4 +1,4 @@
-{default int $depth = 2}
+{parameters Folder $root, int $depth = 2}
 
 <ul n:if="$depth > 0" n:inner-foreach="$root->children() as $page">
     <li>
