@@ -35,63 +35,28 @@ readonly class FolderParser
     {
         $controlData = $this->parseControlFile($physicalPath);
 
-        $toBuild = [];
+        $datalist = new FolderParserDatalist($controlData['sortOrder']);
+
         /** @var \SplFileInfo $file */
         foreach ($this->getChildIterator($physicalPath, $controlData['flatten']) as $file) {
             if ($file->isFile()) {
                 // SPL is so damned stupid...
                 [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
-
                 $routeFile = $this->interpreter->map($file, $logicalPath, $basename);
 
-                if ($routeFile === FileInterpreterError::FileNotSupported) {
-                    // For now, just ignore unsupported file types.
-                    // @todo This should probably get logged, at least.
-                    continue;
-                }
-
-                $toBuild[$routeFile->logicalPath] ??= [
-                    'type' => 'page',
-                    'variants' => [],
-                    'order' => $order,
-                    'hidden' => false,
-                    'fileName' => pathinfo($routeFile->logicalPath, PATHINFO_FILENAME),
-                ];
-
-                if ($basename === Folder::IndexPageName) {
-                    $toBuild[$routeFile->logicalPath]['hidden'] = true;
-                }
-
-                $toBuild[$routeFile->logicalPath]['variants'][$file->getExtension()] = $routeFile;
+                $datalist->addRouteFile($file->getExtension(), $basename, $order, $routeFile);
             } else {
                 [$basename, $order] = $this->parseName($file->getFilename());
-
                 $childPhysicalPath = $file->getPathname();
                 $childLogicalPath = rtrim($logicalPath, '/') . '/' . $basename;
-
                 $childControlData = $this->parseControlFile($childPhysicalPath);
 
-                $toBuild[$childLogicalPath] ??= [
-                    'type' => 'folder',
-                    'physicalPath' => $childPhysicalPath,
-                    'order' => $order,
-                    'fileName' => $basename,
-                    'hidden' => $childControlData['hidden'],
-                ];
-
-                $toBuild[$childLogicalPath]['data'] = $file;
+                $datalist->addFolder($basename, $order, $file, $childControlData, $childPhysicalPath, $childLogicalPath);
             }
         }
 
-        // @todo Figure out how to get the title in here somehow.
-        $comparator = match ($controlData['sortOrder']) {
-            SortOrder::Asc => static fn (array $a, array $b) => [$a['order']] <=> [$b['order']],
-            SortOrder::Desc => static fn (array $a, array $b) => [$b['order']] <=> [$a['order']],
-        };
-        uasort($toBuild, $comparator);
-
         $children = [];
-        foreach ($toBuild as $childLogicalPath => $child) {
+        foreach ($datalist as $childLogicalPath => $child) {
             $children[$child['fileName']] = match ($child['type']) {
                 'folder' => new FolderRef($child['physicalPath'], $childLogicalPath, $child['hidden']),
                 'page' => new Page($childLogicalPath, $child['variants'], $child['hidden']),
@@ -176,6 +141,6 @@ readonly class FolderParser
             $basename = $matches[2];
         }
 
-        return [$basename, $order];
+        return [$basename, (int)$order];
     }
 }
