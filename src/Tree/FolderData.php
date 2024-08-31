@@ -19,11 +19,6 @@ class FolderData implements \Countable, \IteratorAggregate
         return new \ArrayIterator($this->children);
     }
 
-    public function child(string $name): Page|FolderData|null
-    {
-        var_dump($this->children);
-    }
-
     public function count(): int
     {
         return count($this->children);
