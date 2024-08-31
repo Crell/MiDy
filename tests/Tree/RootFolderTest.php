@@ -276,4 +276,44 @@ class RootFolderTest extends TestCase
         self::assertEquals('/flattened/f', $children[5]->path());
     }
 
+    #[Test]
+    public function folder_with_flattening_and_reversed_renders_correctly(): void
+    {
+        mkdir('vfs://root/data/flatreversed');
+        // The directories will be listed in the order created. That may or may not
+        // cause an issue, depending on use case.  See @todo in Folder.
+        mkdir('vfs://root/data/flatreversed/2022');
+        mkdir('vfs://root/data/flatreversed/2023');
+        mkdir('vfs://root/data/flatreversed/2024');
+        file_put_contents('vfs://root/data/flatreversed/folder.midy', '{"flatten": true, "order": "desc"}');
+        file_put_contents('vfs://root/data/flatreversed/2024/2024-05-01_e.md', '# E');
+        file_put_contents('vfs://root/data/flatreversed/2024/2024-06-01_f.md', '# F');
+        file_put_contents('vfs://root/data/flatreversed/2022/2022-02-01_a.md', '# A');
+        file_put_contents('vfs://root/data/flatreversed/2022/2022-08-01_b.md', '# B');
+        file_put_contents('vfs://root/data/flatreversed/2023/2023-04-01_c.md', '# C');
+        file_put_contents('vfs://root/data/flatreversed/2023/2023-09-01_d.md', '# D');
+
+        $r = $this->makeRootFolder();
+
+        $folder = $r->find('/flatreversed');
+
+        self::assertInstanceOf(Folder::class, $folder);
+
+        $children = iterator_to_array($folder);
+
+        self::assertEquals('A', $children[5]->title());
+        self::assertEquals('B', $children[4]->title());
+        self::assertEquals('C', $children[3]->title());
+        self::assertEquals('D', $children[2]->title());
+        self::assertEquals('E', $children[1]->title());
+        self::assertEquals('F', $children[0]->title());
+
+        self::assertEquals('/flatreversed/a', $children[5]->path());
+        self::assertEquals('/flatreversed/b', $children[4]->path());
+        self::assertEquals('/flatreversed/c', $children[3]->path());
+        self::assertEquals('/flatreversed/d', $children[2]->path());
+        self::assertEquals('/flatreversed/e', $children[1]->path());
+        self::assertEquals('/flatreversed/f', $children[0]->path());
+    }
+
 }
