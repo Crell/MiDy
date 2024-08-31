@@ -7,6 +7,8 @@
 
 {block content}
     {foreach $root->find('/blog') as $page}
-        <a href="{$page->path()}">{$page->title()}</a>
+        <article>
+            <a href="{$page->path()}">{$page->title()}</a>
+        </article>
     {/foreach}
 {/block}
