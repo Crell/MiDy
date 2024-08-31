@@ -36,10 +36,12 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
     {
         /** @var FolderRef|Page $child */
         foreach ($this->getFolder()->children as $child) {
-            if ($child instanceof FolderRef) {
-                yield new Folder($child->physicalPath, $child->logicalPath, $this->cache, $this->interpreter);
-            } elseif (!$child->hidden) {
-                yield $child;
+            if (!$child->hidden) {
+                if ($child instanceof FolderRef) {
+                    yield new Folder($child->physicalPath, $child->logicalPath, $this->cache, $this->interpreter);
+                } else {
+                    yield $child;
+                }
             }
         }
     }
@@ -192,12 +194,27 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 
                 $physicalPath = $file->getPathname();
                 $logicalPath = rtrim($this->logicalPath, '/') . '/' . $basename;
+                $hidden = false;
+
+                // @todo The existence of this mess means we definitely need to move
+                //   the control file handling to a separate method/typedef.
+                $childControlFile = $physicalPath . '/' . self::ControlFile;
+                if (file_exists($childControlFile)) {
+                    $contents = file_get_contents($childControlFile);
+                    try {
+                        $def = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+                        $hidden = $def['hidden'] ?? false;
+                    } catch (\JsonException) {
+                        // @todo Log this, but otherwise we don't care.
+                    }
+                }
 
                 $toBuild[$logicalPath] ??= [
                     'type' => 'folder',
                     'physicalPath' => $physicalPath,
                     'order' => $order,
                     'fileName' => $basename,
+                    'hidden' => $hidden,
                 ];
 
                 $toBuild[$logicalPath]['data'] = $file;
@@ -214,7 +231,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         $children = [];
         foreach ($toBuild as $logicalPath => $child) {
             if ($child['type'] === 'folder') {
-                $children[$child['fileName']] = new FolderRef($child['physicalPath'], $logicalPath);
+                $children[$child['fileName']] = new FolderRef($child['physicalPath'], $logicalPath, $child['hidden']);
             } else {
                 $children[$child['fileName']] = new Page($logicalPath, $child['variants'], $child['hidden']);
             }

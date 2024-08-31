@@ -331,7 +331,25 @@ class RootFolderTest extends TestCase
         $children = iterator_to_array($page->children());
 
         self::assertCount(2, $children);
+    }
 
+    #[Test]
+    public function folder_can_be_hiden(): void
+    {
+        mkdir('vfs://root/data/hidefolder');
+        mkdir('vfs://root/data/hidefolder/hidden');
+        file_put_contents('vfs://root/data/hidefolder/index.md', '# Title here');
+        file_put_contents('vfs://root/data/hidefolder/a.md', '# A');
+        file_put_contents('vfs://root/data/hidefolder/b.md', '# B');
+        file_put_contents('vfs://root/data/hidefolder/hidden/folder.midy', '{"hidden": true}');
+
+        $r = $this->makeRootFolder();
+
+        $page = $r->find('/hidefolder');
+
+        $children = iterator_to_array($page->children());
+
+        self::assertCount(2, $children);
     }
 
 }
