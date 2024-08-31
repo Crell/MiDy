@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\MarkdownDeserializer;
 
-use bovigo\vfs\vfsDirectory;
-use bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class MarkdownDeserializerTest extends TestCase
 {
-    protected vfsDirectory $vfs;
+    protected vfsStreamDirectory $vfs;
 
     protected static array $files = [
         'basic.md' => [

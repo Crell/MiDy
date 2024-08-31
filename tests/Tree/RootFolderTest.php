@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-use bovigo\vfs\vfsDirectory;
-use bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
+use org\bovigo\vfs\vfsStream;
 use Crell\MiDy\ClassFinder;
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\FakeFilesystem;
@@ -23,10 +23,10 @@ class RootFolderTest extends TestCase
      * The VFS needs to be static so it's reused, so the require_once() call in the PHP interpreter
      * can not require the "same" file multiple times, leading to double-declaration errors.
      */
-    protected static vfsDirectory $vfs;
+    protected static vfsStreamDirectory $vfs;
 
     #[BeforeClass]
-    public static function initFilesystem(): vfsDirectory
+    public static function initFilesystem(): vfsStreamDirectory
     {
         // This mess is because vfsstream doesn't let you create multiple streams
         // at the same time.  Which is dumb.

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-use bovigo\vfs\vfsDirectory;
-use bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class FileInterpreterTestBase extends TestCase
 {
-    protected vfsDirectory $vfs;
+    protected vfsStreamDirectory $vfs;
 
     // Child classes should override this.
     protected static array $files = [];

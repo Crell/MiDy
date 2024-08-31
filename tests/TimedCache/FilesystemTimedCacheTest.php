@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\TimedCache;
 
-use bovigo\vfs\vfsDirectory;
-use bovigo\vfs\vfsStream;
 use Crell\MiDy\FakeFilesystem;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -16,7 +16,7 @@ class FilesystemTimedCacheTest extends TestCase
 {
     use FakeFilesystem;
 
-    protected vfsDirectory $vfs;
+    protected vfsStreamDirectory $vfs;
 
     #[Before]
     protected function initFilesystemCache(): void

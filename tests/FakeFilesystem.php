@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Crell\MiDy;
 
-use bovigo\vfs\vfsDirectory;
-use bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 
 trait FakeFilesystem
 {
-    protected function makeFilesystemFrom(\Closure $definition): vfsDirectory
+    protected function makeFilesystemFrom(\Closure $definition): vfsStreamDirectory
     {
         return vfsStream::setup('root', null, iterator_to_array($definition()));
     }
