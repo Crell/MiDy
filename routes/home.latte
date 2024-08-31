@@ -1,4 +1,9 @@
-<html>
-<head><title>Home page</title></head>
-<body>Hello World</body>
-</html>
+{layout $templateRoot . '/layout.latte'}
+
+{varType Crell\MiDy\Tree\Folder $root}
+
+{block title}Home{/block}
+
+{block content}
+    Hello World
+{/block}
