@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-use Crell\MiDy\TimedCache\TimedCache;
-use FilesystemIterator;
 use Traversable;
 
 class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 {
-    public const string ControlFile = 'folder.midy';
-
     public const string IndexPageName = 'index';
 
     private FolderData $folderData;
