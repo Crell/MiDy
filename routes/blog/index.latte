@@ -3,7 +3,7 @@
 
 {layout $templateRoot . '/layout.latte'}
 
-{block title}Latest blogs{/block}
+{define title}Test Page{/define}
 
 {block content}
     {foreach $root->find('/blog') as $page}

@@ -1,12 +1,14 @@
-{default $title = 'Untitled'}
+{*{default $title = 'Untitled'}*}
 {default $siteName = ''}
+
+{varType Crell\MiDy\Tree\Folder $root}
 
 <html>
 <head>
-    <title>{$siteName}: {block title}{/block}</title>
+    <title>{$siteName}: {ifset title}{include title}{else}Untitled{/ifset}</title>
 </head>
 <body>
-    <h1>{$title}</h1>
+    <h1>{ifset title}{include title}{else}Untitled{/ifset}</h1>
     <main>
         {block content}{/block}
     </main>
