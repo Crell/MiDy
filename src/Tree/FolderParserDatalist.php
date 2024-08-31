@@ -6,6 +6,9 @@ namespace Crell\MiDy\Tree;
 
 use Traversable;
 
+/**
+ * @internal
+ */
 class FolderParserDatalist implements \IteratorAggregate
 {
     private array $toBuild = [];

@@ -30,11 +30,10 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         /** @var FolderRef|Page $child */
         foreach ($this->getFolderData()->children as $child) {
             if (!$child->hidden) {
-                if ($child instanceof FolderRef) {
-                    yield new Folder($child->physicalPath, $child->logicalPath, $this->parser);
-                } else {
-                    yield $child;
-                }
+                yield match (get_class($child)) {
+                    FolderRef::class => $this->loadFolderRef($child),
+                    Page::class => $child,
+                };
             }
         }
     }
@@ -88,7 +87,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         $child = $this->getFolderData()->children[$pathinfo['filename']] ?? null;
 
         if ($child instanceof FolderRef) {
-            return new Folder($child->physicalPath, $child->logicalPath, $this->parser);
+            return $this->loadFolderRef($child);
         }
         if ($child && isset($pathinfo['extension'])) {
             /** @var Page $child */
@@ -112,6 +111,11 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
     public function getIndexPage(): ?Page
     {
         return $this->indexPage ??= $this->child(self::IndexPageName);
+    }
+
+    protected function loadFolderRef(FolderRef $ref): Folder
+    {
+        return new Folder($ref->physicalPath, $ref->logicalPath, $this->parser);
     }
 
     protected function getFolderData(): FolderData

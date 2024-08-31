@@ -27,28 +27,28 @@ readonly class FolderParser
      */
     public function loadFolder(Folder $folder): FolderData
     {
-        $regenerator = fn() => $this->reindex($folder->physicalPath, $folder->logicalPath);
+        $regenerator = fn() => $this->reindex($folder);
         return $this->cache->get($folder->logicalPath, filemtime($folder->physicalPath), $regenerator);
     }
 
-    private function reindex(string $physicalPath, string $logicalPath): FolderData
+    private function reindex(Folder $folder): FolderData
     {
-        $controlData = $this->parseControlFile($physicalPath);
+        $controlData = $this->parseControlFile($folder->physicalPath);
 
         $datalist = new FolderParserDatalist($controlData['sortOrder']);
 
         /** @var \SplFileInfo $file */
-        foreach ($this->getChildIterator($physicalPath, $controlData['flatten']) as $file) {
+        foreach ($this->getChildIterator($folder->physicalPath, $controlData['flatten']) as $file) {
             if ($file->isFile()) {
                 // SPL is so damned stupid...
                 [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
-                $routeFile = $this->interpreter->map($file, $logicalPath, $basename);
+                $routeFile = $this->interpreter->map($file, $folder->logicalPath, $basename);
 
                 $datalist->addRouteFile($file->getExtension(), $basename, $order, $routeFile);
             } else {
                 [$basename, $order] = $this->parseName($file->getFilename());
                 $childPhysicalPath = $file->getPathname();
-                $childLogicalPath = rtrim($logicalPath, '/') . '/' . $basename;
+                $childLogicalPath = rtrim($folder->logicalPath, '/') . '/' . $basename;
                 $childControlData = $this->parseControlFile($childPhysicalPath);
 
                 $datalist->addFolder($basename, $order, $file, $childControlData, $childPhysicalPath, $childLogicalPath);
@@ -63,7 +63,7 @@ readonly class FolderParser
             };
         }
 
-        return new FolderData($physicalPath, $logicalPath, $children);
+        return new FolderData($folder->physicalPath, $folder->logicalPath, $children);
     }
 
     /**
