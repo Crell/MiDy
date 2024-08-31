@@ -47,7 +47,9 @@ class RootFolderTest extends TestCase
 
         $cache->clear();
 
-        return new RootFolder($filePath, $cache, $this->makeFileInterpreter());
+        $parser = new FolderParser($cache, $this->makeFileInterpreter());
+
+        return new RootFolder($filePath, $parser, $cache, $this->makeFileInterpreter());
     }
 
     protected function makeFileInterpreter(): FileInterpreter

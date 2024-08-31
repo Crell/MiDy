@@ -38,6 +38,7 @@ use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\RuntimeActionInvoker;
 use Crell\MiDy\TimedCache\FilesystemTimedCache;
 use Crell\MiDy\Tree\FolderData;
+use Crell\MiDy\Tree\FolderParser;
 use Crell\MiDy\Tree\FolderRef;
 use Crell\MiDy\Tree\LatteFileInterpreter;
 use Crell\MiDy\Tree\MarkdownLatteFileInterpreter;
@@ -179,8 +180,6 @@ class MiDy implements RequestHandlerInterface
             MarkdownLatteHandler::class => autowire()
                 ->constructorParameter('templateRoot', get('paths.templates'))
             ,
-//            DirectFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
-//            FlattenedFileSystemProvider::class => autowire()->constructor(get('paths.routes')),
              'path_cache' => autowire(FilesystemTimedCache::class)->constructor(
                 cachePath: get('paths.cache.routes'),
                 allowedClasses: [FolderData::class, FolderRef::class, Page::class, RouteFile::class],
@@ -191,10 +190,14 @@ class MiDy implements RequestHandlerInterface
                 ->method('addInterpreter', get(MarkdownLatteFileInterpreter::class))
                 ->method('addInterpreter', get(PhpFileInterpreter::class))
             ,
+            FolderParser::class => autowire()->constructor(
+                    cache: get('path_cache'),
+                    interpreter: get(MultiplexedFileInterpreter::class),
+                )
+            ,
             RootFolder::class => create(RootFolder::class)->constructor(
                 physicalPath: get('paths.routes'),
-                cache: get('path_cache'),
-                interpreter: get(MultiplexedFileInterpreter::class),
+                parser: get(FolderParser::class),
             ),
         ]);
 

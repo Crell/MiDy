@@ -10,9 +10,8 @@ class RootFolder extends Folder
 {
     public function __construct(
         string $physicalPath,
-        FilesystemTimedCache $cache,
-        FileInterpreter $interpreter,
+        FolderParser $parser,
     ) {
-        parent::__construct($physicalPath, '/', $cache, $interpreter);
+        parent::__construct($physicalPath, '/', $parser);
     }
 }
