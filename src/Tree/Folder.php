@@ -131,11 +131,11 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         $flatten = false;
 
         // The control file provides extra metadata to the folder itself.
-        $folderFile = $this->physicalPath . '/' . self::ControlFile;
-        if (file_exists($folderFile)) {
+        $controlFile = $this->physicalPath . '/' . self::ControlFile;
+        if (file_exists($controlFile)) {
             // @todo We can probably do better than this manual nonsense, but I'd prefer to not
             //   inject Serde into the Folder tree as well.
-            $contents = file_get_contents($folderFile);
+            $contents = file_get_contents($controlFile);
             try {
                 $def = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
                 $sortOrder = SortOrder::fromString($def['order'] ?? null) ?? SortOrder::Asc;
