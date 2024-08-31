@@ -28,13 +28,11 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
     public function getIterator(): Traversable
     {
         /** @var FolderRef|Page $child */
-        foreach ($this->getFolderData()->children as $child) {
-            if (!$child->hidden) {
-                yield match (get_class($child)) {
-                    FolderRef::class => $this->loadFolderRef($child),
-                    Page::class => $child,
-                };
-            }
+        foreach ($this->getFolderData()->visibleChildren() as $child) {
+            yield match (get_class($child)) {
+                FolderRef::class => $this->loadFolderRef($child),
+                Page::class => $child,
+            };
         }
     }
 
