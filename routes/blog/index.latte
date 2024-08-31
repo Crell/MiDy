@@ -1,0 +1,12 @@
+{varType string $templateRoot}
+{varType Crell\MiDy\Tree\Folder $root}
+
+{layout $templateRoot . '/layout.latte'}
+
+{block title}Latest blogs{/block}
+
+{block content}
+    {foreach $root->find('/blog') as $page}
+        <a href="{$page->path()}">{$page->title()}</a>
+    {/foreach}
+{/block}
