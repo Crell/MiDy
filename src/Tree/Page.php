@@ -54,4 +54,19 @@ class Page implements Linkable, MultiType
     {
         return $this->logicalPath;
     }
+
+    public function getTrailingPath(string $fullPath): array
+    {
+        if (!str_starts_with($fullPath, $this->logicalPath)) {
+            return [];
+        }
+
+        // If the path ends with an extension, then we assume it's a file
+        // and there's no trailing necessary.
+        if (pathinfo($fullPath, PATHINFO_EXTENSION)) {
+            return [];
+        }
+
+        return array_values(array_filter(explode('/', substr($fullPath, strlen($this->logicalPath)))));
+    }
 }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-use Crell\MiDy\TimedCache\FilesystemTimedCache;
-
 class RootFolder extends Folder
 {
     public function __construct(
@@ -13,5 +11,23 @@ class RootFolder extends Folder
         FolderParser $parser,
     ) {
         parent::__construct($physicalPath, '/', $parser);
+    }
+
+    public function route(string $path): Page|Folder|null
+    {
+        $dirParts = array_filter(explode('/', $path));
+
+        $child = $this;
+
+        foreach ($dirParts as $pathSegment) {
+            $next = $child?->child($pathSegment);
+            if ($next instanceof Page) {
+                return $next;
+            }
+
+            $child = $next;
+        }
+
+        return $child;
     }
 }

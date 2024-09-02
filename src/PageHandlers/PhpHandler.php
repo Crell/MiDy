@@ -13,7 +13,7 @@ use Crell\MiDy\Tree\Page;
 use DI\FactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-readonly class PhpHandler implements PageHandler
+readonly class PhpHandler implements SupportsTrailingPath
 {
     /**
      * @param FactoryInterface $container
@@ -34,7 +34,7 @@ readonly class PhpHandler implements PageHandler
         return ['php'];
     }
 
-    public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
+    public function handle(ServerRequestInterface $request, Page $page, string $ext, array $trailing = []): ?RouteResult
     {
         $actionObject = $this->loadAction($page->variant($ext)->physicalPath);
 
@@ -45,6 +45,7 @@ readonly class PhpHandler implements PageHandler
                 method: strtoupper($method),
                 vars: [
                     'file' => $page,
+                    'trailing' => $trailing,
                 ],
             );
         }
