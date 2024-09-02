@@ -4,64 +4,13 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Tree;
 
-use org\bovigo\vfs\vfsStreamDirectory;
-use org\bovigo\vfs\vfsStream;
-use Crell\MiDy\ClassFinder;
-use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\FakeFilesystem;
-use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
-use Crell\MiDy\TimedCache\FilesystemTimedCache;
-use PHPUnit\Framework\Attributes\BeforeClass;
+use Crell\MiDy\RootFilesystemSetup;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class RootFolderTest extends TestCase
 {
-    use FakeFilesystem;
-
-    /**
-     * The VFS needs to be static so it's reused, so the require_once() call in the PHP interpreter
-     * can not require the "same" file multiple times, leading to double-declaration errors.
-     */
-    protected static vfsStreamDirectory $vfs;
-
-    #[BeforeClass]
-    public static function initFilesystem(): vfsStreamDirectory
-    {
-        // This mess is because vfsstream doesn't let you create multiple streams
-        // at the same time.  Which is dumb.
-        $structure = [
-            'cache' => [],
-            'data' => self::simpleStructure(),
-        ];
-
-        return self::$vfs = vfsStream::setup('root', null, $structure);
-    }
-
-    protected function makeRootFolder(): RootFolder
-    {
-        $filePath = self::$vfs->getChild('data')->url();
-        $cachePath = self::$vfs->getChild('cache')->url();
-
-        $cache = new FilesystemTimedCache($cachePath);
-
-        $cache->clear();
-
-        $parser = new FolderParser($cache, $this->makeFileInterpreter());
-
-        return new RootFolder($filePath, $parser, $cache, $this->makeFileInterpreter());
-    }
-
-    protected function makeFileInterpreter(): FileInterpreter
-    {
-        $i = new MultiplexedFileInterpreter();
-        $i->addInterpreter(new StaticFileInterpreter(new StaticRoutes()));
-        $i->addInterpreter(new PhpFileInterpreter(new ClassFinder()));
-        $i->addInterpreter(new LatteFileInterpreter());
-        $i->addInterpreter(new MarkdownLatteFileInterpreter(new MarkdownPageLoader()));
-
-        return $i;
-    }
+    use RootFilesystemSetup;
 
     #[Test]
     public function count_returns_correct_value(): void
