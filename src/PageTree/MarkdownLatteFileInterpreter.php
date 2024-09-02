@@ -2,32 +2,35 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Tree;
+namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\Config\StaticRoutes;
+use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 
-readonly class StaticFileInterpreter implements FileInterpreter
+class MarkdownLatteFileInterpreter implements FileInterpreter
 {
-
     public function __construct(
-        private StaticRoutes $config,
+        private MarkdownPageLoader $loader,
     ) {}
 
     public function supportedExtensions(): array
     {
-        return array_keys($this->config->allowedExtensions);
+        return ['md'];
     }
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): RouteFile|FileInterpreterError
     {
-        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . $basename;
+        $page = $this->loader->load($fileInfo->getPathname());
+
+        $slug = $page->slug ?? $basename;
+
+        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . $slug;
 
         return new RouteFile(
             physicalPath: $fileInfo->getPathname(),
             logicalPath: $logicalPath,
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
-            title: ucfirst($basename),
+            title: $page->title ?? ucfirst($basename),
         );
     }
 }

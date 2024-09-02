@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Tree;
+namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\Config\StaticRoutes;
 

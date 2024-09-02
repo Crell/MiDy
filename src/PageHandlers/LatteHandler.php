@@ -9,7 +9,7 @@ use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Services\TemplateRenderer;
-use Crell\MiDy\Tree\Page;
+use Crell\MiDy\PageTree\Page;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

@@ -9,8 +9,8 @@ use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Router\RouteResult;
-use Crell\MiDy\Tree\Folder;
-use Crell\MiDy\Tree\RootFolder;
+use Crell\MiDy\PageTree\Folder;
+use Crell\MiDy\PageTree\RootFolder;
 use Psr\Http\Message\ServerRequestInterface;
 
 class HandlerRouter implements Router

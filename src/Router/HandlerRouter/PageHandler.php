@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\Router\HandlerRouter;
 
 use Crell\MiDy\Router\RouteResult;
-use Crell\MiDy\Tree\Page;
+use Crell\MiDy\PageTree\Page;
 use Psr\Http\Message\ServerRequestInterface;
 
 interface PageHandler

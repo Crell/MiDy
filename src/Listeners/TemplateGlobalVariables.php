@@ -6,7 +6,7 @@ namespace Crell\MiDy\Listeners;
 
 use Crell\MiDy\Config\TemplateVariables;
 use Crell\MiDy\Services\TemplatePreRender;
-use Crell\MiDy\Tree\RootFolder;
+use Crell\MiDy\PageTree\RootFolder;
 use Crell\Tukio\Listener;
 use DI\Attribute\Inject;
 

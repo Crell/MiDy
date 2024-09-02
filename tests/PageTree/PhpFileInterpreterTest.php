@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Tree;
+namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\ClassFinder;
 
@@ -21,7 +21,7 @@ class PhpFileInterpreterTest extends FileInterpreterTestBase
         'attributed.php' => [
             'content' => <<<END
                 <?php
-                use Crell\MiDy\Tree\Attributes\PageRoute;
+                use Crell\MiDy\PageTree\Attributes\PageRoute;
                 
                 #[PageRoute(title: "Custom title", slug: "beep")]
                 class Bar {}

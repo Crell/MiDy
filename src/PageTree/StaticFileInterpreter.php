@@ -2,16 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Tree;
+namespace Crell\MiDy\PageTree;
 
-/**
- * @todo Eventually we'll need to parse for frontmatter somehow, but for now, skip and treat static.
- */
-class LatteFileInterpreter implements FileInterpreter
+use Crell\MiDy\Config\StaticRoutes;
+
+readonly class StaticFileInterpreter implements FileInterpreter
 {
+
+    public function __construct(
+        private StaticRoutes $config,
+    ) {}
+
     public function supportedExtensions(): array
     {
-        return ['latte'];
+        return array_keys($this->config->allowedExtensions);
     }
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): RouteFile|FileInterpreterError

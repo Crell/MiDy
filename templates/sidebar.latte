@@ -3,7 +3,7 @@
 <ul n:if="$depth > 0" n:inner-foreach="$root->children() as $page">
     <li>
         <a href="{$page->path()}">{$page->title()}</a>
-        {if $page instanceof Crell\MiDy\Tree\Folder}
+        {if $page instanceof Crell\MiDy\PageTree\Folder}
             {include sidebar.latte, root: $page, depth: $depth - 1}
         {/if}
     </li>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Tree\Attributes;
+namespace Crell\MiDy\PageTree\Attributes;
 
 #[\Attribute]
 readonly class PageRoute

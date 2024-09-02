@@ -6,7 +6,7 @@ namespace Crell\MiDy\PageHandlers;
 
 use Crell\MiDy\Router\HandlerRouter\PageHandler;
 use Crell\MiDy\Router\RouteResult;
-use Crell\MiDy\Tree\Page;
+use Crell\MiDy\PageTree\Page;
 use Psr\Http\Message\ServerRequestInterface;
 
 interface SupportsTrailingPath extends PageHandler

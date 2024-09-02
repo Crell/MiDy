@@ -9,7 +9,7 @@ use Crell\MiDy\PageHandlers\SupportsTrailingPath;
 use Crell\MiDy\RootFilesystemSetup;
 use Crell\MiDy\Router\HandlerRouter\HandlerRouter;
 use Crell\MiDy\Router\HandlerRouter\PageHandler;
-use Crell\MiDy\Tree\Page;
+use Crell\MiDy\PageTree\Page;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use PHPUnit\Framework\Attributes\Test;

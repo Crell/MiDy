@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Tree;
+namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\ClassFinder;
-use Crell\MiDy\Tree\Attributes\PageRoute;
+use Crell\MiDy\PageTree\Attributes\PageRoute;
 
 readonly class PhpFileInterpreter implements FileInterpreter
 {
