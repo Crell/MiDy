@@ -2,7 +2,7 @@
 {var $name = "larry garfield"}
 {var $md = "## Subtitle"}
 
-{var $mdItalic = "*something* is broken"}
+{var $mdItalic = "*something* is working"}
 {var $mdList = "
 * A list
 * Goes here"}
@@ -10,27 +10,28 @@
 
 {block content}
 
-    {='# Title here'|markdown}
+    {='# Title here'| markdown}
 
-    {$md|markdown}
+    {$md| markdown}
 
-{* This doesn't work yet for reasons I do not understand. It gets wrapped with pre tags. *}
-    {block |markdown}
-        * A list
-        * Goes here
+    {block | markdown}
+        * This
+        * is working
 
-        *something* is broken
+        **Block** filters _do_ work
     {/block}
 
-{$mdItalic|markdown}
-{$mdList|markdown}
+{$mdItalic| markdown}
+{$mdList| markdown}
 
+Wrapping the var in a block:
 
+{block | markdown}
+{$mdItalic}
+{/block}
 
 <div>
 {block |indent}
 <p>Hello</p>
 {/block}
 </div>
-
-{/block}

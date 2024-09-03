@@ -25,6 +25,27 @@ class CommonMarkExtension extends Extension
 
     public function markdownFilter(FilterInfo $info, string $s): Html|string
     {
-        return new Html($this->converter->convert($s));
+        if ($s === '') {
+            return new Html($s);
+        }
+        return new Html($this->converter->convert($this->dedent($s)));
+    }
+
+    /**
+     * Removes leading indentation from multiple lines.
+     *
+     * Shamelessly borrowed from:
+     * @see https://gist.github.com/elifiner/91c6578ad70a713e90f0bfc288c7b125
+     */
+    private function dedent(string $str): string
+    {
+        $lines = explode("\n", $str);
+        $parts = array_filter($lines, static fn(string $part): string => trim($part));
+        $spaces = min(array_map(static function(string $part) {
+            preg_match('#^ *#', $part, $matches);
+            return strlen($matches[0]);
+        }, $parts));
+        $trimmedLines = array_map(static fn(string $part): string => substr($part, $spaces), $lines);
+        return implode("\n", $trimmedLines);
     }
 }
