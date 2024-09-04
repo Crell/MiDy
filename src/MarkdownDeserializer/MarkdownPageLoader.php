@@ -48,7 +48,11 @@ class MarkdownPageLoader
         return $document;
     }
 
-    private function extractFrontMatter(string $source)
+    /**
+     * @param string $source
+     * @return array{header: string, content: string}
+     */
+    private function extractFrontMatter(string $source): array
     {
         // There is no header, so fall back to defaults.
         if (!str_starts_with($source, '---')) {
@@ -72,6 +76,5 @@ class MarkdownPageLoader
         $content = substr($withoutLeadingHeaderStart, $endHeaderPos + 4);
 
         return [$header, $content];
-
     }
 }
