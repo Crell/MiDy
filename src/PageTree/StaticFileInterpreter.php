@@ -8,7 +8,6 @@ use Crell\MiDy\Config\StaticRoutes;
 
 readonly class StaticFileInterpreter implements FileInterpreter
 {
-
     public function __construct(
         private StaticRoutes $config,
     ) {}
@@ -22,12 +21,16 @@ readonly class StaticFileInterpreter implements FileInterpreter
     {
         $logicalPath = rtrim($parentLogicalPath, '/') . '/' . $basename;
 
+        // Static files have no frontmatter to parse.
+        /// @todo Except HTML files, where maybe we can pull the title at least.
+        $frontmatter = new MiDyBasicFrontMatter(title: ucfirst($basename));
+
         return new RouteFile(
             physicalPath: $fileInfo->getPathname(),
             logicalPath: $logicalPath,
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
-            title: ucfirst($basename),
+            frontmatter: $frontmatter,
         );
     }
 }

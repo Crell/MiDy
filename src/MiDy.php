@@ -28,6 +28,9 @@ use Crell\MiDy\PageHandlers\LatteHandler;
 use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
 use Crell\MiDy\PageHandlers\PhpHandler;
 use Crell\MiDy\PageHandlers\StaticFileHandler;
+use Crell\MiDy\PageTree\Attributes\PageRoute;
+use Crell\MiDy\PageTree\MiDyBasicFrontMatter;
+use Crell\MiDy\PageTree\MiDyFrontMatter;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter\EventRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
@@ -182,7 +185,7 @@ class MiDy implements RequestHandlerInterface
             ,
              'path_cache' => autowire(FilesystemTimedCache::class)->constructor(
                 cachePath: get('paths.cache.routes'),
-                allowedClasses: [FolderData::class, FolderRef::class, Page::class, RouteFile::class],
+                allowedClasses: [FolderData::class, FolderRef::class, Page::class, RouteFile::class, MiDyBasicFrontMatter::class, PageRoute::class],
             ),
             MultiplexedFileInterpreter::class => autowire()
                 ->method('addInterpreter', get(StaticFileInterpreter::class))

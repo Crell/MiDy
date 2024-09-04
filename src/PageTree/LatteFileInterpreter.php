@@ -30,12 +30,13 @@ class LatteFileInterpreter implements FileInterpreter
 
         $frontmatter = $this->extractFrontMatter(file_get_contents($fileInfo->getPathname()));
 
+        $frontmatter ??= new MiDyBasicFrontMatter(title: ucfirst($basename));
+
         return new RouteFile(
             physicalPath: $fileInfo->getPathname(),
             logicalPath: $logicalPath,
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
-            title: ucfirst($basename),
             frontmatter: $frontmatter,
         );
     }
@@ -45,7 +46,7 @@ class LatteFileInterpreter implements FileInterpreter
      *
      * @todo This can probably be done in a less hacky way.
      */
-    private function extractFrontMatter(string $source): ?MiDyFrontMatter
+    private function extractFrontMatter(string $source): ?MiDyBasicFrontMatter
     {
         $start = strpos($source, self::FrontMatterStart);
         if ($start === false) {
@@ -59,7 +60,7 @@ class LatteFileInterpreter implements FileInterpreter
 
         // @todo I have no idea why the -1 is needed here...
         $frontmatter = substr($source, $start + strlen(self::FrontMatterStart), $end - $start - strlen(self::FrontMatterEnd) - 1);
-        return $this->serde->deserialize($frontmatter, from: 'yaml', to: MiDyFrontMatter::class);
+        return $this->serde->deserialize($frontmatter, from: 'yaml', to: MiDyBasicFrontMatter::class);
     }
 
 }

@@ -59,7 +59,7 @@ abstract class FileInterpreterTestBase extends TestCase
 
         $result = $i->map(new \SplFileInfo($file->url()), '/files', $basename);
 
-        self::assertEquals($expectedTitle, $result->title);
+        self::assertEquals($expectedTitle, $result->title());
         self::assertEquals($mtime, $result->mtime);
         self::assertEquals($expectedPath, $result->path());
     }

@@ -22,31 +22,30 @@ readonly class PhpFileInterpreter implements FileInterpreter
     {
         $physicalPath = $fileInfo->getPathname();
 
-        $attrib = $this->frontmatter($physicalPath);
-        $slug = $attrib?->slug ?? $basename;
+        $frontmatter = $this->extractFrontMatter($physicalPath);
 
-        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . $slug;
+        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . ($frontmatter->slug() ?? $basename);
 
         return new RouteFile(
             physicalPath: $physicalPath,
             logicalPath: $logicalPath,
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
-            title: $attrib?->title ?? ucfirst($basename),
+            frontmatter: $frontmatter,
         );
     }
 
-    private function frontmatter(string $physicalPath): ?PageRoute
+    private function extractFrontMatter(string $physicalPath): PageRoute
     {
         require_once $physicalPath;
         $class = $this->finder->getClass($physicalPath);
 
         if (!$class) {
-            return null;
+            return new PageRoute();
         }
 
         $attribs = array_map(fn(\ReflectionAttribute $a) => $a->newInstance(),  (new \ReflectionClass($class))->getAttributes(PageRoute::class));
 
-        return $attribs[0] ?? null;
+        return $attribs[0] ?? new PageRoute();
     }
 }

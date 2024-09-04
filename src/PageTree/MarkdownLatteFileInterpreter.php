@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\MarkdownDeserializer\MarkdownError;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 
 class MarkdownLatteFileInterpreter implements FileInterpreter
@@ -21,16 +22,20 @@ class MarkdownLatteFileInterpreter implements FileInterpreter
     {
         $page = $this->loader->load($fileInfo->getPathname());
 
-        $slug = $page->slug ?? $basename;
+        if ($page === MarkdownError::FileNotFound) {
+            return FileInterpreterError::FileNotSupported;
+        }
 
-        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . $slug;
+        $frontmatter = $page->toFrontMatter();
+
+        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . ($frontmatter->slug() ?? $basename);
 
         return new RouteFile(
             physicalPath: $fileInfo->getPathname(),
             logicalPath: $logicalPath,
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
-            title: $page->title ?? ucfirst($basename),
+            frontmatter: $frontmatter,
         );
     }
 }

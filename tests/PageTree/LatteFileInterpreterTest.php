@@ -30,7 +30,7 @@ class LatteFileInterpreterTest extends FileInterpreterTestBase
             title: Title here
             ---*}
             END,
-            'expected' => new MiDyFrontMatter(title: 'Title here'),
+            'expected' => new MiDyBasicFrontMatter(title: 'Title here'),
         ];
         yield 'frontmatter, but not at the start of the file.' => [
             'content' => <<<END
@@ -39,7 +39,7 @@ class LatteFileInterpreterTest extends FileInterpreterTestBase
             title: Title here
             ---*}
             END,
-            'expected' => new MiDyFrontMatter(title: 'Title here'),
+            'expected' => new MiDyBasicFrontMatter(title: 'Title here'),
         ];
         yield 'frontmatter, with stuff before and after.' => [
             'content' => <<<END
@@ -49,12 +49,12 @@ class LatteFileInterpreterTest extends FileInterpreterTestBase
             ---*}
             More templates here.
             END,
-            'expected' => new MiDyFrontMatter(title: 'Title here'),
+            'expected' => new MiDyBasicFrontMatter(title: 'Title here'),
         ];
     }
 
     #[Test, DataProvider('frontmatterProvider')]
-    public function frontmatter_parses_correctly(string $content, MiDyFrontMatter $expected): void
+    public function frontmatter_parses_correctly(string $content, MiDyBasicFrontMatter $expected): void
     {
         $i = $this->getInterpreter();
 

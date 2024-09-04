@@ -11,14 +11,13 @@ readonly class RouteFile implements Linkable
         public string $logicalPath,
         public string $ext,
         public int $mtime,
-        public string $title,
-        public ?MiDyFrontMatter $frontmatter = null,
+        public MiDyFrontMatter $frontmatter,
     ) {}
 
-    // @todo Make this better.
     public function title(): string
     {
-        return ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
+        return $this->frontmatter->title()
+            ?: ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
     }
 
     public function path(): string

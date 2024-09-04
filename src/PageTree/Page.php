@@ -47,7 +47,7 @@ class Page implements Linkable, MultiType
     // @todo Make this better.
     public function title(): string
     {
-        return reset($this->variants)->title;
+        return reset($this->variants)->title();
     }
 
     public function path(): string
