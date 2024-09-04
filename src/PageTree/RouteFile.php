@@ -12,6 +12,7 @@ readonly class RouteFile implements Linkable
         public string $ext,
         public int $mtime,
         public string $title,
+        public ?MiDyFrontMatter $frontmatter = null,
     ) {}
 
     // @todo Make this better.
