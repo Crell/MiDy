@@ -29,7 +29,7 @@ abstract class FileInterpreterTestBase extends TestCase
         $basePath = $this->vfs->url() . '/';
 
         foreach (static::$files as $filename => $def) {
-            file_put_contents($basePath . $filename, $def['content']);
+            file_put_contents($basePath . $filename, trim($def['content']));
         }
     }
 
