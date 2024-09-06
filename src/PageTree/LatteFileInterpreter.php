@@ -7,6 +7,8 @@ namespace Crell\MiDy\PageTree;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 
+use function Crell\MiDy\str_extract_between;
+
 /**
  * @todo Eventually we'll need to parse for frontmatter somehow, but for now, skip and treat static.
  */
@@ -48,18 +50,11 @@ class LatteFileInterpreter implements FileInterpreter
      */
     private function extractFrontMatter(string $source): ?MiDyBasicFrontMatter
     {
-        $start = strpos($source, self::FrontMatterStart);
-        if ($start === false) {
+        $frontmatter = str_extract_between($source, self::FrontMatterStart,self::FrontMatterEnd);
+        if ($frontmatter === null) {
             return null;
         }
 
-        $end = strpos($source, self::FrontMatterEnd, $start);
-        if ($end === false) {
-            return null;
-        }
-
-        // @todo I have no idea why the -1 is needed here...
-        $frontmatter = substr($source, $start + strlen(self::FrontMatterStart), $end - $start - strlen(self::FrontMatterEnd) - 1);
         return $this->serde->deserialize($frontmatter, from: 'yaml', to: MiDyBasicFrontMatter::class);
     }
 
