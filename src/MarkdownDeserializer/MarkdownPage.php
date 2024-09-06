@@ -9,6 +9,8 @@ use Crell\MiDy\PageTree\MiDyBasicFrontMatter;
 use Crell\MiDy\PageTree\MiDyFrontMatter;
 use Crell\Serde\Attributes\Field;
 
+use function Crell\MiDy\str_extract_between;
+
 class MarkdownPage implements MiDyFrontMatter
 {
     public function __construct(
@@ -41,7 +43,7 @@ class MarkdownPage implements MiDyFrontMatter
     {
         return new MiDyBasicFrontMatter(
             title: $this->title,
-            summary: $this->summary,
+            summary: $this->summary(),
             tags: $this->tags,
             slug: $this->slug,
         );
@@ -54,7 +56,17 @@ class MarkdownPage implements MiDyFrontMatter
 
     public function summary(): string
     {
-        return $this->summary;
+        if ($this->summary) {
+            return $this->summary;
+        }
+
+        $bodySummary = str_extract_between($this->content, '<!--summary-->', '<!--/summary-->');
+
+        if ($bodySummary) {
+            return trim($bodySummary);
+        }
+
+        return '';
     }
 
     public function tags(): array
