@@ -4,7 +4,7 @@
 [![Software License][ico-license]](LICENSE.md)
 [![Total Downloads][ico-downloads]][link-downloads]
 
-A tool for building Mildly Dynamic websites, with morea features than you would expect.
+A tool for building Mildly Dynamic websites, with more features than you would expect.
 
 ## Contributing
 
