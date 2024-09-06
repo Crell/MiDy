@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-class Page implements Linkable, MultiType
+class Page implements Linkable, MultiType, MiDyFrontMatter
 {
     // @todo Need to make this non-mutable somehow, while still allowing limitTo() or equivalent.
     public int $lastModified;
@@ -42,6 +42,21 @@ class Page implements Linkable, MultiType
     public function variant(string $ext): ?RouteFile
     {
         return $this->variants[$ext] ?? null;
+    }
+
+    public function summary(): string
+    {
+        return reset($this->variants)->frontmatter->summary();
+    }
+
+    public function tags(): array
+    {
+        return reset($this->variants)->frontmatter->tags();
+    }
+
+    public function slug(): ?string
+    {
+        return reset($this->variants)->frontmatter->slug();
     }
 
     // @todo Make this better.

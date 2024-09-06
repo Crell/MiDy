@@ -1,5 +1,5 @@
 {varType string $templateRoot}
-{varType Crell\MiDy\Tree\Folder $root}
+{varType Crell\MiDy\PageTree\Folder $root}
 
 {layout $templateRoot . '/layout.latte'}
 
@@ -8,7 +8,8 @@
 {block content}
     {foreach $root->find('/blog') as $page}
         <article>
-            <a href="{$page->path()}">{$page->title()}</a>
+            <h3><a href="{$page->path()}">{$page->title()}</a></h3>
+            <div>{$page->summary()}</div>
         </article>
     {/foreach}
 {/block}
