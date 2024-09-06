@@ -12,6 +12,8 @@ use Crell\MiDy\MarkdownDeserializer\Attributes\MarkdownDocument;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 
+use function Crell\MiDy\str_extract_between;
+
 class MarkdownPageLoader
 {
     private readonly MarkdownDocument $documentStructure;
@@ -54,27 +56,37 @@ class MarkdownPageLoader
      */
     private function extractFrontMatter(string $source): array
     {
-        // There is no header, so fall back to defaults.
-        if (!str_starts_with($source, '---')) {
-            // If the file begins with an H1, assume that's the title and split it off.
-            // @todo Should the h1 be included or no?
-            if (str_starts_with($source, '# ')) {
-                $firstNewline = strpos($source, PHP_EOL) ?: strlen($source);
-                $title = trim(substr($source, 2, $firstNewline - 2));
-                $content = trim(substr($source, $firstNewline));
-                return ['title: ' . $title, $content];
-            }
-            // Otherwise it's just a raw markdown file, return as is.
-            return ['', $source];
+        $frontmatter = str_extract_between($source, '---', '---');
+
+        if ($frontmatter) {
+            // Add 6 to account for the delimiters themselves.
+            // Trim to get ris of leading whitespace.
+            return [trim($frontmatter), trim(substr($source, strlen($frontmatter) + 6))];
         }
 
-        $withoutLeadingHeaderStart = substr($source, 4);
-
-        $endHeaderPos = strpos($withoutLeadingHeaderStart, '---');
-
-        $header = substr($withoutLeadingHeaderStart, 0, $endHeaderPos);
-        $content = substr($withoutLeadingHeaderStart, $endHeaderPos + 4);
-
-        return [$header, $content];
+        // If there's no front matter, but is an H1 markdown tag, assume that's the title.
+        if (str_starts_with($source, '# ')) {
+            $firstNewline = strpos($source, PHP_EOL) ?: strlen($source);
+            $title = trim(substr($source, 2, $firstNewline - 2));
+            $content = trim(substr($source, $firstNewline));
+            return ['title: ' . $title, $content];
+        }
+        // Otherwise it's just a raw markdown file, return as is.
+        return ['', $source];
+//
+//        // There is no header, so fall back to defaults.
+//        if (!str_starts_with($source, '---')) {
+//            // If the file begins with an H1, assume that's the title and split it off.
+//            // @todo Should the h1 be included or no?
+//        }
+//
+//        $withoutLeadingHeaderStart = substr($source, 4);
+//
+//        $endHeaderPos = strpos($withoutLeadingHeaderStart, '---');
+//
+//        $header = substr($withoutLeadingHeaderStart, 0, $endHeaderPos);
+//        $content = substr($withoutLeadingHeaderStart, $endHeaderPos + 4);
+//
+//        return [$header, $content];
     }
 }
