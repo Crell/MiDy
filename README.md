@@ -12,7 +12,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) and [CODE_OF_CONDUCT](CODE_OF_CONDUCT
 
 ## Security
 
-If you discover any security related issues, please use the [GitHub security reporting form](https://github.com/Crell/fp/security) rather than the issue queue.
+If you discover any security related issues, please use the [GitHub security reporting form](https://github.com/Crell/MiDy/security) rather than the issue queue.
 
 ## Credits
 
