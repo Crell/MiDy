@@ -29,7 +29,8 @@
         "psr-4": {
             "Crell\\MiDy\\": "src",
             "App\\Routes\\": "routes"
-        }
+        },
+        "files": ["src/strings.php"]
     },
     "autoload-dev": {
         "psr-4": {
