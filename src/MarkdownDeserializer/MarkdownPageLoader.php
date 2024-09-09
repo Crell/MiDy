@@ -73,20 +73,5 @@ class MarkdownPageLoader
         }
         // Otherwise it's just a raw markdown file, return as is.
         return ['', $source];
-//
-//        // There is no header, so fall back to defaults.
-//        if (!str_starts_with($source, '---')) {
-//            // If the file begins with an H1, assume that's the title and split it off.
-//            // @todo Should the h1 be included or no?
-//        }
-//
-//        $withoutLeadingHeaderStart = substr($source, 4);
-//
-//        $endHeaderPos = strpos($withoutLeadingHeaderStart, '---');
-//
-//        $header = substr($withoutLeadingHeaderStart, 0, $endHeaderPos);
-//        $content = substr($withoutLeadingHeaderStart, $endHeaderPos + 4);
-//
-//        return [$header, $content];
     }
 }
