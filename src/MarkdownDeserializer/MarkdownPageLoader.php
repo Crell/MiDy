@@ -60,7 +60,7 @@ class MarkdownPageLoader
 
         if ($frontmatter) {
             // Add 6 to account for the delimiters themselves.
-            // Trim to get ris of leading whitespace.
+            // Trim to get rid of leading whitespace.
             return [trim($frontmatter), trim(substr($source, strlen($frontmatter) + 6))];
         }
 
