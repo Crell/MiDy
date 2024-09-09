@@ -17,6 +17,8 @@ readonly class StaticRoutes
             'svg' => 'image/svg',
             'jpg' => 'image/jpg',
             'webm' => 'image/webm',
+            'css' => 'text/css',
+            'js' => 'application/javascript',
         ],
     ) {}
 }
