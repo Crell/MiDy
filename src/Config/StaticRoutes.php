@@ -6,7 +6,7 @@ namespace Crell\MiDy\Config;
 
 use Crell\Config\Config;
 
-#[Config('static_routes')]
+#[Config('static-routes')]
 readonly class StaticRoutes
 {
     public function __construct(
