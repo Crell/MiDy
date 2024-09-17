@@ -8,7 +8,7 @@ use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\TimedCache\FilesystemTimedCache;
 use Crell\MiDy\PageTree\FileInterpreter;
-use Crell\MiDy\PageTree\FolderParser;
+use Crell\MiDy\PageTree\LocalFolderParser;
 use Crell\MiDy\PageTree\LatteFileInterpreter;
 use Crell\MiDy\PageTree\MarkdownLatteFileInterpreter;
 use Crell\MiDy\PageTree\MultiplexedFileInterpreter;
@@ -51,7 +51,7 @@ trait RootFilesystemSetup
 
         $cache->clear();
 
-        $parser = new FolderParser($cache, $this->makeFileInterpreter());
+        $parser = new LocalFolderParser($cache, $this->makeFileInterpreter());
 
         return new RootFolder($filePath, $parser);
     }

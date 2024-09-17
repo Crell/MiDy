@@ -29,6 +29,7 @@ use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
 use Crell\MiDy\PageHandlers\PhpHandler;
 use Crell\MiDy\PageHandlers\StaticFileHandler;
 use Crell\MiDy\PageTree\Attributes\PageRoute;
+use Crell\MiDy\PageTree\FolderParser;
 use Crell\MiDy\PageTree\MiDyBasicFrontMatter;
 use Crell\MiDy\PageTree\MiDyFrontMatter;
 use Crell\MiDy\Router\DelegatingRouter;
@@ -41,7 +42,7 @@ use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\RuntimeActionInvoker;
 use Crell\MiDy\TimedCache\FilesystemTimedCache;
 use Crell\MiDy\PageTree\FolderData;
-use Crell\MiDy\PageTree\FolderParser;
+use Crell\MiDy\PageTree\LocalFolderParser;
 use Crell\MiDy\PageTree\FolderRef;
 use Crell\MiDy\PageTree\LatteFileInterpreter;
 use Crell\MiDy\PageTree\MarkdownLatteFileInterpreter;
@@ -193,14 +194,15 @@ class MiDy implements RequestHandlerInterface
                 ->method('addInterpreter', get(MarkdownLatteFileInterpreter::class))
                 ->method('addInterpreter', get(PhpFileInterpreter::class))
             ,
-            FolderParser::class => autowire()->constructor(
+            LocalFolderParser::class => autowire()->constructor(
                     cache: get('path_cache'),
                     interpreter: get(MultiplexedFileInterpreter::class),
                 )
             ,
+            FolderParser::class => get(LocalFolderParser::class),
             RootFolder::class => create(RootFolder::class)->constructor(
                 physicalPath: get('paths.routes'),
-                parser: get(FolderParser::class),
+                parser: get(LocalFolderParser::class),
             ),
         ]);
 
