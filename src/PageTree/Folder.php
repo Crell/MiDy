@@ -50,6 +50,21 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         return $folder;
     }
 
+    public function limit(int $count): static
+    {
+        if (count($this->getFolderData()) <= $count) {
+            return $this;
+        }
+
+        $limitedChildren = array_chunk($this->getFolderData()->children, $count, preserve_keys: true);
+        $data = new FolderData($this->physicalPath, $this->logicalPath, $limitedChildren[0]);
+
+        $folder = new Folder($this->physicalPath, $this->logicalPath, $this->parser);
+        $folder->folderData = $data;
+
+        return $folder;
+    }
+
     public function variants(): array
     {
         return $this->getIndexPage()?->variants() ?? [];
