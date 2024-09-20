@@ -17,7 +17,7 @@ readonly class RouteFile implements Linkable
     public function title(): string
     {
         return $this->frontmatter->title()
-            ?: ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
+            ?: ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME));
     }
 
     public function path(): string
