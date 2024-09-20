@@ -65,6 +65,20 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
         return $folder;
     }
 
+    public function paginate(int $pageSize, int $offset = 0): Pagination
+    {
+        $allPages = $this->getFolderData()->children;
+        $pageChunks = array_chunk($allPages, $pageSize, preserve_keys: true);
+
+        return new Pagination(
+            total: count($allPages),
+            pageSize: $pageSize,
+            pageCount: count($pageChunks),
+            offset: $offset,
+            items: $pageChunks[$offset]
+        );
+    }
+
     public function variants(): array
     {
         return $this->getIndexPage()?->variants() ?? [];

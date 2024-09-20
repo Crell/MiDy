@@ -70,16 +70,7 @@ class FolderTest extends TestCase
     #[Test, DataProvider('limitProvider')]
     public function limit(FolderData $data, int $limit, int $expected, ?\Closure $validator = null): void
     {
-        $fakeParser = new readonly class($data) implements FolderParser {
-            public function __construct(public FolderData $data) {}
-
-            public function loadFolder(Folder $folder): FolderData
-            {
-                return $this->data;
-            }
-        };
-
-        $folder = new Folder('/', '/', $fakeParser);
+        $folder = new Folder('/', '/', $this->fakeParser($data));
 
         $result = $folder->limit($limit);
 
@@ -88,6 +79,80 @@ class FolderTest extends TestCase
         if ($validator) {
             $validator($data, $result);
         }
+    }
+
+    public static function paginationProvider(): iterable
+    {
+        yield 'first page' => [
+            'data' => new FolderData('/', '/', [
+                'page1' => self::makePage('/page1', '/page1', ['latte']),
+                'page2' => self::makePage('/page2', '/page2', ['latte']),
+                'page3' => self::makePage('/page3', '/page3', ['latte']),
+                'page4' => self::makePage('/page4', '/page4', ['latte']),
+                'page5' => self::makePage('/page5', '/page5', ['latte']),
+            ]),
+            'pageSize' => 2,
+            'offset' => 0,
+            'expectedPages' => ['Page1', 'Page2'],
+        ];
+
+        yield 'middle page' => [
+            'data' => new FolderData('/', '/', [
+                'page1' => self::makePage('/page1', '/page1', ['latte']),
+                'page2' => self::makePage('/page2', '/page2', ['latte']),
+                'page3' => self::makePage('/page3', '/page3', ['latte']),
+                'page4' => self::makePage('/page4', '/page4', ['latte']),
+                'page5' => self::makePage('/page5', '/page5', ['latte']),
+            ]),
+            'pageSize' => 2,
+            'offset' => 1,
+            'expectedPages' => ['Page3', 'Page4'],
+        ];
+
+        yield 'last page' => [
+            'data' => new FolderData('/', '/', [
+                'page1' => self::makePage('/page1', '/page1', ['latte']),
+                'page2' => self::makePage('/page2', '/page2', ['latte']),
+                'page3' => self::makePage('/page3', '/page3', ['latte']),
+                'page4' => self::makePage('/page4', '/page4', ['latte']),
+                'page5' => self::makePage('/page5', '/page5', ['latte']),
+            ]),
+            'pageSize' => 2,
+            'offset' => 2,
+            'expectedPages' => ['Page5'],
+        ];
+    }
+
+    #[Test, DataProvider('paginationProvider')]
+    public function paginate(FolderData $data, int $pageSize, int $offset, array $expectedPages, ?\Closure $validator = null): void
+    {
+        $folder = new Folder('/', '/', $this->fakeParser($data));
+
+        $result = $folder->paginate($pageSize, $offset);
+
+        self::assertEquals($pageSize, $result->pageSize);
+        self::assertEquals($offset, $result->offset);
+        self::assertEquals(count($folder), $result->total);
+        self::assertEquals(ceil(count($folder)/$pageSize), $result->pageCount);
+
+        $foundPages = array_values(array_map(fn(Page $p) => $p->title(), $result->items));
+        self::assertEquals($expectedPages, $foundPages);
+
+        if ($validator) {
+            $validator($data, $result);
+        }
+    }
+
+    private function fakeParser(FolderData $data): FolderParser
+    {
+        return new readonly class($data) implements FolderParser {
+            public function __construct(public FolderData $data) {}
+
+            public function loadFolder(Folder $folder): FolderData
+            {
+                return $this->data;
+            }
+        };
     }
 
     private static function makePage(string $physicalPath, string $logicalPath, array $variants): Page
