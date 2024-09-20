@@ -37,13 +37,14 @@ readonly class LatteHandler implements PageHandler
             method: 'GET',
             vars: [
                 'file' => $page->variant($ext)->physicalPath,
+                'query' =>  $request->getQueryParams(),
             ],
         );
     }
 
-    public function action(string $file): ResponseInterface
+    public function action(string $file, array $query): ResponseInterface
     {
-        $page = $this->renderer->render($file);
+        $page = $this->renderer->render($file, ['query' => $query]);
 
         return $this->builder->ok($page);
     }
