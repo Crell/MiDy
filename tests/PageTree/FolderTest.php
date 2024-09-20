@@ -92,7 +92,7 @@ class FolderTest extends TestCase
                 'page5' => self::makePage('/page5', '/page5', ['latte']),
             ]),
             'pageSize' => 2,
-            'offset' => 0,
+            'pageNum' => 1,
             'expectedPages' => ['Page1', 'Page2'],
         ];
 
@@ -105,7 +105,7 @@ class FolderTest extends TestCase
                 'page5' => self::makePage('/page5', '/page5', ['latte']),
             ]),
             'pageSize' => 2,
-            'offset' => 1,
+            'pageNum' => 2,
             'expectedPages' => ['Page3', 'Page4'],
         ];
 
@@ -118,20 +118,20 @@ class FolderTest extends TestCase
                 'page5' => self::makePage('/page5', '/page5', ['latte']),
             ]),
             'pageSize' => 2,
-            'offset' => 2,
+            'pageNum' => 3,
             'expectedPages' => ['Page5'],
         ];
     }
 
     #[Test, DataProvider('paginationProvider')]
-    public function paginate(FolderData $data, int $pageSize, int $offset, array $expectedPages, ?\Closure $validator = null): void
+    public function paginate(FolderData $data, int $pageSize, int $pageNum, array $expectedPages, ?\Closure $validator = null): void
     {
         $folder = new Folder('/', '/', $this->fakeParser($data));
 
-        $result = $folder->paginate($pageSize, $offset);
+        $result = $folder->paginate($pageSize, $pageNum);
 
         self::assertEquals($pageSize, $result->pageSize);
-        self::assertEquals($offset, $result->offset);
+        self::assertEquals($pageNum, $result->pageNum);
         self::assertEquals(count($folder), $result->total);
         self::assertEquals(ceil(count($folder)/$pageSize), $result->pageCount);
 

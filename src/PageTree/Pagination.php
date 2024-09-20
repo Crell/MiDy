@@ -13,7 +13,7 @@ readonly class Pagination
         public int $total,
         public int $pageSize,
         public int $pageCount,
-        public int $offset,
+        public int $pageNum,
         public array $items,
     ) {}
 }
