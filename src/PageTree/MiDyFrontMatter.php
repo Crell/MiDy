@@ -13,4 +13,5 @@ interface MiDyFrontMatter
     public function summary(): string;
     public function tags(): array;
     public function slug(): ?string;
+    public function hidden(): bool;
 }

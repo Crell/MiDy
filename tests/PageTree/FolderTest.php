@@ -153,8 +153,17 @@ class FolderTest extends TestCase
             'filter' => fn(Page $p) => array_key_exists('md', $p->variants()),
             'expectedPages' => ['Page1', 'Page3'],
         ];
-    }
 
+        yield 'exclude hidden' => [
+            'data' => new FolderData('/', '/', [
+                'page1' => self::makePage('/page1', '/page1', ['md']),
+                'page2' => self::makePage('/page2', '/page2', ['md'], new MiDyBasicFrontMatter(hidden: true)),
+                'page3' => self::makePage('/page3', '/page3', ['md']),
+            ]),
+            'filter' => fn(Page $p) => !$p->hidden(),
+            'expectedPages' => ['Page1', 'Page3'],
+        ];
+    }
 
     #[Test, DataProvider('filterProvider')]
     public function filter(FolderData $data, \Closure $filter, array $expectedPages, ?\Closure $validator = null): void

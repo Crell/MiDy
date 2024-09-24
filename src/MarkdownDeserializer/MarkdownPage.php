@@ -21,6 +21,7 @@ class MarkdownPage implements MiDyFrontMatter
         public string $template = '',
         public array $tags = [],
         public ?string $slug = null,
+        public bool $hidden = false,
         #[Field(flatten: true)]
         public array $other = [],
     ) {}
@@ -77,5 +78,10 @@ class MarkdownPage implements MiDyFrontMatter
     public function slug(): ?string
     {
         return $this->slug;
+    }
+
+    public function hidden(): bool
+    {
+        return $this->hidden;
     }
 }

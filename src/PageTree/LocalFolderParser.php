@@ -59,7 +59,7 @@ readonly class LocalFolderParser implements FolderParser
         foreach ($datalist as $childLogicalPath => $child) {
             $children[$child['fileName']] = match ($child['type']) {
                 'folder' => new FolderRef($child['physicalPath'], $childLogicalPath, $child['hidden']),
-                'page' => new Page($childLogicalPath, $child['variants'], $child['hidden']),
+                'page' => new Page($childLogicalPath, $child['variants']),
             };
         }
 

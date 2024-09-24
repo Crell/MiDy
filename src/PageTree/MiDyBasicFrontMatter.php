@@ -11,6 +11,7 @@ readonly class MiDyBasicFrontMatter implements MiDyFrontMatter
         public string $summary = '',
         public array $tags = [],
         public ?string $slug = null,
+        public bool $hidden = false,
     ) {}
 
     public function title(): string
@@ -31,5 +32,10 @@ readonly class MiDyBasicFrontMatter implements MiDyFrontMatter
     public function slug(): ?string
     {
         return $this->slug;
+    }
+
+    public function hidden(): bool
+    {
+        return $this->hidden;
     }
 }

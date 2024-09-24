@@ -28,7 +28,10 @@ class Folder implements PageSet, \IteratorAggregate, Linkable, MultiType
     public function getIterator(): Traversable
     {
         /** @var FolderRef|Page $child */
-        foreach ($this->getFolderData()->visibleChildren() as $child) {
+        foreach ($this->getFolderData()->visibleChildren() as $name => $child) {
+            if ($name === self::IndexPageName) {
+                continue;
+            }
             yield match (get_class($child)) {
                 FolderRef::class => $this->loadFolderRef($child),
                 Page::class => $child,

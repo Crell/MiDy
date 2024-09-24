@@ -43,9 +43,12 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
 
     private function visibilityFilter(Page|FolderRef $page): bool
     {
-        // @todo This is a sign we need a hideable interface. Probably post 8.4 so we can use interface properties...
+        if ($page instanceof Page) {
+            return !$page->hidden();
+        }
         return !$page->hidden;
     }
+
 
     public function all(): iterable
     {

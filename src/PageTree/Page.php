@@ -14,13 +14,10 @@ class Page implements Linkable, MultiType, MiDyFrontMatter
      /**
       * @param string $logicalPath
       * @param array<string, RouteFile> $variants
-      * @param bool $hidden
-      *   If true, this page is hidden from navigation but still routable.
       */
     public function __construct(
         private readonly string $logicalPath,
         protected array $variants,
-        public readonly bool $hidden = false,
     ) {
         $this->lastModified = count($this->variants) ? max(array_map(static fn(RouteFile $r) => $r->mtime, $variants)) : 0;
     }
@@ -68,6 +65,11 @@ class Page implements Linkable, MultiType, MiDyFrontMatter
     public function path(): string
     {
         return $this->logicalPath;
+    }
+
+    public function hidden(): bool
+    {
+        return reset($this->variants)->frontmatter->hidden();
     }
 
     public function getTrailingPath(string $fullPath): array
