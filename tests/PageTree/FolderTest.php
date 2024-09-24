@@ -135,12 +135,45 @@ class FolderTest extends TestCase
         self::assertEquals(count($folder), $result->total);
         self::assertEquals(ceil(count($folder)/$pageSize), $result->pageCount);
 
-        $foundPages = array_values(array_map(fn(Page $p) => $p->title(), iterator_to_array($result->items)));
-        self::assertEquals($expectedPages, $foundPages);
+        self::assertPagesMatch($expectedPages, $result->items);
 
         if ($validator) {
             $validator($data, $result);
         }
+    }
+
+    public static function filterProvider(): iterable
+    {
+        yield 'just markdown' => [
+            'data' => new FolderData('/', '/', [
+                'page1' => self::makePage('/page1', '/page1', ['md']),
+                'page2' => self::makePage('/page2', '/page2', ['latte']),
+                'page3' => self::makePage('/page3', '/page3', ['md']),
+            ]),
+            'filter' => fn(Page $p) => array_key_exists('md', $p->variants()),
+            'expectedPages' => ['Page1', 'Page3'],
+        ];
+    }
+
+
+    #[Test, DataProvider('filterProvider')]
+    public function filter(FolderData $data, \Closure $filter, array $expectedPages, ?\Closure $validator = null): void
+    {
+        $folder = new Folder('/', '/', $this->fakeParser($data));
+
+        $result = $folder->filter($filter);
+
+        self::assertPagesMatch($expectedPages, $result);
+
+        if ($validator) {
+            $validator($data, $result);
+        }
+    }
+
+    private static function assertPagesMatch(array $expectedPages, PageSet $result): void
+    {
+        $foundPages = array_values(array_map(fn(Page $p) => $p->title(), iterator_to_array($result)));
+        self::assertEquals($expectedPages, $foundPages);
     }
 
     private function fakeParser(FolderData $data): FolderParser
@@ -155,7 +188,7 @@ class FolderTest extends TestCase
         };
     }
 
-    private static function makePage(string $physicalPath, string $logicalPath, array $variants): Page
+    private static function makePage(string $physicalPath, string $logicalPath, array $variants, MiDyBasicFrontMatter $frontMatter = new MiDyBasicFrontMatter()): Page
     {
         $files = [];
         foreach ($variants as $ext) {
@@ -164,7 +197,7 @@ class FolderTest extends TestCase
                 logicalPath: "$logicalPath.$ext",
                 ext: $ext,
                 mtime: time(),
-                frontmatter: new MiDyBasicFrontMatter(),
+                frontmatter: $frontMatter,
             );
         }
 

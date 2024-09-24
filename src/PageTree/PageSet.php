@@ -33,4 +33,12 @@ interface PageSet extends \Countable, \Traversable
      * @return iterable<string, Page>
      */
     public function all(): iterable;
+
+    /**
+     * Filters the PageSet down to just those items that match the filter callback.
+     *
+     * @param callable(Page $p): bool $filter
+     * @return PageSet
+     */
+    public function filter(\Closure $filter): PageSet;
 }

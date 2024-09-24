@@ -79,4 +79,9 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
             items: new BasicPageSet($pageChunks[$pageNum - 1]),
         );
     }
+
+    public function filter(\Closure $filter): PageSet
+    {
+        return new BasicPageSet(iterator_to_array(new \CallbackFilterIterator(new \ArrayIterator($this->children), $filter)));
+    }
 }

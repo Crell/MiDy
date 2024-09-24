@@ -81,6 +81,11 @@ class Folder implements PageSet, \IteratorAggregate, Linkable, MultiType
         return (new BasicPageSet($this->getFolderData()->children))->paginate($pageSize, $pageNum);
     }
 
+    public function filter(\Closure $filter): PageSet
+    {
+        return (new BasicPageSet($this->getFolderData()->children))->filter($filter);
+    }
+
     public function variants(): array
     {
         return $this->getIndexPage()?->variants() ?? [];
