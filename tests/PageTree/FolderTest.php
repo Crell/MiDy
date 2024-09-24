@@ -135,7 +135,7 @@ class FolderTest extends TestCase
         self::assertEquals(count($folder), $result->total);
         self::assertEquals(ceil(count($folder)/$pageSize), $result->pageCount);
 
-        $foundPages = array_values(array_map(fn(Page $p) => $p->title(), $result->items));
+        $foundPages = array_values(array_map(fn(Page $p) => $p->title(), iterator_to_array($result->items)));
         self::assertEquals($expectedPages, $foundPages);
 
         if ($validator) {

@@ -14,6 +14,6 @@ readonly class Pagination
         public int $pageSize,
         public int $pageCount,
         public int $pageNum,
-        public array $items,
+        public PageSet $items,
     ) {}
 }

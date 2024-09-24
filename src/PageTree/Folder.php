@@ -6,7 +6,7 @@ namespace Crell\MiDy\PageTree;
 
 use Traversable;
 
-class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
+class Folder implements PageSet, \IteratorAggregate, Linkable, MultiType
 {
     public const string IndexPageName = 'index';
 
@@ -29,6 +29,17 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
     {
         /** @var FolderRef|Page $child */
         foreach ($this->getFolderData()->visibleChildren() as $child) {
+            yield match (get_class($child)) {
+                FolderRef::class => $this->loadFolderRef($child),
+                Page::class => $child,
+            };
+        }
+    }
+
+    public function all(): iterable
+    {
+        /** @var FolderRef|Page $child */
+        foreach ($this->getFolderData() as $child) {
             yield match (get_class($child)) {
                 FolderRef::class => $this->loadFolderRef($child),
                 Page::class => $child,
@@ -67,19 +78,7 @@ class Folder implements \Countable, \IteratorAggregate, Linkable, MultiType
 
     public function paginate(int $pageSize, int $pageNum = 1): Pagination
     {
-        $allPages = $this->getFolderData()->children;
-        // Don't paginate on the page itself.
-        unset($allPages[self::IndexPageName]);
-        $pageChunks = array_chunk($allPages, $pageSize, preserve_keys: true);
-
-        return new Pagination(
-            total: count($allPages),
-            pageSize: $pageSize,
-            pageCount: count($pageChunks),
-            pageNum: $pageNum,
-            // -1, because $pageChunks is 0-based.
-            items: $pageChunks[$pageNum - 1],
-        );
+        return (new BasicPageSet($this->getFolderData()->children))->paginate($pageSize, $pageNum);
     }
 
     public function variants(): array
