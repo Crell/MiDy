@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTree\FolderParser\FolderParser;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +14,7 @@ class FolderTest extends TestCase
     public static function limitProvider(): iterable
     {
         yield '3 pages, show 2' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'page1' => self::makePage('/page1', '/page1', ['md']),
                 'page2' => self::makePage('/page2', '/page2', ['md']),
                 'page3' => self::makePage('/page3', '/page3', ['md']),
@@ -23,7 +24,7 @@ class FolderTest extends TestCase
         ];
 
         yield '3 pages, show 4' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'page1' => self::makePage('/page1', '/page1', ['latte']),
                 'page2' => self::makePage('/page2', '/page2', ['latte']),
                 'page3' => self::makePage('/page3', '/page3', ['latte']),
@@ -33,7 +34,7 @@ class FolderTest extends TestCase
         ];
 
         yield 'with extra route files, limited' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'page1' => self::makePage('/page1', '/page1', ['latte']),
                 'page2' => self::makePage('/page2', '/page2', ['latte', 'md']),
                 'page3' => self::makePage('/page3', '/page3', ['latte']),
@@ -43,7 +44,7 @@ class FolderTest extends TestCase
         ];
 
         yield 'with extra route files, not limited' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'page1' => self::makePage('/page1', '/page1', ['latte']),
                 'page2' => self::makePage('/page2', '/page2', ['latte', 'md']),
                 'page3' => self::makePage('/page3', '/page3', ['latte']),
@@ -53,16 +54,15 @@ class FolderTest extends TestCase
         ];
 
         yield 'with an index file, first' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'index' => self::makePage('/index', '/index', ['md']),
                 'page2' => self::makePage('/page2', '/page2', ['latte', 'md']),
                 'page3' => self::makePage('/page3', '/page3', ['latte']),
             ]),
             'limit' => 2,
             'expected' => 2,
-            'validator' => function (FolderData $data, Folder $folder) {
-                $index = $folder->getIndexPage();
-                self::assertNotNull($index);
+            'validator' => function (FolderData $data, FolderData $folder) {
+                self::assertNotNull($folder->indexPage);
             },
         ];
     }
@@ -84,7 +84,7 @@ class FolderTest extends TestCase
     public static function paginationProvider(): iterable
     {
         yield 'first page' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'page1' => self::makePage('/page1', '/page1', ['latte']),
                 'page2' => self::makePage('/page2', '/page2', ['latte']),
                 'page3' => self::makePage('/page3', '/page3', ['latte']),
@@ -97,7 +97,7 @@ class FolderTest extends TestCase
         ];
 
         yield 'middle page' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'page1' => self::makePage('/page1', '/page1', ['latte']),
                 'page2' => self::makePage('/page2', '/page2', ['latte']),
                 'page3' => self::makePage('/page3', '/page3', ['latte']),
@@ -110,7 +110,7 @@ class FolderTest extends TestCase
         ];
 
         yield 'last page' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'page1' => self::makePage('/page1', '/page1', ['latte']),
                 'page2' => self::makePage('/page2', '/page2', ['latte']),
                 'page3' => self::makePage('/page3', '/page3', ['latte']),
@@ -145,7 +145,7 @@ class FolderTest extends TestCase
     public static function filterProvider(): iterable
     {
         yield 'just markdown' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'page1' => self::makePage('/page1', '/page1', ['md']),
                 'page2' => self::makePage('/page2', '/page2', ['latte']),
                 'page3' => self::makePage('/page3', '/page3', ['md']),
@@ -155,9 +155,9 @@ class FolderTest extends TestCase
         ];
 
         yield 'exclude hidden' => [
-            'data' => new FolderData('/', '/', [
+            'data' => new FolderData([
                 'page1' => self::makePage('/page1', '/page1', ['md']),
-                'page2' => self::makePage('/page2', '/page2', ['md'], new MiDyBasicFrontMatter(hidden: true)),
+                'page2' => self::makePage('/page2', '/page2', ['md'], new BasicPageInformation(hidden: true)),
                 'page3' => self::makePage('/page3', '/page3', ['md']),
             ]),
             'filter' => fn(Page $p) => !$p->hidden(),
@@ -181,7 +181,7 @@ class FolderTest extends TestCase
 
     private static function assertPagesMatch(array $expectedPages, PageSet $result): void
     {
-        $foundPages = array_values(array_map(fn(Page $p) => $p->title(), iterator_to_array($result)));
+        $foundPages = array_values(array_map(static fn(Page $p) => $p->title(), iterator_to_array($result)));
         self::assertEquals($expectedPages, $foundPages);
     }
 
@@ -197,19 +197,19 @@ class FolderTest extends TestCase
         };
     }
 
-    private static function makePage(string $physicalPath, string $logicalPath, array $variants, MiDyBasicFrontMatter $frontMatter = new MiDyBasicFrontMatter()): Page
+    private static function makePage(string $physicalPath, string $logicalPath, array $variants, BasicPageInformation $frontMatter = new BasicPageInformation()): Page
     {
         $files = [];
         foreach ($variants as $ext) {
-            $files[$ext] = new RouteFile(
+            $files[$ext] = new PageFile(
                 physicalPath: "$physicalPath.$ext",
                 logicalPath: "$logicalPath.$ext",
                 ext: $ext,
                 mtime: time(),
-                frontmatter: $frontMatter,
+                info: $frontMatter,
             );
         }
 
-        return new Page($logicalPath, $files);
+        return new AggregatePage($logicalPath, $files);
     }
 }

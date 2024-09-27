@@ -6,10 +6,10 @@ namespace Crell\MiDy\Router;
 
 use Crell\MiDy\MiDy;
 use Crell\MiDy\PageHandlers\SupportsTrailingPath;
+use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\RootFilesystemSetup;
 use Crell\MiDy\Router\HandlerRouter\HandlerRouter;
 use Crell\MiDy\Router\HandlerRouter\PageHandler;
-use Crell\MiDy\PageTree\Page;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use PHPUnit\Framework\Attributes\Test;

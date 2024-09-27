@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree;
+namespace Crell\MiDy\PageTree\FolderParser;
+
+use Crell\MiDy\PageTree\Folder;
+use Crell\MiDy\PageTree\FolderData;
 
 /**
  * Parser for filesystem data.

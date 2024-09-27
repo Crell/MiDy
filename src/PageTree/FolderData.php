@@ -4,42 +4,16 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Traversable;
-
-class FolderData implements \Countable, \IteratorAggregate
+readonly class FolderData extends BasicPageSet
 {
-    public function __construct(
-        protected readonly string $physicalPath,
-        protected readonly string $logicalPath,
-        public readonly array $children,
-    ) {}
+    public ?Page $indexPage;
 
-    /**
-     * Iterates all children, visible or not.
-     */
-    public function getIterator(): Traversable
+    public function __construct(array $children)
     {
-        return new \ArrayIterator($this->children);
-    }
+        // Split the index page off to a separate property, if it exists.
+        $this->indexPage = $children[Folder::IndexPageName] ?? null;
+        unset($children[Folder::IndexPageName]);
 
-    public function count(): int
-    {
-        return count($this->children);
-    }
-
-    /**
-     * Iterates just the visible (non-hidden) children.
-     */
-    public function visibleChildren(): iterable
-    {
-        return new \CallbackFilterIterator(new \ArrayIterator($this->children), $this->visibilityFilter(...));
-    }
-
-    private function visibilityFilter(Page|FolderRef $page): bool
-    {
-        if ($page instanceof Page) {
-            return !$page->hidden();
-        }
-        return !$page->hidden;
+        parent::__construct($children);
     }
 }

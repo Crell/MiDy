@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Attributes;
 
-use Crell\MiDy\PageTree\MiDyFrontMatter;
+use Crell\MiDy\PageTree\PageInformation;
 
 #[\Attribute]
-readonly class PageRoute implements MiDyFrontMatter
+readonly class PageRoute implements PageInformation
 {
     public function __construct(
         public string $title = '',

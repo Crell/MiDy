@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree;
+namespace Crell\MiDy\PageTree\FileInterpreter;
 
+use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\PageTree\PageFile;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 
@@ -26,20 +28,20 @@ class LatteFileInterpreter implements FileInterpreter
         return ['latte'];
     }
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): RouteFile|FileInterpreterError
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): PageFile|FileInterpreterError
     {
         $logicalPath = rtrim($parentLogicalPath, '/') . '/' . $basename;
 
         $frontmatter = $this->extractFrontMatter(file_get_contents($fileInfo->getPathname()));
 
-        $frontmatter ??= new MiDyBasicFrontMatter(title: ucfirst($basename));
+        $frontmatter ??= new BasicPageInformation(title: ucfirst($basename));
 
-        return new RouteFile(
+        return new PageFile(
             physicalPath: $fileInfo->getPathname(),
             logicalPath: $logicalPath,
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
-            frontmatter: $frontmatter,
+            info: $frontmatter,
         );
     }
 
@@ -48,14 +50,14 @@ class LatteFileInterpreter implements FileInterpreter
      *
      * @todo This can probably be done in a less hacky way.
      */
-    private function extractFrontMatter(string $source): ?MiDyBasicFrontMatter
+    private function extractFrontMatter(string $source): ?BasicPageInformation
     {
         $frontmatter = str_extract_between($source, self::FrontMatterStart,self::FrontMatterEnd);
         if ($frontmatter === null) {
             return null;
         }
 
-        return $this->serde->deserialize($frontmatter, from: 'yaml', to: MiDyBasicFrontMatter::class);
+        return $this->serde->deserialize($frontmatter, from: 'yaml', to: BasicPageInformation::class);
     }
 
 }

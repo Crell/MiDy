@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-enum FileInterpreterError
+interface Hidable
 {
-    case FileNotSupported;
+    public function hidden(): bool;
 }

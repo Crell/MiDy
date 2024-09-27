@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Crell\MiDy\MarkdownDeserializer;
 
 use Crell\MiDy\MarkdownDeserializer\Attributes\Content;
-use Crell\MiDy\PageTree\MiDyBasicFrontMatter;
-use Crell\MiDy\PageTree\MiDyFrontMatter;
+use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\PageTree\PageInformation;
 use Crell\Serde\Attributes\Field;
 
 use function Crell\MiDy\str_extract_between;
 
-class MarkdownPage implements MiDyFrontMatter
+class MarkdownPage implements PageInformation
 {
     public function __construct(
         #[Content]
@@ -40,9 +40,9 @@ class MarkdownPage implements MiDyFrontMatter
     /**
      * @todo This is gross, but the easiest way to not cache the entire contents in the route cache.  Do better later.
      */
-    public function toFrontMatter(): MiDyFrontMatter
+    public function pageInformation(): PageInformation
     {
-        return new MiDyBasicFrontMatter(
+        return new BasicPageInformation(
             title: $this->title,
             summary: $this->summary(),
             tags: $this->tags,

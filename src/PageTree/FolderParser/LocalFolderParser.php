@@ -2,8 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree;
+namespace Crell\MiDy\PageTree\FolderParser;
 
+use Crell\MiDy\PageTree\AggregatePage;
+use Crell\MiDy\PageTree\FileInterpreter\FileInterpreter;
+use Crell\MiDy\PageTree\Folder;
+use Crell\MiDy\PageTree\FolderData;
+use Crell\MiDy\PageTree\FolderRef;
+use Crell\MiDy\PageTree\SortOrder;
 use Crell\MiDy\TimedCache\TimedCache;
 
 /**
@@ -42,9 +48,9 @@ readonly class LocalFolderParser implements FolderParser
             if ($file->isFile()) {
                 // SPL is so damned stupid...
                 [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
-                $routeFile = $this->interpreter->map($file, $folder->logicalPath, $basename);
+                $pageFile = $this->interpreter->map($file, $folder->logicalPath, $basename);
 
-                $datalist->addRouteFile($file->getExtension(), $basename, $order, $routeFile);
+                $datalist->addPageFile($file->getExtension(), $basename, $order, $pageFile);
             } else {
                 [$basename, $order] = $this->parseName($file->getFilename());
                 $childPhysicalPath = $file->getPathname();
@@ -57,13 +63,19 @@ readonly class LocalFolderParser implements FolderParser
 
         $children = [];
         foreach ($datalist as $childLogicalPath => $child) {
-            $children[$child['fileName']] = match ($child['type']) {
-                'folder' => new FolderRef($child['physicalPath'], $childLogicalPath, $child['hidden']),
-                'page' => new Page($childLogicalPath, $child['variants']),
-            };
+            if ($child['type'] === 'folder') {
+                // @todo The hidden flag should be pulled from an index file if available.
+                $children[$child['fileName']] = new FolderRef($child['physicalPath'], $childLogicalPath, $child['hidden']);
+            } elseif ($child['type'] === 'page') {
+                if (count($child['variants']) > 1) {
+                    $children[$child['fileName']] = new AggregatePage($childLogicalPath, $child['variants']);
+                } else {
+                    $children[$child['fileName']] = reset($child['variants']);
+                }
+            }
         }
 
-        return new FolderData($folder->physicalPath, $folder->logicalPath, $children);
+        return new FolderData($children);
     }
 
     /**

@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageHandlers;
 
 use Crell\MiDy\ClassFinder;
-use Crell\MiDy\Router\HandlerRouter\PageHandler;
+use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
-use Crell\MiDy\PageTree\Page;
 use DI\FactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

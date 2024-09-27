@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree;
+namespace Crell\MiDy\PageTree\FileInterpreter;
 
 use Crell\MiDy\ClassFinder;
 use Crell\MiDy\PageTree\Attributes\PageRoute;
+use Crell\MiDy\PageTree\PageFile;
 
 readonly class PhpFileInterpreter implements FileInterpreter
 {
@@ -18,7 +19,7 @@ readonly class PhpFileInterpreter implements FileInterpreter
         return ['php'];
     }
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): RouteFile|FileInterpreterError
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): PageFile|FileInterpreterError
     {
         $physicalPath = $fileInfo->getPathname();
 
@@ -26,12 +27,12 @@ readonly class PhpFileInterpreter implements FileInterpreter
 
         $logicalPath = rtrim($parentLogicalPath, '/') . '/' . ($frontmatter->slug() ?? $basename);
 
-        return new RouteFile(
+        return new PageFile(
             physicalPath: $physicalPath,
             logicalPath: $logicalPath,
             ext: $fileInfo->getExtension(),
             mtime: $fileInfo->getMTime(),
-            frontmatter: $frontmatter,
+            info: $frontmatter,
         );
     }
 

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree;
+namespace Crell\MiDy\PageTree\FileInterpreter;
+
+use Crell\MiDy\PageTree\PageFile;
 
 interface FileInterpreter
 {
@@ -12,5 +14,5 @@ interface FileInterpreter
      */
     public function supportedExtensions(): array;
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): RouteFile|FileInterpreterError;
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): PageFile|FileInterpreterError;
 }

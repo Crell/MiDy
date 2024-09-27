@@ -23,39 +23,31 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
         return count($this->children);
     }
 
-    public function getIterator(): Traversable
-    {
-        /** @var FolderRef|Page $child */
-        foreach ($this->visibleChildren() as $child) {
-            yield match (get_class($child)) {
-                Page::class => $child,
-            };
-        }
-    }
-
     /**
      * Iterates just the visible (non-hidden) children.
      */
-    public function visibleChildren(): iterable
+    public function getIterator(): Traversable
     {
         return new \CallbackFilterIterator(new \ArrayIterator($this->children), $this->visibilityFilter(...));
+//        /** @var Page $child */
+//        foreach ($this->visibleChildren() as $child) {
+//            yield match (get_class($child)) {
+//                Page::class => $child,
+//            };
+//        }
     }
 
-    private function visibilityFilter(Page|FolderRef $page): bool
+    private function visibilityFilter(Hidable $page): bool
     {
-        if ($page instanceof Page) {
-            return !$page->hidden();
-        }
-        return !$page->hidden;
+        return !$page->hidden();
     }
-
 
     public function all(): iterable
     {
         return new \ArrayIterator($this->children);
     }
 
-    public function limit(int $count): static
+    public function limit(int $count): PageSet
     {
         if (count($this->children) <= $count) {
             return $this;
@@ -63,14 +55,12 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
 
         $limitedChildren = array_chunk($this->children, $count, preserve_keys: true);
 
-        return new self($limitedChildren);
+        return new BasicPageSet($limitedChildren);
     }
 
     public function paginate(int $pageSize, int $pageNum = 1): Pagination
     {
         $allPages = $this->children;
-        // Exclude the folder itself from pagination.
-        unset($allPages[Folder::IndexPageName]);
         $pageChunks = array_chunk($allPages, $pageSize, preserve_keys: true);
 
         return new Pagination(
@@ -86,5 +76,17 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
     public function filter(\Closure $filter): PageSet
     {
         return new BasicPageSet(iterator_to_array(new \CallbackFilterIterator(new \ArrayIterator($this->children), $filter)));
+    }
+
+    public function get(string $name): ?Page
+    {
+        $info = pathinfo($name);
+
+        /** @var ?Page $files */
+        $files = $this->children[$info['filename']] ?? null;
+        if ($info['extension']) {
+            return $files?->variant($info['extension']);
+        }
+        return $files;
     }
 }

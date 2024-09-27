@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
+use Crell\MiDy\PageTree\FileInterpreter\FileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\MarkdownLatteFileInterpreter;
 
 class MarkdownLatteFileInterpreterTest extends FileInterpreterTestBase
 {

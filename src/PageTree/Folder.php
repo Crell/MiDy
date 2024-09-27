@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTree\FolderParser\FolderParser;
 use Traversable;
 
-class Folder implements PageSet, \IteratorAggregate, Linkable, MultiType
+class Folder implements Page, PageSet, \IteratorAggregate
 {
     public const string IndexPageName = 'index';
 
+    /**
+     * @todo Make lazy and public with a get hook.
+     */
     private FolderData $folderData;
-
-    private ?Page $indexPage;
 
     public function __construct(
         public readonly string $physicalPath,
@@ -22,141 +24,140 @@ class Folder implements PageSet, \IteratorAggregate, Linkable, MultiType
 
     public function count(): int
     {
-        return $this->getFolderData()->count();
+        return count($this->folderData());
     }
 
-    public function getIterator(): Traversable
+    public function routable(): bool
     {
-        /** @var FolderRef|Page $child */
-        foreach ($this->getFolderData()->visibleChildren() as $name => $child) {
-            if ($name === self::IndexPageName) {
-                continue;
-            }
-            yield match (get_class($child)) {
-                FolderRef::class => $this->loadFolderRef($child),
-                Page::class => $child,
-            };
-        }
+        return $this->indexPage() !== null;
     }
 
-    public function all(): iterable
+    public function path(): string
     {
-        /** @var FolderRef|Page $child */
-        foreach ($this->getFolderData() as $child) {
-            yield match (get_class($child)) {
-                FolderRef::class => $this->loadFolderRef($child),
-                Page::class => $child,
-            };
-        }
-    }
-
-    public function limitTo(string $variant): static
-    {
-        /** @var ?Page $page */
-        $page = $this->child(self::IndexPageName);
-        if (!$page) {
-            return $this;
-        }
-
-        $folder = new Folder($this->physicalPath, $this->logicalPath, $this->parser);
-
-        $folder->indexPage = $page->limitTo($variant);
-        return $folder;
-    }
-
-    public function limit(int $count): static
-    {
-        if (count($this->getFolderData()) <= $count) {
-            return $this;
-        }
-
-        $limitedChildren = array_chunk($this->getFolderData()->children, $count, preserve_keys: true);
-        $data = new FolderData($this->physicalPath, $this->logicalPath, $limitedChildren[0]);
-
-        $folder = new Folder($this->physicalPath, $this->logicalPath, $this->parser);
-        $folder->folderData = $data;
-
-        return $folder;
-    }
-
-    public function paginate(int $pageSize, int $pageNum = 1): Pagination
-    {
-        return (new BasicPageSet($this->getFolderData()->children))->paginate($pageSize, $pageNum);
-    }
-
-    public function filter(\Closure $filter): PageSet
-    {
-        return (new BasicPageSet($this->getFolderData()->children))->filter($filter);
+        return str_replace('/index', '', $this->indexPage()?->path() ?? $this->logicalPath);
     }
 
     public function variants(): array
     {
-        return $this->getIndexPage()?->variants() ?? [];
+        return $this->indexPage()?->variants() ?? [];
     }
 
-    public function variant(string $ext): ?RouteFile
+    public function variant(string $ext): ?Page
     {
-        return $this->getIndexPage()?->variant('ext');
+        return $this->indexPage()?->variant($ext);
     }
 
-    public function find(string $path): Page|Folder|null
+    public function getTrailingPath(string $fullPath): array
+    {
+        return $this->indexPage()?->getTrailingPath($fullPath) ?? [];
+    }
+
+    public function title(): string
+    {
+        return $this->indexPage()?->title()
+            ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME));
+    }
+
+    public function summary(): string
+    {
+        return $this->indexPage()?->summary() ?? '';
+    }
+
+    public function tags(): array
+    {
+        return $this->indexPage()?->tags() ?? [];
+    }
+
+    public function slug(): ?string
+    {
+        return $this->indexPage()?->slug() ?? '';
+    }
+
+    public function hidden(): bool
+    {
+        return $this->indexPage()?->hidden() ?? true;
+    }
+
+    public function limit(int $count): PageSet
+    {
+        return $this->folderData()->limit($count);
+    }
+
+    public function paginate(int $pageSize, int $pageNum = 1): Pagination
+    {
+        return $this->folderData()->paginate($pageSize, $pageNum);
+    }
+
+    public function all(): iterable
+    {
+        return $this->folderData()->all();
+    }
+
+    public function filter(\Closure $filter): PageSet
+    {
+        return $this->folderData()->filter($filter);
+    }
+
+    public function get(string $name): ?Page
+    {
+        $candidates = iterator_to_array($this->folderData()->all(), preserve_keys: true);
+
+        $info = pathinfo($name);
+
+        /** @var ?Page $files */
+        $files = $candidates[$info['filename']] ?? null;
+        if ($files instanceof FolderRef) {
+            return $this->loadFolderRef($files);
+        }
+        if ($info['extension'] ?? false) {
+            return $files?->variant($info['extension']);
+        }
+        return $files;
+    }
+
+    public function getIterator(): Traversable
+    {
+        /**
+         * @var string $name
+         * @var Hidable $child
+         */
+        foreach ($this->folderData()->all() as $name => $child) {
+            if ($child->hidden()) {
+                continue;
+            }
+            yield $name => match (true) {
+                $child instanceof Page => $child,
+                $child instanceof FolderRef => $this->loadFolderRef($child),
+            };
+        }
+    }
+
+    public function find(string $path): ?Page
     {
         $dirParts = array_filter(explode('/', $path));
 
         $child = $this;
 
         foreach ($dirParts as $pathSegment) {
-            $child = $child?->child($pathSegment);
+            $child = $child?->get($pathSegment);
         }
 
         return $child;
     }
 
-    public function children(): Traversable
+    // @todo We can probably factor this method away.
+    public function indexPage(): ?Page
     {
-        return $this;
+        return $this->folderData()->indexPage;
     }
 
-    public function child(string $name): Folder|Page|null
+    protected function folderData(): FolderData
     {
-        $pathinfo = pathinfo($name);
-
-        $child = $this->getFolderData()->children[$pathinfo['filename']] ?? null;
-
-        if ($child instanceof FolderRef) {
-            return $this->loadFolderRef($child);
-        }
-        if ($child && isset($pathinfo['extension'])) {
-            /** @var Page $child */
-            $child = $child->limitTo($pathinfo['extension']);
-        }
-
-        return $child;
-    }
-
-    public function title(): string
-    {
-        return $this->getIndexPage()?->title()
-            ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_BASENAME));
-    }
-
-    public function path(): string
-    {
-        return $this->logicalPath;
-    }
-
-    public function getIndexPage(): ?Page
-    {
-        return $this->indexPage ??= $this->child(self::IndexPageName);
+        return $this->folderData ??= $this->parser->loadFolder($this);
     }
 
     protected function loadFolderRef(FolderRef $ref): Folder
     {
-        return new Folder($ref->physicalPath, $ref->logicalPath, $this->parser);
-    }
-
-    protected function getFolderData(): FolderData
-    {
-        return $this->folderData ??= $this->parser->loadFolder($this);
+        return new self($ref->physicalPath, $ref->logicalPath, $this->parser);
     }
 }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\ClassFinder;
+use Crell\MiDy\PageTree\FileInterpreter\FileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\PhpFileInterpreter;
 
 class PhpFileInterpreterTest extends FileInterpreterTestBase
 {

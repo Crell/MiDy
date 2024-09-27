@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Crell\MiDy\Router\HandlerRouter;
 
 use Crell\MiDy\PageHandlers\SupportsTrailingPath;
+use Crell\MiDy\PageTree\Folder;
+use Crell\MiDy\PageTree\OldFolder;
+use Crell\MiDy\PageTree\RootFolder;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Router\RouteResult;
-use Crell\MiDy\PageTree\Folder;
-use Crell\MiDy\PageTree\RootFolder;
 use Psr\Http\Message\ServerRequestInterface;
 
 class HandlerRouter implements Router
@@ -39,12 +40,8 @@ class HandlerRouter implements Router
 
         $page = $this->root->route($request->getUri()->getPath());
 
-        if ($page instanceof Folder) {
-            $page = $page->getIndexPage();
-        }
-
         // A folder with no index page is non-routable.
-        if (!$page) {
+        if ($page instanceof Folder && !$page->indexPage()) {
             return new RouteNotFound();
         }
 

@@ -29,9 +29,19 @@ use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
 use Crell\MiDy\PageHandlers\PhpHandler;
 use Crell\MiDy\PageHandlers\StaticFileHandler;
 use Crell\MiDy\PageTree\Attributes\PageRoute;
-use Crell\MiDy\PageTree\FolderParser;
-use Crell\MiDy\PageTree\MiDyBasicFrontMatter;
-use Crell\MiDy\PageTree\MiDyFrontMatter;
+use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\PageTree\FileInterpreter\LatteFileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\MarkdownLatteFileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\MultiplexedFileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\PhpFileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\StaticFileInterpreter;
+use Crell\MiDy\PageTree\FolderData;
+use Crell\MiDy\PageTree\FolderParser\FolderParser;
+use Crell\MiDy\PageTree\FolderParser\LocalFolderParser;
+use Crell\MiDy\PageTree\FolderRef;
+use Crell\MiDy\PageTree\Page;
+use Crell\MiDy\PageTree\PageFile;
+use Crell\MiDy\PageTree\RootFolder;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter\EventRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
@@ -41,17 +51,6 @@ use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\RuntimeActionInvoker;
 use Crell\MiDy\TimedCache\FilesystemTimedCache;
-use Crell\MiDy\PageTree\FolderData;
-use Crell\MiDy\PageTree\LocalFolderParser;
-use Crell\MiDy\PageTree\FolderRef;
-use Crell\MiDy\PageTree\LatteFileInterpreter;
-use Crell\MiDy\PageTree\MarkdownLatteFileInterpreter;
-use Crell\MiDy\PageTree\MultiplexedFileInterpreter;
-use Crell\MiDy\PageTree\Page;
-use Crell\MiDy\PageTree\PhpFileInterpreter;
-use Crell\MiDy\PageTree\RootFolder;
-use Crell\MiDy\PageTree\RouteFile;
-use Crell\MiDy\PageTree\StaticFileInterpreter;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -186,7 +185,7 @@ class MiDy implements RequestHandlerInterface
             ,
              'path_cache' => autowire(FilesystemTimedCache::class)->constructor(
                 cachePath: get('paths.cache.routes'),
-                allowedClasses: [FolderData::class, FolderRef::class, Page::class, RouteFile::class, MiDyBasicFrontMatter::class, PageRoute::class],
+                allowedClasses: [FolderData::class, FolderRef::class, Page::class, PageFile::class, BasicPageInformation::class, PageRoute::class],
             ),
             MultiplexedFileInterpreter::class => autowire()
                 ->method('addInterpreter', get(StaticFileInterpreter::class))

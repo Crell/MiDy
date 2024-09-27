@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-readonly class MiDyBasicFrontMatter implements MiDyFrontMatter
+readonly class BasicPageInformation implements PageInformation
 {
     public function __construct(
         public string $title = '',

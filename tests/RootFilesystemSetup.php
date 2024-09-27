@@ -6,15 +6,15 @@ namespace Crell\MiDy;
 
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
-use Crell\MiDy\TimedCache\FilesystemTimedCache;
-use Crell\MiDy\PageTree\FileInterpreter;
-use Crell\MiDy\PageTree\LocalFolderParser;
-use Crell\MiDy\PageTree\LatteFileInterpreter;
-use Crell\MiDy\PageTree\MarkdownLatteFileInterpreter;
-use Crell\MiDy\PageTree\MultiplexedFileInterpreter;
-use Crell\MiDy\PageTree\PhpFileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\FileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\LatteFileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\MarkdownLatteFileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\MultiplexedFileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\PhpFileInterpreter;
+use Crell\MiDy\PageTree\FileInterpreter\StaticFileInterpreter;
+use Crell\MiDy\PageTree\FolderParser\LocalFolderParser;
 use Crell\MiDy\PageTree\RootFolder;
-use Crell\MiDy\PageTree\StaticFileInterpreter;
+use Crell\MiDy\TimedCache\FilesystemTimedCache;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -44,8 +44,8 @@ trait RootFilesystemSetup
 
     protected function makeRootFolder(): RootFolder
     {
-        $filePath = self::$vfs->getChild('data')->url();
-        $cachePath = self::$vfs->getChild('cache')->url();
+        $filePath = self::$vfs->getChild('data')?->url();
+        $cachePath = self::$vfs->getChild('cache')?->url();
 
         $cache = new FilesystemTimedCache($cachePath);
 

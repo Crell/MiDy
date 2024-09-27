@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree;
+namespace Crell\MiDy\PageTree\FolderParser;
 
+use Crell\MiDy\PageTree\FileInterpreter\FileInterpreterError;
+use Crell\MiDy\PageTree\Folder;
+use Crell\MiDy\PageTree\OldFolder;
+use Crell\MiDy\PageTree\PageFile;
+use Crell\MiDy\PageTree\SortOrder;
 use Traversable;
 
 /**
@@ -17,7 +22,7 @@ class FolderParserDatalist implements \IteratorAggregate
 
     public function __construct(private readonly SortOrder $sortOrder) {}
 
-    public function addRouteFile(string $variant, string $basename, int $order, RouteFile|FileInterpreterError $routeFile): void
+    public function addPageFile(string $variant, string $basename, int $order, PageFile|FileInterpreterError $routeFile): void
     {
         if ($routeFile === FileInterpreterError::FileNotSupported) {
             // For now, just ignore unsupported file types.

@@ -16,7 +16,7 @@ class RootFolderTest extends TestCase
     public function count_returns_correct_value(): void
     {
         $r = $this->makeRootFolder();
-        self::assertCount(7, $r);
+        self::assertCount(6, $r);
     }
 
     #[Test]
@@ -25,7 +25,7 @@ class RootFolderTest extends TestCase
         $r = $this->makeRootFolder();
 
         foreach ($r as $child) {
-            self::assertTrue($child instanceof Page || $child instanceof Folder);
+            self::assertInstanceOf(Page::class, $child);
         }
     }
 
@@ -34,11 +34,11 @@ class RootFolderTest extends TestCase
     {
         $r = $this->makeRootFolder();
 
-        $child = $r->child('index');
+        $child = $r->indexPage();
         self::assertInstanceOf(Page::class, $child);
         self::assertEquals('/index', $child->path());
 
-        $child = $r->child('double');
+        $child = $r->get('double');
         self::assertInstanceOf(Page::class, $child);
         self::assertEquals('/double', $child->path());
     }
@@ -50,7 +50,7 @@ class RootFolderTest extends TestCase
 
         file_put_contents('vfs://root/data/foo.md', 'Foo');
 
-        $page = $r->child('foo.md');
+        $page = $r->get('foo.md');
 
         self::assertEquals('/foo', $page->path());
     }
@@ -113,7 +113,8 @@ class RootFolderTest extends TestCase
 
         self::assertInstanceOf(Folder::class, $folder);
 
-        $children = iterator_to_array($folder);
+        // array_values() so that we can examine them by order, not by name index.
+        $children = array_values(iterator_to_array($folder));
 
         self::assertEquals('Z', $children[0]->title());
         self::assertEquals('K', $children[1]->title());
@@ -143,7 +144,8 @@ class RootFolderTest extends TestCase
 
         self::assertInstanceOf(Folder::class, $folder);
 
-        $children = iterator_to_array($folder);
+        // array_values() so that we can examine them by order, not by name index.
+        $children = array_values(iterator_to_array($folder));
 
         self::assertEquals('Z', $children[0]->title());
         self::assertEquals('K', $children[1]->title());
@@ -174,7 +176,8 @@ class RootFolderTest extends TestCase
 
         self::assertInstanceOf(Folder::class, $folder);
 
-        $children = iterator_to_array($folder);
+        // array_values() so that we can examine them by order, not by name index.
+        $children = array_values(iterator_to_array($folder));
 
         self::assertEquals('Z', $children[3]->title());
         self::assertEquals('K', $children[2]->title());
@@ -210,7 +213,8 @@ class RootFolderTest extends TestCase
 
         self::assertInstanceOf(Folder::class, $folder);
 
-        $children = iterator_to_array($folder);
+        // array_values() so that we can examine them by order, not by name index.
+        $children = array_values(iterator_to_array($folder));
 
         self::assertEquals('A', $children[0]->title());
         self::assertEquals('B', $children[1]->title());
@@ -250,7 +254,8 @@ class RootFolderTest extends TestCase
 
         self::assertInstanceOf(Folder::class, $folder);
 
-        $children = iterator_to_array($folder);
+        // array_values() so that we can examine them by order, not by name index.
+        $children = array_values(iterator_to_array($folder));
 
         self::assertEquals('A', $children[5]->title());
         self::assertEquals('B', $children[4]->title());
@@ -279,7 +284,10 @@ class RootFolderTest extends TestCase
 
         $page = $r->find('/hideindex');
 
-        $children = iterator_to_array($page->children());
+        self::assertNotNull($page);
+
+        // array_values() so that we can examine them by order, not by name index.
+        $children = array_values(iterator_to_array($page));
 
         self::assertCount(2, $children);
     }
@@ -298,9 +306,8 @@ class RootFolderTest extends TestCase
 
         $page = $r->find('/hidefolder');
 
-        $children = iterator_to_array($page->children());
+        $children = iterator_to_array($page);
 
         self::assertCount(2, $children);
     }
-
 }

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree;
+namespace Crell\MiDy\PageTree\FileInterpreter;
+
+use Crell\MiDy\PageTree\PageFile;
 
 class MultiplexedFileInterpreter implements FileInterpreter
 {
@@ -23,11 +25,11 @@ class MultiplexedFileInterpreter implements FileInterpreter
         return array_keys($this->interpreters);
     }
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): RouteFile|FileInterpreterError
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): PageFile|FileInterpreterError
     {
         /** @var FileInterpreter $i */
         foreach ($this->interpreters[$fileInfo->getExtension()] ?? [] as $i) {
-            if (($routeFile = $i->map($fileInfo, $parentLogicalPath, $basename)) instanceof RouteFile) {
+            if (($routeFile = $i->map($fileInfo, $parentLogicalPath, $basename)) instanceof PageFile) {
                 return $routeFile;
             }
         }

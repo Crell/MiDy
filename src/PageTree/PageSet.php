@@ -41,4 +41,13 @@ interface PageSet extends \Countable, \Traversable
      * @return PageSet
      */
     public function filter(\Closure $filter): PageSet;
+
+    /**
+     * Retrieves a single item from the set, or null if it doesn't exist.
+     *
+     * The name MAY include an extension. If it does, it will only return a value
+     * if that particular extension is present.  If not, it will return a value
+     * if any extension is present.
+     */
+    public function get(string $name): ?Page;
 }
