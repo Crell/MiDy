@@ -1,0 +1,16 @@
+{layout $templateRoot . '/layout.latte'}
+
+{varType \Crell\MiDy\PageTree\Folder $root}
+
+{define title}Tag Test{/define}
+
+{block content}
+
+    {foreach $root->find('/blog')->filterAnyTag('summary') as $page}
+        <article>
+            <h3><a href="{$page->path()}">{$page->title()}</a></h3>
+            <div>{$page->summary()}</div>
+        </article>
+    {/foreach}
+
+{/block}
