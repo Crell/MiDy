@@ -163,6 +163,16 @@ class FolderTest extends TestCase
             'filter' => fn(Page $p) => !$p->hidden(),
             'expectedPages' => ['Page1', 'Page3'],
         ];
+
+        yield 'single tag, manually' => [
+            'data' => new FolderData([
+                'page1' => self::makePage('/page1', '/page1', ['md']),
+                'page2' => self::makePage('/page2', '/page2', ['md'], new BasicPageInformation(tags: ['a', 'b'])),
+                'page3' => self::makePage('/page3', '/page3', ['md'], new BasicPageInformation(tags: ['b', 'c'])),
+            ]),
+            'filter' => fn(Page $p) => in_array('b', $p->tags(), true),
+            'expectedPages' => ['Page2', 'Page3'],
+        ];
     }
 
     #[Test, DataProvider('filterProvider')]
@@ -171,6 +181,80 @@ class FolderTest extends TestCase
         $folder = new Folder('/', '/', $this->fakeParser($data));
 
         $result = $folder->filter($filter);
+
+        self::assertPagesMatch($expectedPages, $result);
+
+        if ($validator) {
+            $validator($data, $result);
+        }
+    }
+
+    public static function filterAnyTagProvider(): iterable
+    {
+        yield 'single tag' => [
+            'data' => new FolderData([
+                'page1' => self::makePage('/page1', '/page1', ['md']),
+                'page2' => self::makePage('/page2', '/page2', ['md'], new BasicPageInformation(tags: ['a', 'b'])),
+                'page3' => self::makePage('/page3', '/page3', ['md'], new BasicPageInformation(tags: ['b', 'c'])),
+            ]),
+            'tags' => ['b'],
+            'expectedPages' => ['Page2', 'Page3'],
+        ];
+
+        yield 'multiple tag' => [
+            'data' => new FolderData([
+                'page1' => self::makePage('/page1', '/page1', ['md'], new BasicPageInformation(tags: ['a'])),
+                'page2' => self::makePage('/page2', '/page2', ['md'], new BasicPageInformation(tags: ['b'])),
+                'page3' => self::makePage('/page3', '/page3', ['md'], new BasicPageInformation(tags: ['c'])),
+            ]),
+            'tags' => ['a', 'b'],
+            'expectedPages' => ['Page1', 'Page2'],
+        ];
+    }
+
+    #[Test, DataProvider('filterAnyTagProvider')]
+    public function filterAnyTag(FolderData $data, array $tags, array $expectedPages, ?\Closure $validator = null): void
+    {
+        $folder = new Folder('/', '/', $this->fakeParser($data));
+
+        $result = $folder->filterAnyTag(...$tags);
+
+        self::assertPagesMatch($expectedPages, $result);
+
+        if ($validator) {
+            $validator($data, $result);
+        }
+    }
+
+    public static function filterAllTagsProvider(): iterable
+    {
+        yield 'single tag' => [
+            'data' => new FolderData([
+                'page1' => self::makePage('/page1', '/page1', ['md']),
+                'page2' => self::makePage('/page2', '/page2', ['md'], new BasicPageInformation(tags: ['a', 'b'])),
+                'page3' => self::makePage('/page3', '/page3', ['md'], new BasicPageInformation(tags: ['b', 'c'])),
+            ]),
+            'tags' => ['b'],
+            'expectedPages' => ['Page2', 'Page3'],
+        ];
+
+        yield 'multiple tag' => [
+            'data' => new FolderData([
+                'page1' => self::makePage('/page1', '/page1', ['md'], new BasicPageInformation(tags: ['a'])),
+                'page2' => self::makePage('/page2', '/page2', ['md'], new BasicPageInformation(tags: ['b'])),
+                'page3' => self::makePage('/page3', '/page3', ['md'], new BasicPageInformation(tags: ['a', 'b'])),
+            ]),
+            'tags' => ['a', 'b'],
+            'expectedPages' => ['Page3'],
+        ];
+    }
+
+    #[Test, DataProvider('filterAllTagsProvider')]
+    public function filterAllTags(FolderData $data, array $tags, array $expectedPages, ?\Closure $validator = null): void
+    {
+        $folder = new Folder('/', '/', $this->fakeParser($data));
+
+        $result = $folder->filterAllTags(...$tags);
 
         self::assertPagesMatch($expectedPages, $result);
 

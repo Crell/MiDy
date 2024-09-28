@@ -75,6 +75,16 @@ readonly class AggregatePage implements Page
         return $this->activePage()->tags();
     }
 
+    public function hasAnyTag(string ...$tags): bool
+    {
+        return $this->activePage()->hasAnyTag(...$tags);
+    }
+
+    public function hasAllTags(string ...$tags): bool
+    {
+        return $this->activePage()->hasAllTags(...$tags);
+    }
+
     public function slug(): ?string
     {
         return $this->activePage()->slug();

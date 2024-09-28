@@ -50,4 +50,14 @@ interface PageSet extends \Countable, \Traversable
      * if any extension is present.
      */
     public function get(string $name): ?Page;
+
+    /**
+     * Filters this page set to just those items that have at least one specified tag.
+     */
+    public function filterAnyTag(string ...$tags): PageSet;
+
+    /**
+     * Filters this page set to just those items that have all the specified tags.
+     */
+    public function filterAllTags(string ...$tags): PageSet;
 }

@@ -68,6 +68,16 @@ class Folder implements Page, PageSet, \IteratorAggregate
         return $this->indexPage()?->tags() ?? [];
     }
 
+    public function hasAnyTag(string ...$tags): bool
+    {
+        return $this->indexPage()?->hasAnyTag(...$tags) ?? false;
+    }
+
+    public function hasAllTags(string ...$tags): bool
+    {
+        return $this->indexPage()?->hasAllTags(...$tags) ?? false;
+    }
+
     public function slug(): ?string
     {
         return $this->indexPage()?->slug() ?? '';
@@ -96,6 +106,16 @@ class Folder implements Page, PageSet, \IteratorAggregate
     public function filter(\Closure $filter): PageSet
     {
         return $this->folderData()->filter($filter);
+    }
+
+    public function filterAnyTag(string ...$tags): PageSet
+    {
+        return $this->folderData()->filterAnyTag(...$tags);
+    }
+
+    public function filterAllTags(string ...$tags): PageSet
+    {
+        return $this->folderData()->filterAllTags(...$tags);
     }
 
     public function get(string $name): ?Page

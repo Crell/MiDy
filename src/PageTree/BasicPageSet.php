@@ -78,6 +78,16 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
         return new BasicPageSet(iterator_to_array(new \CallbackFilterIterator(new \ArrayIterator($this->children), $filter)));
     }
 
+    public function filterAnyTag(string ...$tags): PageSet
+    {
+        return $this->filter(static fn (Page $p) => $p->hasAnyTag(...$tags));
+    }
+
+    public function filterAllTags(string ...$tags): PageSet
+    {
+        return $this->filter(static fn (Page $p) => $p->hasAllTags(...$tags));
+    }
+
     public function get(string $name): ?Page
     {
         $info = pathinfo($name);

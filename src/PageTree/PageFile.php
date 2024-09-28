@@ -30,6 +30,16 @@ readonly class PageFile implements Page
         return $this->info->tags() ?? [];
     }
 
+    public function hasAnyTag(string ...$tags): bool
+    {
+        return $this->info->hasAnyTag(...$tags);
+    }
+
+    public function hasAllTags(string ...$tags): bool
+    {
+        return $this->info->hasAllTags(...$tags);
+    }
+
     public function slug(): ?string
     {
         return $this->info->slug() ?? '';

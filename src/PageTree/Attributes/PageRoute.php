@@ -32,6 +32,21 @@ readonly class PageRoute implements PageInformation
         return $this->tags;
     }
 
+    public function hasAnyTag(string ...$tags): bool
+    {
+        return (bool)array_intersect($this->tags, $tags);
+    }
+
+    public function hasAllTags(string ...$tags): bool
+    {
+        foreach ($tags as $tag) {
+            if (!isset($this->tags[$tag])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public function slug(): ?string
     {
         return $this->slug;

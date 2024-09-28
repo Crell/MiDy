@@ -13,4 +13,7 @@ interface PageInformation extends Hidable
     public function summary(): string;
     public function tags(): array;
     public function slug(): ?string;
+
+    public function hasAnyTag(string ...$tags): bool;
+    public function hasAllTags(string ...$tags): bool;
 }
