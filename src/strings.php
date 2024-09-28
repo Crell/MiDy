@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy;
 
 /**
- * Extracts and returns a multi-lin value from a string, between the provided delimiters.
+ * Extracts and returns a multi-line value from a string, between the provided delimiters.
  *
  * Only the first instance of the start/end delimiters is checked.
  *
