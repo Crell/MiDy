@@ -47,7 +47,7 @@ readonly class FilesystemTimedCache implements TimedCache
         }
     }
 
-    public function clear(\DateTimeInterface|int $olderThan = null): void
+    public function clear(\DateTimeInterface|int|null $olderThan = null): void
     {
         $iter = new \DirectoryIterator($this->cachePath);
 
