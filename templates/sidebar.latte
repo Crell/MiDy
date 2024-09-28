@@ -1,10 +1,4 @@
-{parameters Folder $root, int $depth = 2}
 
-<ul n:if="$depth > 0" n:inner-foreach="$root as $page">
-    <li>
-        <a href="{$page->path()}">{$page->title()}</a>
-        {if $page instanceof \Crell\MiDy\PageTree\Folder}
-            {include sidebar.latte, root: $page, depth: $depth - 1}
-        {/if}
-    </li>
-</ul>
+<nav>
+    {include menu.latte, root: $root}
+</nav>
