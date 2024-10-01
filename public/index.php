@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
+use HttpSoft\Emitter\SapiEmitter;
 use Nyholm\Psr7Server\ServerRequestCreator;
 
 require __DIR__ . '/../vendor/autoload.php';

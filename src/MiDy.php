@@ -57,7 +57,7 @@ use Crell\Tukio\DebugEventDispatcher;
 use Crell\Tukio\Dispatcher;
 use Crell\Tukio\OrderedListenerProvider;
 use DI\ContainerBuilder;
-use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
+use HttpSoft\Emitter\SapiEmitter;
 use Latte\Engine;
 use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\ConverterInterface;
