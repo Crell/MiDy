@@ -6,6 +6,8 @@ namespace Crell\MiDy;
 
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
+use org\bovigo\vfs\vfsStream;
+use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -21,7 +23,7 @@ class HttpValidationTest extends TestCase
         $this->app = new MiDy('.');
     }
 
-    #[Before]
+    #[After]
     public function clearCaches(): void
     {
         $this->clearDirectory('./cache/routes');
@@ -69,7 +71,7 @@ class HttpValidationTest extends TestCase
             ['/subdir'],
         ];
     }
-    
+
     #[Test, DataProvider('successGetRoutes')]
     public function basic_200_checks(string $path): void
     {
