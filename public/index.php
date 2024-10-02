@@ -7,7 +7,8 @@ use Nyholm\Psr7Server\ServerRequestCreator;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$app = new \Crell\MiDy\MiDy();
+$app = new \Crell\MiDy\MiDy(routesPath: \realpath('../tests/test-routes'));
+//$app = new \Crell\MiDy\MiDy();
 
 $serverRequest = $app->container->get(ServerRequestCreator::class)->fromGlobals();
 

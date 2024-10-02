@@ -20,7 +20,20 @@ class HttpValidationTest extends TestCase
 
     public function setUp(): void
     {
-        $this->app = new MiDy('.');
+        $root = vfsStream::setup('root', structure: [
+            'routes' => [],
+            'cache' => [
+                'routes' => [],
+                'latte' => [],
+                'config' => [],
+            ],
+        ]);
+
+        vfsStream::copyFromFileSystem(__DIR__ . '/test-routes', $root->getChild('routes'));
+
+        $this->app = new MiDy('.',
+            routesPath: $root->getChild('routes')->url(),
+        );
     }
 
     #[After]
