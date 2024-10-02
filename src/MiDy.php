@@ -89,8 +89,22 @@ class MiDy implements RequestHandlerInterface
 {
     public readonly ContainerInterface $container;
 
-    public function __construct(private readonly string $appRoot = '..')
-    {
+    private readonly string $routePath;
+    private readonly string $cachePath;
+    private readonly string $configPath;
+    private readonly string $templatesPath;
+
+    public function __construct(
+        private readonly string $appRoot = '..',
+        ?string $routesPath = null,
+        ?string $cachePath = null,
+        ?string $configPath = null,
+        ?string $templatesPath = null,
+    ) {
+        $this->cachePath = $cachePath ?? \realpath($this->appRoot . '/cache');
+        $this->routePath = $routesPath ?? \realpath($this->appRoot . '/routes');
+        $this->configPath = $configPath ?? \realpath($this->appRoot . '/configuration');
+        $this->templatesPath = $templatesPath ?? \realpath($this->appRoot . '/templates');
         $this->container = $this->buildContainer();
         $this->setupListeners();
     }
@@ -117,14 +131,16 @@ class MiDy implements RequestHandlerInterface
         }
 
         $containerBuilder->addDefinitions([
-            // Paths.  Todo: Make this configurable.
-            'paths.routes' => value(\realpath($this->appRoot . '/routes')),
-            'paths.config' => value(\realpath($this->appRoot . '/configuration')),
-            'paths.cache' => value(\realpath($this->appRoot . '/cache')),
-            'paths.cache.routes' => value(\realpath($this->appRoot . '/cache/routes')),
-            'paths.cache.config' => value(\realpath($this->appRoot . '/cache/config')),
-            'paths.cache.latte' => value(\realpath($this->appRoot . '/cache/latte')),
-            'paths.templates' => value(\realpath($this->appRoot . '/templates')),
+            // User-defined paths.
+            'paths.routes' => value($this->routePath),
+            'paths.config' => value($this->configPath),
+            'paths.cache' => value($this->cachePath),
+            'paths.templates' => value(\realpath($this->templatesPath)),
+
+            // Derived paths.
+            'paths.cache.routes' => value(\realpath($this->cachePath . '/routes')),
+            'paths.cache.config' => value(\realpath($this->cachePath . '/config')),
+            'paths.cache.latte' => value(\realpath($this->cachePath . '/latte')),
         ]);
 
         // General utilities
