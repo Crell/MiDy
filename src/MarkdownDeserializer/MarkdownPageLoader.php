@@ -18,6 +18,13 @@ class MarkdownPageLoader
 {
     private readonly MarkdownDocument $documentStructure;
 
+    /**
+     * @param string $root
+     *   The path on disk relative to which any file paths should be evaluated.
+     *   A file path that uses a file stream URL will ignore this value.
+     *   If not specified, it will default to the current working directory,
+     *   which is usually the directory of the starting script.
+     */
     public function __construct(
         private string $root = '',
         protected readonly Serde $serde = new SerdeCommon(),
