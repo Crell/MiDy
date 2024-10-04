@@ -3,7 +3,7 @@
 set -euo pipefail
 
 project="midy"
-appContainer="php-fpm"
+appContainer="app"
 
 function build {
     docker compose build

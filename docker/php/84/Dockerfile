@@ -11,17 +11,6 @@ RUN set -x \
  && apt-get purge -y ${buildDeps} \
  && rm -rf /var/lib/apt/lists/*
 
-#=== Install ldap PHP dependencies ===
-RUN set -x \
- && buildDeps="libldap2-dev" \
- && apt-get update && apt-get install -y ${buildDeps} --no-install-recommends \
- \
- && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
- && docker-php-ext-install ldap \
- \
- && apt-get purge -y ${buildDeps} \
- && rm -rf /var/lib/apt/lists/*
-
 #=== Install intl, opcache and zip PHP dependencies ===
 RUN set -x \
  && buildDeps="libicu-dev zlib1g-dev libxml2-dev libzip-dev"  \
@@ -39,32 +28,18 @@ RUN set -x \
 RUN set -x \
  && docker-php-ext-install pdo pdo_mysql mysqli
 
-#=== Install pgsql dependencies ===
-RUN set -ex \
- && buildDeps="libpq-dev" \
- && apt-get update && apt-get install -y $buildDeps \
- \
- && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
- && docker-php-ext-install pdo pdo_pgsql pgsql \
- \
- && apt-get purge -y ${buildDeps} \
- && rm -rf /var/lib/apt/lists/*
-
 #=== Install xdebug PHP dependencies ===
 #RUN pecl install xdebug-3.4.0alpha1  \
 #    && docker-php-ext-enable xdebug
 
 #=== Install xdebug via PIE (PHP Extension Installer) ===
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN install-php-extensions xdebug/xdebug@master
+RUN install-php-extensions xdebug/xdebug@master \
+    && docker-php-ext-enable xdebug
 
 #=== php default ===
-ENV PMF_TIMEZONE="Europe/Berlin" \
-    PMF_ENABLE_UPLOADS=On \
-    PMF_MEMORY_LIMIT=2048M \
-    PMF_DISABLE_HTACCESS="" \
-    PHP_LOG_ERRORS=On \
-    PHP_ERROR_REPORTING=E_ALL|E_STRICT \
+ENV PHP_LOG_ERRORS=On \
+    PHP_ERROR_REPORTING=E_ALL \
     PHP_POST_MAX_SIZE=64M \
     PHP_UPLOAD_MAX_FILESIZE=64M
 

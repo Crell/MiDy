@@ -31,3 +31,5 @@ services:
 #            - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.3/cli/conf.d/99-overrides.ini'
         environment:
             PHP_IDE_CONFIG: "serverName=Docker"
+        ports:
+            - '30000:80'
