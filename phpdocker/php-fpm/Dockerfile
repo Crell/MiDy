@@ -27,12 +27,22 @@ RUN apt-get update \
         php8.4-opcache \
         php8.4-readline \
         php8.4-xml \
+        php-pear \
+        php-dev \
+        make \
+        git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* ~/.composer
 
 #=== Install xdebug via PIE (PHP Extension Installer) ===
 #ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-#RUN install-php-extensions xdebug/xdebug@master
+#RUN install-php-extensions xdebug/xdebug@master \
+#    && docker-php-ext-enable xdebug
+
+# RUN pecl install xdebug-3.4.0beta1
+
+RUN git clone https://github.com/xdebug/xdebug.git -b master xdebug \
+    && cd xdebug && git reset --hard 65f7f69f34 && rm -r .git
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
