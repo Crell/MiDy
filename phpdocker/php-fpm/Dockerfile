@@ -27,8 +27,8 @@ RUN apt-get update \
         php8.4-opcache \
         php8.4-readline \
         php8.4-xml \
+        php8.4-dev \
         php-pear \
-        php-dev \
         make \
         git \
     && apt-get clean \
@@ -39,10 +39,10 @@ RUN apt-get update \
 #RUN install-php-extensions xdebug/xdebug@master \
 #    && docker-php-ext-enable xdebug
 
-# RUN pecl install xdebug-3.4.0beta1
+RUN pecl install xdebug-3.4.0beta1
 
-RUN git clone https://github.com/xdebug/xdebug.git -b master xdebug \
-    && cd xdebug && git reset --hard 65f7f69f34 && rm -r .git
+#RUN git clone https://github.com/xdebug/xdebug.git -b master xdebug \
+#    && cd xdebug && git reset --hard 65f7f69f34 && rm -r .git
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
