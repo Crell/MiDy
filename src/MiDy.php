@@ -101,12 +101,23 @@ class MiDy implements RequestHandlerInterface
         ?string $configPath = null,
         ?string $templatesPath = null,
     ) {
-        $this->cachePath = $cachePath ?? \realpath($this->appRoot . '/cache');
-        $this->routePath = $routesPath ?? \realpath($this->appRoot . '/routes');
-        $this->configPath = $configPath ?? \realpath($this->appRoot . '/configuration');
-        $this->templatesPath = $templatesPath ?? \realpath($this->appRoot . '/templates');
+        $this->cachePath = $cachePath ?? \realpath($this->ensureDir($this->appRoot . '/cache'));
+        $this->routePath = $routesPath ?? \realpath($this->ensureDir($this->appRoot . '/routes'));
+        $this->configPath = $configPath ?? \realpath($this->ensureDir($this->appRoot . '/configuration'));
+        $this->templatesPath = $templatesPath ?? \realpath($this->ensureDir($this->appRoot . '/templates'));
         $this->container = $this->buildContainer();
         $this->setupListeners();
+    }
+
+    protected function ensureDir(string $path): string
+    {
+        if (!is_dir($path)) {
+            if (!mkdir($path, recursive: true) && !is_dir($path)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $path));
+            }
+        }
+
+        return $path;
     }
 
     protected function buildContainer(): ContainerInterface
@@ -135,12 +146,12 @@ class MiDy implements RequestHandlerInterface
             'paths.routes' => value($this->routePath),
             'paths.config' => value($this->configPath),
             'paths.cache' => value($this->cachePath),
-            'paths.templates' => value(\realpath($this->templatesPath)),
+            'paths.templates' => value($this->templatesPath),
 
             // Derived paths.
-            'paths.cache.routes' => value(\realpath($this->cachePath . '/routes')),
-            'paths.cache.config' => value(\realpath($this->cachePath . '/config')),
-            'paths.cache.latte' => value(\realpath($this->cachePath . '/latte')),
+            'paths.cache.routes' => value(\realpath($this->ensureDir($this->cachePath . '/routes'))),
+            'paths.cache.config' => value(\realpath($this->ensureDir($this->cachePath . '/config'))),
+            'paths.cache.latte' => value(\realpath($this->ensureDir($this->cachePath . '/latte'))),
         ]);
 
         // General utilities
