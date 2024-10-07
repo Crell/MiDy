@@ -6,6 +6,9 @@ tmp
 
 cache
 
+public/*
+!public/index.php
+
 .phpunit.cache
 .phpunit.result.cache
 
