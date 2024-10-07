@@ -180,6 +180,8 @@ class Folder implements Page, PageSet, \IteratorAggregate
             foreach ($data as $id => $page) {
                 if ($page instanceof Folder) {
                     yield from $page->descendants($visibleOnly);
+                } elseif ($page instanceof FolderRef) {
+                    yield from $this->loadFolderRef($page)->descendants($visibleOnly);
                 } else {
                     yield $id => $page;
                 }
