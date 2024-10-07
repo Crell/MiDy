@@ -93,31 +93,47 @@ class MiDy implements RequestHandlerInterface
     private readonly string $cachePath;
     private readonly string $configPath;
     private readonly string $templatesPath;
+    private readonly string $publicPath;
 
+    /**
+     * @param string $appRoot
+     *   The source root of the application. The default assumes the running
+     *   script is one level down from the source root, in a public folder.
+     * @param string|null $routesPath
+     *   The path to the routes folder.
+     * @param string|null $cachePath
+     *   The root of the cache folder.
+     * @param string|null $configPath
+     *   The root of the cnofiguration folder.
+     * @param string|null $templatesPath
+     *   The root of teh templates folder.
+     * @param string|null $publicPath
+     *   The root of the public (web-accessible) folder.
+     */
     public function __construct(
         private readonly string $appRoot = '..',
         ?string $routesPath = null,
         ?string $cachePath = null,
         ?string $configPath = null,
         ?string $templatesPath = null,
+        ?string $publicPath = null,
     ) {
-        $this->cachePath = $cachePath ?? \realpath($this->ensureDir($this->appRoot . '/cache'));
-        $this->routePath = $routesPath ?? \realpath($this->ensureDir($this->appRoot . '/routes'));
-        $this->configPath = $configPath ?? \realpath($this->ensureDir($this->appRoot . '/configuration'));
-        $this->templatesPath = $templatesPath ?? \realpath($this->ensureDir($this->appRoot . '/templates'));
+        $this->cachePath = $this->ensurePath($cachePath, '/cache');
+        $this->routePath = $this->ensurePath($routesPath, '/routes');
+        $this->configPath = $this->ensurePath($configPath, '/config');
+        $this->templatesPath = $this->ensurePath($templatesPath, '/templates');
+        $this->publicPath = $this->ensurePath($publicPath, '/public');
+
+
         $this->container = $this->buildContainer();
         $this->setupListeners();
     }
 
-    protected function ensureDir(string $path): string
+    protected function ensurePath(?string $override, string $default): string
     {
-        if (!is_dir($path)) {
-            if (!mkdir($path, recursive: true) && !is_dir($path)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $path));
-            }
-        }
+        $dir = $override ?? $this->appRoot . $default;
 
-        return $path;
+        return ensure_dir($dir);
     }
 
     protected function buildContainer(): ContainerInterface
@@ -147,11 +163,12 @@ class MiDy implements RequestHandlerInterface
             'paths.config' => value($this->configPath),
             'paths.cache' => value($this->cachePath),
             'paths.templates' => value($this->templatesPath),
+            'paths.public' => value($this->publicPath),
 
             // Derived paths.
-            'paths.cache.routes' => value(\realpath($this->ensureDir($this->cachePath . '/routes'))),
-            'paths.cache.config' => value(\realpath($this->ensureDir($this->cachePath . '/config'))),
-            'paths.cache.latte' => value(\realpath($this->ensureDir($this->cachePath . '/latte'))),
+            'paths.cache.routes' => value(ensure_dir($this->cachePath . '/routes')),
+            'paths.cache.config' => value(ensure_dir($this->cachePath . '/config')),
+            'paths.cache.latte' => value(ensure_dir($this->cachePath . '/latte')),
         ]);
 
         // General utilities
