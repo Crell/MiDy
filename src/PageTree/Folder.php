@@ -165,6 +165,29 @@ class Folder implements Page, PageSet, \IteratorAggregate
         return $child;
     }
 
+    /**
+     * Combines all children of this folder and their children, recursively, into a single PageSet.
+     *
+     * This operation is done lazily, so that you can filter the result and have it not be
+     * quite so expensive.  Still, use this operation sparingly.
+     */
+    public function descendants(bool $visibleOnly = true): PageSet
+    {
+        $generator = function () use ($visibleOnly) {
+            $data = $visibleOnly
+                ? $this
+                : $this->all();
+            foreach ($data as $id => $page) {
+                if ($page instanceof Folder) {
+                    yield from $page->descendants($visibleOnly);
+                } else {
+                    yield $id => $page;
+                }
+            }
+        };
+        return new BasicPageSet($generator());
+    }
+
     // @todo We can probably factor this method away.
     public function indexPage(): ?Page
     {

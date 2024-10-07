@@ -70,7 +70,7 @@ class FolderTest extends TestCase
     #[Test, DataProvider('limitProvider')]
     public function limit(FolderData $data, int $limit, int $expected, ?\Closure $validator = null): void
     {
-        $folder = new Folder('/', '/', $this->fakeParser($data));
+        $folder = new Folder('/', '/', self::fakeParser($data));
 
         $result = $folder->limit($limit);
 
@@ -126,7 +126,7 @@ class FolderTest extends TestCase
     #[Test, DataProvider('paginationProvider')]
     public function paginate(FolderData $data, int $pageSize, int $pageNum, array $expectedPages, ?\Closure $validator = null): void
     {
-        $folder = new Folder('/', '/', $this->fakeParser($data));
+        $folder = new Folder('/', '/', self::fakeParser($data));
 
         $result = $folder->paginate($pageSize, $pageNum);
 
@@ -178,7 +178,7 @@ class FolderTest extends TestCase
     #[Test, DataProvider('filterProvider')]
     public function filter(FolderData $data, \Closure $filter, array $expectedPages, ?\Closure $validator = null): void
     {
-        $folder = new Folder('/', '/', $this->fakeParser($data));
+        $folder = new Folder('/', '/', self::fakeParser($data));
 
         $result = $folder->filter($filter);
 
@@ -215,7 +215,7 @@ class FolderTest extends TestCase
     #[Test, DataProvider('filterAnyTagProvider')]
     public function filterAnyTag(FolderData $data, array $tags, array $expectedPages, ?\Closure $validator = null): void
     {
-        $folder = new Folder('/', '/', $this->fakeParser($data));
+        $folder = new Folder('/', '/', self::fakeParser($data));
 
         $result = $folder->filterAnyTag(...$tags);
 
@@ -252,9 +252,62 @@ class FolderTest extends TestCase
     #[Test, DataProvider('filterAllTagsProvider')]
     public function filterAllTags(FolderData $data, array $tags, array $expectedPages, ?\Closure $validator = null): void
     {
-        $folder = new Folder('/', '/', $this->fakeParser($data));
+        $folder = new Folder('/', '/', self::fakeParser($data));
 
         $result = $folder->filterAllTags(...$tags);
+
+        self::assertPagesMatch($expectedPages, $result);
+
+        if ($validator) {
+            $validator($data, $result);
+        }
+    }
+
+    public static function descendantsProvider(): iterable
+    {
+        yield 'show all' => [
+            'data' => new FolderData([
+                'page1' => self::makePage('/page1', '/page1', ['md']),
+                'folder1' => self::makeFolder('/folder1', '/folder1', new FolderData([
+                    'page2' => self::makePage('/folder1/page2', '/folder1/page2', ['md'], new BasicPageInformation(tags: ['a', 'b'])),
+                    'folder2' => self::makeFolder('/folder1', '/folder1', new FolderData([
+                        'page3' => self::makePage('/folder1/page3', '/folder1/page3', ['md']),
+                    ])),
+                ])),
+                'page4' => self::makePage('/page4', '/page4', ['md'], new BasicPageInformation(tags: ['b', 'c'])),
+            ]),
+            'visibleOnly' => false,
+            'expectedPages' => ['Page1', 'Page2', 'Page3', 'Page4'],
+        ];
+
+        yield 'show only visible' => [
+            'data' => new FolderData([
+                'page1' => self::makePage('/page1', '/page1', ['md']),
+                'folder1' => self::makeFolder('/folder1', '/folder1', new FolderData([
+                    'index' => self::makePage('/folder1/index', '/folder1/index', ['md'], new BasicPageInformation(tags: ['a'])),
+                    'page2' => self::makePage('/folder1/page2', '/folder1/page2', ['md'], new BasicPageInformation(tags: ['a', 'b'])),
+                    'folder2' => self::makeFolder('/folder1', '/folder1', new FolderData([
+                        'page3' => self::makePage('/folder1/page3', '/folder1/page3', ['md']),
+                    ])),
+                ])),
+                'page4' => self::makePage('/page4', '/page4', ['md'], new BasicPageInformation(tags: ['b', 'c'])),
+            ]),
+            'visibleOnly' => true,
+            'expectedPages' => ['Page1', 'Page2', 'Page4'],
+        ];
+    }
+
+    protected static function makeFolder(string $physicalPath, string $logicalPath, ?FolderData $data = null): Folder
+    {
+        return new Folder('/', '/', self::fakeParser($data));
+    }
+
+    #[Test, DataProvider('descendantsProvider')]
+    public function descendants(FolderData $data, bool $visibleOnly, array $expectedPages, ?\Closure $validator = null): void
+    {
+        $folder = new Folder('/', '/', self::fakeParser($data));
+
+        $result = $folder->descendants($visibleOnly);
 
         self::assertPagesMatch($expectedPages, $result);
 
@@ -269,7 +322,7 @@ class FolderTest extends TestCase
         self::assertEquals($expectedPages, $foundPages);
     }
 
-    private function fakeParser(FolderData $data): FolderParser
+    private static function fakeParser(FolderData $data): FolderParser
     {
         return new readonly class($data) implements FolderParser {
             public function __construct(public FolderData $data) {}
