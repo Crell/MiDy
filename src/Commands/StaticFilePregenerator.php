@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTree\FolderRef;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageFile;
 use Crell\MiDy\PageTree\RootFolder;
