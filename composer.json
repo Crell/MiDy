@@ -36,7 +36,10 @@
             "Crell\\MiDy\\Benchmarks\\": "benchmarks"
         }
     },
-    "bin": ["pregenerate-static.php"],
+    "bin": [
+        "pregenerate-static.php",
+        "clean.php"
+    ],
     "scripts": {
         "benchmarks": "vendor/bin/phpbench run benchmarks --report=aggregate",
         "test": "phpunit",
