@@ -37,11 +37,7 @@ readonly class StaticFilePregenerator
     {
         /** @var Page $page */
         foreach ($this->root->descendants(false) as $page) {
-            if ($page instanceof PageFile) {
-                yield $page;
-            } else {
-                yield from $page->variants();
-            }
+            yield from $page->variants();
         }
     }
 
