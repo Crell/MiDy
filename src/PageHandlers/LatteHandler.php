@@ -46,6 +46,6 @@ readonly class LatteHandler implements PageHandler
     {
         $page = $this->renderer->render($file, ['query' => $query]);
 
-        return $this->builder->ok($page);
+        return $this->builder->ok($page, 'text/html');
     }
 }

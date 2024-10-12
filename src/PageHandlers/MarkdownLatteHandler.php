@@ -52,6 +52,6 @@ readonly class MarkdownLatteHandler implements PageHandler
         $template = $this->templateRoot . '/' . ($page->template ?: $this->config->defaultPageTemplate);
         $output = $this->renderer->render($template, $page->toTemplateParameters());
 
-        return $this->builder->ok($output);
+        return $this->builder->ok($output, 'text/html');
     }
 }
