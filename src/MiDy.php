@@ -65,6 +65,7 @@ use League\CommonMark\GithubFlavoredMarkdownConverter;
 use League\CommonMark\MarkdownConverter;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
+use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
@@ -290,6 +291,7 @@ class MiDy implements RequestHandlerInterface
             ServerRequestFactoryInterface::class => get(Psr17Factory::class),
             UriFactoryInterface::class => get(Psr17Factory::class),
 
+            ServerRequestCreatorInterface::class => get(ServerRequestCreator::class),
             ServerRequestCreator::class => autowire()
                 ->constructor(
                     serverRequestFactory: get(ServerRequestFactoryInterface::class),
