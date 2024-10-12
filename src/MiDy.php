@@ -121,7 +121,7 @@ class MiDy implements RequestHandlerInterface
     ) {
         $this->cachePath = $this->ensurePath($cachePath, '/cache');
         $this->routePath = $this->ensurePath($routesPath, '/routes');
-        $this->configPath = $this->ensurePath($configPath, '/config');
+        $this->configPath = $this->ensurePath($configPath, '/configuration');
         $this->templatesPath = $this->ensurePath($templatesPath, '/templates');
         $this->publicPath = $this->ensurePath($publicPath, '/public');
 
