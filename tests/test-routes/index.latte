@@ -1,0 +1,15 @@
+{layout $templateRoot . '/layout.latte'}
+
+{varType \Crell\MiDy\PageTree\Folder $root}
+
+{define title}Home Page{/define}
+
+{block content}
+    <p>Body of the home page goes here.</p>
+
+    <p>This should be a green block:</p>
+
+    <div>
+        <img src="green.png" alt="Green block">
+    </div>
+{/block}
