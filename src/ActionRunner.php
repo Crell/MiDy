@@ -25,12 +25,14 @@ readonly class ActionRunner implements RequestHandlerInterface
         $result = $this->invoker->invokeAction($request);
 
         if ($result instanceof ResponseInterface) {
-            return $result;
+            // Mainly for testing/debugging, but also marketing.
+            return $result->withAddedHeader('Generator', 'MiDy');
         }
 
         /** @var ProcessActionResult $event */
         $event = $this->eventDispatcher->dispatch(new ProcessActionResult($result, $request));
 
-        return $event->getResponse() ?? $this->responseBuilder->createResponse(500, 'No matching result processor found', 'text/plain');
+        $response = $event->getResponse() ?? $this->responseBuilder->createResponse(500, 'No matching result processor found', 'text/plain');
+        return $response->withAddedHeader('Generator', 'MiDy');
     }
 }
