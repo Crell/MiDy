@@ -10,11 +10,9 @@
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0",
         "crell/tukio": "^2.0",
-        "contributte/latte-parsedown-extra": "^2.0",
-        "crell/config": "dev-master",
+        "crell/config": "^0.2.0",
         "league/commonmark": "^2.4",
         "symfony/yaml": "^7.1",
-        "webmozart/glob": "^4.7",
         "httpsoft/http-emitter": "^1.1"
     },
     "require-dev": {
@@ -38,7 +36,8 @@
     },
     "bin": [
         "pregenerate-static.php",
-        "clean.php"
+        "clean.php",
+        "staticify.php"
     ],
     "scripts": {
         "benchmarks": "vendor/bin/phpbench run benchmarks --report=aggregate",
