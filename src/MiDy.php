@@ -139,7 +139,6 @@ class MiDy implements RequestHandlerInterface
 
     protected function buildContainer(): ContainerInterface
     {
-
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->useAutowiring(true);
         $containerBuilder->useAttributes(true);
