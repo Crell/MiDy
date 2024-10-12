@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy;
 
-use Crell\MiDy\Events\Events\ProcessActionResult;
+use Crell\MiDy\Events\ProcessActionResult;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\ResponseBuilder;
 use Psr\EventDispatcher\EventDispatcherInterface;
