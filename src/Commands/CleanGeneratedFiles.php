@@ -45,7 +45,6 @@ readonly class CleanGeneratedFiles
         }
         /** @var \SplFileInfo $file */
         foreach($files as $file) {
-            print "Removing {$file->getRealPath()}\n";
             if ($file->isDir()){
                 rmdir($file->getPathname());
             } else {
