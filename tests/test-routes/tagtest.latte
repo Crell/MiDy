@@ -8,7 +8,7 @@
 
     {foreach $root->find('/blog')->filterAnyTag('summary') as $page}
         <article>
-            <h3><a href="{$page->path()}">{$page->title()}</a></h3>
+            <h3><a href="{$page->path}">{$page->title}</a></h3>
             <div>{$page->summary()}</div>
         </article>
     {/foreach}

@@ -33,7 +33,7 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
 
     private function visibilityFilter(Hidable $page): bool
     {
-        return !$page->hidden();
+        return !$page->hidden;
     }
 
     public function all(): \Iterator

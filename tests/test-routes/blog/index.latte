@@ -10,8 +10,8 @@
     {*
     {foreach $root->find('/blog') as $page}
         <article>
-            <h3><a href="{$page->path()}">{$page->title()}</a></h3>
-            <div>{$page->summary()}</div>
+            <h3><a href="{$page->path}">{$page->title}</a></h3>
+            <div>{$page->summary}</div>
         </article>
     {/foreach}
     *}
@@ -20,8 +20,8 @@
 
     {foreach $pagination->items as $page}
         <article>
-            <h3><a href="{$page->path()}">{$page->title()}</a></h3>
-            <div>{$page->summary()}</div>
+            <h3><a href="{$page->path}">{$page->title}</a></h3>
+            <div>{$page->summary}</div>
         </article>
     {/foreach}
 

@@ -11,10 +11,18 @@ class Folder implements Page, PageSet, \IteratorAggregate
 {
     public const string IndexPageName = 'index';
 
-    /**
-     * @todo Make lazy and public with a get hook.
-     */
-    private FolderData $folderData;
+    private FolderData $folderData { get => $this->folderData ??= $this->parser->loadFolder($this); };
+    private ?Page $indexPage { get => $this->folderData->indexPage; }
+
+    public string $title { get => $this->title ??= $this->indexPage?->title
+        ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME)); }
+    public string $summary { get => $this->summary ??= $this->indexPage?->summary ?? ''; }
+    public array $tags { get => $this->tags ??= $this->indexPage?->tags ?? []; }
+    public string $slug { get => $this->slug = $this->indexPage->slug ?? ''; }
+    public bool $hidden { get => $this->hidden = $this->indexPage?->hidden ?? true; }
+
+    public bool $routable { get => $this->indexPage !== null }
+    public bool $path { get => str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }
 
     public function __construct(
         public readonly string $physicalPath,
@@ -24,103 +32,67 @@ class Folder implements Page, PageSet, \IteratorAggregate
 
     public function count(): int
     {
-        return count($this->folderData());
-    }
-
-    public function routable(): bool
-    {
-        return $this->indexPage() !== null;
-    }
-
-    public function path(): string
-    {
-        return str_replace('/index', '', $this->indexPage()?->path() ?? $this->logicalPath);
+        return count($this->folderData);
     }
 
     public function variants(): array
     {
-        return $this->indexPage()?->variants() ?? [];
+        return $this->indexPage?->variants() ?? [];
     }
 
     public function variant(string $ext): ?Page
     {
-        return $this->indexPage()?->variant($ext);
+        return $this->indexPage?->variant($ext);
     }
 
     public function getTrailingPath(string $fullPath): array
     {
-        return $this->indexPage()?->getTrailingPath($fullPath) ?? [];
-    }
-
-    public function title(): string
-    {
-        return $this->indexPage()?->title()
-            ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME));
-    }
-
-    public function summary(): string
-    {
-        return $this->indexPage()?->summary() ?? '';
-    }
-
-    public function tags(): array
-    {
-        return $this->indexPage()?->tags() ?? [];
+        return $this->indexPage?->getTrailingPath($fullPath) ?? [];
     }
 
     public function hasAnyTag(string ...$tags): bool
     {
-        return $this->indexPage()?->hasAnyTag(...$tags) ?? false;
+        return $this->indexPage?->hasAnyTag(...$tags) ?? false;
     }
 
     public function hasAllTags(string ...$tags): bool
     {
-        return $this->indexPage()?->hasAllTags(...$tags) ?? false;
-    }
-
-    public function slug(): ?string
-    {
-        return $this->indexPage()?->slug() ?? '';
-    }
-
-    public function hidden(): bool
-    {
-        return $this->indexPage()?->hidden() ?? true;
+        return $this->indexPage?->hasAllTags(...$tags) ?? false;
     }
 
     public function limit(int $count): PageSet
     {
-        return $this->folderData()->limit($count);
+        return $this->folderData->limit($count);
     }
 
     public function paginate(int $pageSize, int $pageNum = 1): Pagination
     {
-        return $this->folderData()->paginate($pageSize, $pageNum);
+        return $this->folderData->paginate($pageSize, $pageNum);
     }
 
     public function all(): iterable
     {
-        return $this->folderData()->all();
+        return $this->folderData->all();
     }
 
     public function filter(\Closure $filter): PageSet
     {
-        return $this->folderData()->filter($filter);
+        return $this->folderData->filter($filter);
     }
 
     public function filterAnyTag(string ...$tags): PageSet
     {
-        return $this->folderData()->filterAnyTag(...$tags);
+        return $this->folderData->filterAnyTag(...$tags);
     }
 
     public function filterAllTags(string ...$tags): PageSet
     {
-        return $this->folderData()->filterAllTags(...$tags);
+        return $this->folderData->filterAllTags(...$tags);
     }
 
     public function get(string $name): ?Page
     {
-        $candidates = iterator_to_array($this->folderData()->all(), preserve_keys: true);
+        $candidates = iterator_to_array($this->folderData->all(), preserve_keys: true);
 
         $info = pathinfo($name);
 
@@ -141,7 +113,7 @@ class Folder implements Page, PageSet, \IteratorAggregate
          * @var string $name
          * @var Hidable $child
          */
-        foreach ($this->folderData()->all() as $name => $child) {
+        foreach ($this->folderData->all() as $name => $child) {
             if ($child->hidden()) {
                 continue;
             }
@@ -188,17 +160,6 @@ class Folder implements Page, PageSet, \IteratorAggregate
             }
         };
         return new BasicPageSet($generator());
-    }
-
-    // @todo We can probably factor this method away.
-    public function indexPage(): ?Page
-    {
-        return $this->folderData()->indexPage;
-    }
-
-    protected function folderData(): FolderData
-    {
-        return $this->folderData ??= $this->parser->loadFolder($this);
     }
 
     protected function loadFolderRef(FolderRef $ref): Folder

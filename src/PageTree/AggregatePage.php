@@ -4,33 +4,24 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-readonly class AggregatePage implements Page
+class AggregatePage implements Page
 {
-    /**
-     * @todo Make this lazy with a get hook.
-     */
-    protected Page $activePage;
+    protected Page $activePage { get => $this->activePage ??= array_values($this->variants)[0]; }
+
+    public private(set) string $title { get => $this->title ??= $this->activePage->title
+        ?: ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME)); }
+    public string $summary { get => $this->activePage->summary; }
+    public array $tags { get => $this->activePage->tags; }
+    public string $slug { get => $this->activePage->slug ?? ''; }
+    public bool $hidden { get => $this->info->activePage; }
+
+    public bool $routable { get => $this->activePage->routable; }
+    public string $path { get => $this->logicalPath; }
 
     public function __construct(
-        protected string $logicalPath,
-        protected array $variants,
+        protected readonly string $logicalPath,
+        protected readonly array $variants,
     ) {}
-
-    // @todo We can still do better than this, seriously.
-    private function activePage(): Page
-    {
-        return $this->activePage ??= array_values($this->variants)[0];
-    }
-
-    public function routable(): bool
-    {
-        return $this->activePage()->routable();
-    }
-
-    public function path(): string
-    {
-        return $this->logicalPath;
-    }
 
     /**
      * @inheritDoc
@@ -60,38 +51,13 @@ readonly class AggregatePage implements Page
         return array_values(array_filter(explode('/', substr($fullPath, strlen($this->logicalPath)))));
     }
 
-    public function title(): string
-    {
-        return $this->activePage()->title();
-    }
-
-    public function summary(): string
-    {
-        return $this->activePage()->summary();
-    }
-
-    public function tags(): array
-    {
-        return $this->activePage()->tags();
-    }
-
     public function hasAnyTag(string ...$tags): bool
     {
-        return $this->activePage()->hasAnyTag(...$tags);
+        return $this->activePage->hasAnyTag(...$tags);
     }
 
     public function hasAllTags(string ...$tags): bool
     {
-        return $this->activePage()->hasAllTags(...$tags);
-    }
-
-    public function slug(): ?string
-    {
-        return $this->activePage()->slug();
-    }
-
-    public function hidden(): bool
-    {
-        return $this->activePage()->hidden();
+        return $this->activePage->hasAllTags(...$tags);
     }
 }

@@ -6,5 +6,5 @@ namespace Crell\MiDy\PageTree;
 
 interface Hidable
 {
-    public function hidden(): bool;
+    public bool $hidden { get; }
 }

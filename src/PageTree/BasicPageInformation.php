@@ -14,21 +14,6 @@ readonly class BasicPageInformation implements PageInformation
         public bool $hidden = false,
     ) {}
 
-    public function title(): string
-    {
-        return $this->title;
-    }
-
-    public function summary(): string
-    {
-        return $this->summary;
-    }
-
-    public function tags(): array
-    {
-        return $this->tags;
-    }
-
     public function hasAnyTag(string ...$tags): bool
     {
         return (bool)array_intersect($this->tags, $tags);
@@ -42,15 +27,5 @@ readonly class BasicPageInformation implements PageInformation
             }
         }
         return true;
-    }
-
-    public function slug(): ?string
-    {
-        return $this->slug;
-    }
-
-    public function hidden(): bool
-    {
-        return $this->hidden;
     }
 }

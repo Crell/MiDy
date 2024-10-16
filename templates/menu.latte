@@ -2,7 +2,7 @@
 
 <ul n:if="$depth > 0" n:inner-foreach="$root as $page">
     <li>
-        <a href="{$page->path()}">{$page->title()}</a>
+        <a href="{$page->path}">{$page->title}</a>
         {if $page instanceof \Crell\MiDy\PageTree\Folder}
             {include menu.latte, root: $page, depth: $depth - 1}
         {/if}

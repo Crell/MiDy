@@ -4,31 +4,28 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-readonly class PageFile implements Page
+class PageFile implements Page
 {
-    public function __construct(
-        public string $physicalPath,
-        public string $logicalPath,
-        public string $ext,
-        public int $mtime,
-        public PageInformation $info,
-    ) {}
-
-    public function title(): string
-    {
-        return $this->info->title()
+    public private(set) string $title {
+        get => $this->title
+            ??= $this->info->title
             ?: ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME));
     }
+    public string $summary { get => $this->info->summary; }
+    public array $tags { get => $this->info->tags; }
+    public string $slug { get => $this->info->slug ?? ''; }
+    public bool $hidden { get => $this->info->hidden; }
 
-    public function summary(): string
-    {
-        return $this->info->summary() ?? '';
-    }
+    public bool $routable { get => true; }
+    public string $path { get => $this->logicalPath; }
 
-    public function tags(): array
-    {
-        return $this->info->tags() ?? [];
-    }
+    public function __construct(
+        public readonly string $physicalPath,
+        public readonly string $logicalPath,
+        public readonly string $ext,
+        public readonly int $mtime,
+        public readonly PageInformation $info,
+    ) {}
 
     public function hasAnyTag(string ...$tags): bool
     {
@@ -38,26 +35,6 @@ readonly class PageFile implements Page
     public function hasAllTags(string ...$tags): bool
     {
         return $this->info->hasAllTags(...$tags);
-    }
-
-    public function slug(): ?string
-    {
-        return $this->info->slug() ?? '';
-    }
-
-    public function hidden(): bool
-    {
-        return $this->info->hidden() ?? false;
-    }
-
-    public function path(): string
-    {
-        return $this->logicalPath;
-    }
-
-    public function routable(): true
-    {
-        return true;
     }
 
     public function variants(): array

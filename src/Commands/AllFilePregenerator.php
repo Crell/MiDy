@@ -49,7 +49,7 @@ readonly class AllFilePregenerator
 
         /** @var Page $page */
         foreach ($this->root->descendants(false) as $page) {
-            $this->generatePage($page->path(), $baseRequest);
+            $this->generatePage($page->path, $baseRequest);
         }
     }
 

@@ -36,11 +36,11 @@ class RootFolderTest extends TestCase
 
         $child = $r->indexPage();
         self::assertInstanceOf(Page::class, $child);
-        self::assertEquals('/index', $child->path());
+        self::assertEquals('/index', $child->path);
 
         $child = $r->get('double');
         self::assertInstanceOf(Page::class, $child);
-        self::assertEquals('/double', $child->path());
+        self::assertEquals('/double', $child->path);
     }
 
     #[Test]
@@ -52,7 +52,7 @@ class RootFolderTest extends TestCase
 
         $page = $r->get('foo.md');
 
-        self::assertEquals('/foo', $page->path());
+        self::assertEquals('/foo', $page->path);
     }
 
     #[Test]
@@ -64,7 +64,7 @@ class RootFolderTest extends TestCase
 
         $page = $r->find('/bar.md');
 
-        self::assertEquals('/bar', $page->path());
+        self::assertEquals('/bar', $page->path);
     }
 
     #[Test]
@@ -77,7 +77,7 @@ class RootFolderTest extends TestCase
 
         $page = $r->find('/afolder');
 
-        self::assertEquals('/afolder', $page->path());
+        self::assertEquals('/afolder', $page->path);
         self::assertEquals('Title here', $page->title());
     }
 
@@ -92,7 +92,7 @@ class RootFolderTest extends TestCase
 
         $page = $r->find('/somefolder');
 
-        self::assertEquals('/somefolder', $page->path());
+        self::assertEquals('/somefolder', $page->path);
         self::assertEquals('Somefolder', $page->title());
     }
 
@@ -121,10 +121,10 @@ class RootFolderTest extends TestCase
         self::assertEquals('J', $children[2]->title());
         self::assertEquals('A', $children[3]->title());
 
-        self::assertEquals('/ordered/z', $children[0]->path());
-        self::assertEquals('/ordered/k', $children[1]->path());
-        self::assertEquals('/ordered/j', $children[2]->path());
-        self::assertEquals('/ordered/a', $children[3]->path());
+        self::assertEquals('/ordered/z', $children[0]->path);
+        self::assertEquals('/ordered/k', $children[1]->path);
+        self::assertEquals('/ordered/j', $children[2]->path);
+        self::assertEquals('/ordered/a', $children[3]->path);
     }
 
     #[Test]
@@ -152,10 +152,10 @@ class RootFolderTest extends TestCase
         self::assertEquals('J', $children[2]->title());
         self::assertEquals('A', $children[3]->title());
 
-        self::assertEquals('/dated/z', $children[0]->path());
-        self::assertEquals('/dated/k', $children[1]->path());
-        self::assertEquals('/dated/j', $children[2]->path());
-        self::assertEquals('/dated/a', $children[3]->path());
+        self::assertEquals('/dated/z', $children[0]->path);
+        self::assertEquals('/dated/k', $children[1]->path);
+        self::assertEquals('/dated/j', $children[2]->path);
+        self::assertEquals('/dated/a', $children[3]->path);
     }
 
     #[Test]
@@ -184,10 +184,10 @@ class RootFolderTest extends TestCase
         self::assertEquals('J', $children[1]->title());
         self::assertEquals('A', $children[0]->title());
 
-        self::assertEquals('/reversed/z', $children[3]->path());
-        self::assertEquals('/reversed/k', $children[2]->path());
-        self::assertEquals('/reversed/j', $children[1]->path());
-        self::assertEquals('/reversed/a', $children[0]->path());
+        self::assertEquals('/reversed/z', $children[3]->path);
+        self::assertEquals('/reversed/k', $children[2]->path);
+        self::assertEquals('/reversed/j', $children[1]->path);
+        self::assertEquals('/reversed/a', $children[0]->path);
     }
 
     #[Test]
@@ -223,12 +223,12 @@ class RootFolderTest extends TestCase
         self::assertEquals('E', $children[4]->title());
         self::assertEquals('F', $children[5]->title());
 
-        self::assertEquals('/flattened/a', $children[0]->path());
-        self::assertEquals('/flattened/b', $children[1]->path());
-        self::assertEquals('/flattened/c', $children[2]->path());
-        self::assertEquals('/flattened/d', $children[3]->path());
-        self::assertEquals('/flattened/e', $children[4]->path());
-        self::assertEquals('/flattened/f', $children[5]->path());
+        self::assertEquals('/flattened/a', $children[0]->path);
+        self::assertEquals('/flattened/b', $children[1]->path);
+        self::assertEquals('/flattened/c', $children[2]->path);
+        self::assertEquals('/flattened/d', $children[3]->path);
+        self::assertEquals('/flattened/e', $children[4]->path);
+        self::assertEquals('/flattened/f', $children[5]->path);
     }
 
     #[Test]
@@ -264,12 +264,12 @@ class RootFolderTest extends TestCase
         self::assertEquals('E', $children[1]->title());
         self::assertEquals('F', $children[0]->title());
 
-        self::assertEquals('/flatreversed/a', $children[5]->path());
-        self::assertEquals('/flatreversed/b', $children[4]->path());
-        self::assertEquals('/flatreversed/c', $children[3]->path());
-        self::assertEquals('/flatreversed/d', $children[2]->path());
-        self::assertEquals('/flatreversed/e', $children[1]->path());
-        self::assertEquals('/flatreversed/f', $children[0]->path());
+        self::assertEquals('/flatreversed/a', $children[5]->path);
+        self::assertEquals('/flatreversed/b', $children[4]->path);
+        self::assertEquals('/flatreversed/c', $children[3]->path);
+        self::assertEquals('/flatreversed/d', $children[2]->path);
+        self::assertEquals('/flatreversed/e', $children[1]->path);
+        self::assertEquals('/flatreversed/f', $children[0]->path);
     }
 
     #[Test]

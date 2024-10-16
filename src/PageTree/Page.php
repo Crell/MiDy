@@ -6,8 +6,10 @@ namespace Crell\MiDy\PageTree;
 
 interface Page extends PageInformation
 {
-    public function routable(): bool;
-    public function path(): string;
+    public bool $routable { get; }
+    public string $path { get; }
+//    public function routable(): bool;
+//    public function path(): string;
 
     /**
      * @return array<Page>

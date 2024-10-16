@@ -17,7 +17,7 @@ class MarkdownPage implements PageInformation
         #[Content]
         public string $content,
         public string $title = '',
-        public string $summary = '',
+        public string $summary = '' { get => $this->summary ??= $this->summarize(); },
         public string $template = '',
         public array $tags = [],
         public ?string $slug = null,
@@ -50,17 +50,8 @@ class MarkdownPage implements PageInformation
         );
     }
 
-    public function title(): string
+    private function summarize(): string
     {
-        return $this->title;
-    }
-
-    public function summary(): string
-    {
-        if ($this->summary) {
-            return $this->summary;
-        }
-
         $bodySummary = str_extract_between($this->content, '<!--summary-->', '<!--/summary-->');
 
         if ($bodySummary) {
@@ -70,10 +61,6 @@ class MarkdownPage implements PageInformation
         return '';
     }
 
-    public function tags(): array
-    {
-        return $this->tags;
-    }
 
     public function hasAnyTag(string ...$tags): bool
     {
@@ -88,15 +75,5 @@ class MarkdownPage implements PageInformation
             }
         }
         return true;
-    }
-
-    public function slug(): ?string
-    {
-        return $this->slug;
-    }
-
-    public function hidden(): bool
-    {
-        return $this->hidden;
     }
 }
