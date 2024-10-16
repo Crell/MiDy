@@ -29,7 +29,7 @@ class MarkdownLatteFileInterpreter implements FileInterpreter
 
         $frontmatter = $page->pageInformation();
 
-        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . ($frontmatter->slug() ?? $basename);
+        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . ($frontmatter->slug ?? $basename);
 
         return new PageFile(
             physicalPath: $fileInfo->getPathname(),

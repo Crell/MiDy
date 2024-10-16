@@ -13,7 +13,7 @@ class AggregatePage implements Page
     public string $summary { get => $this->activePage->summary; }
     public array $tags { get => $this->activePage->tags; }
     public string $slug { get => $this->activePage->slug ?? ''; }
-    public bool $hidden { get => $this->info->activePage; }
+    public bool $hidden { get => $this->activePage->hidden; }
 
     public bool $routable { get => $this->activePage->routable; }
     public string $path { get => $this->logicalPath; }

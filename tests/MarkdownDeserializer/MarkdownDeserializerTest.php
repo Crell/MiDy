@@ -78,6 +78,7 @@ class MarkdownDeserializerTest extends TestCase
                 content: "Here",
                 title: "Stuff",
                 slug: null,
+                summary: '',
             ),
         ];
     }

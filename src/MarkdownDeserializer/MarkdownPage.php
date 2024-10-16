@@ -15,15 +15,16 @@ class MarkdownPage implements PageInformation
 {
     public function __construct(
         #[Content]
-        public string $content,
-        public string $title = '',
-        public string $summary = '' { get => $this->summary ??= $this->summarize(); },
-        public string $template = '',
-        public array $tags = [],
-        public ?string $slug = null,
-        public bool $hidden = false,
+        public(set) readonly string $content,
+        public(set) readonly string $title = '',
+        // This is not ideal, as it will try to re-summarize on every request if the summary is empty.
+        public private(set) string $summary = '' { get => $this->summary ?: $this->summarize(); },
+        public readonly string $template = '',
+        public readonly array $tags = [],
+        public readonly ?string $slug = null,
+        public readonly bool $hidden = false,
         #[Field(flatten: true)]
-        public array $other = [],
+        public readonly array $other = [],
     ) {}
 
     public function toTemplateParameters(): array
@@ -44,7 +45,7 @@ class MarkdownPage implements PageInformation
     {
         return new BasicPageInformation(
             title: $this->title,
-            summary: $this->summary(),
+            summary: $this->summary,
             tags: $this->tags,
             slug: $this->slug,
         );

@@ -34,7 +34,7 @@ class RootFolderTest extends TestCase
     {
         $r = $this->makeRootFolder();
 
-        $child = $r->indexPage();
+        $child = $r->indexPage;
         self::assertInstanceOf(Page::class, $child);
         self::assertEquals('/index', $child->path);
 
@@ -78,7 +78,7 @@ class RootFolderTest extends TestCase
         $page = $r->find('/afolder');
 
         self::assertEquals('/afolder', $page->path);
-        self::assertEquals('Title here', $page->title());
+        self::assertEquals('Title here', $page->title);
     }
 
     #[Test]
@@ -93,7 +93,7 @@ class RootFolderTest extends TestCase
         $page = $r->find('/somefolder');
 
         self::assertEquals('/somefolder', $page->path);
-        self::assertEquals('Somefolder', $page->title());
+        self::assertEquals('Somefolder', $page->title);
     }
 
     #[Test]
@@ -116,10 +116,10 @@ class RootFolderTest extends TestCase
         // array_values() so that we can examine them by order, not by name index.
         $children = array_values(iterator_to_array($folder));
 
-        self::assertEquals('Z', $children[0]->title());
-        self::assertEquals('K', $children[1]->title());
-        self::assertEquals('J', $children[2]->title());
-        self::assertEquals('A', $children[3]->title());
+        self::assertEquals('Z', $children[0]->title);
+        self::assertEquals('K', $children[1]->title);
+        self::assertEquals('J', $children[2]->title);
+        self::assertEquals('A', $children[3]->title);
 
         self::assertEquals('/ordered/z', $children[0]->path);
         self::assertEquals('/ordered/k', $children[1]->path);
@@ -147,10 +147,10 @@ class RootFolderTest extends TestCase
         // array_values() so that we can examine them by order, not by name index.
         $children = array_values(iterator_to_array($folder));
 
-        self::assertEquals('Z', $children[0]->title());
-        self::assertEquals('K', $children[1]->title());
-        self::assertEquals('J', $children[2]->title());
-        self::assertEquals('A', $children[3]->title());
+        self::assertEquals('Z', $children[0]->title);
+        self::assertEquals('K', $children[1]->title);
+        self::assertEquals('J', $children[2]->title);
+        self::assertEquals('A', $children[3]->title);
 
         self::assertEquals('/dated/z', $children[0]->path);
         self::assertEquals('/dated/k', $children[1]->path);
@@ -179,10 +179,10 @@ class RootFolderTest extends TestCase
         // array_values() so that we can examine them by order, not by name index.
         $children = array_values(iterator_to_array($folder));
 
-        self::assertEquals('Z', $children[3]->title());
-        self::assertEquals('K', $children[2]->title());
-        self::assertEquals('J', $children[1]->title());
-        self::assertEquals('A', $children[0]->title());
+        self::assertEquals('Z', $children[3]->title);
+        self::assertEquals('K', $children[2]->title);
+        self::assertEquals('J', $children[1]->title);
+        self::assertEquals('A', $children[0]->title);
 
         self::assertEquals('/reversed/z', $children[3]->path);
         self::assertEquals('/reversed/k', $children[2]->path);
@@ -216,12 +216,12 @@ class RootFolderTest extends TestCase
         // array_values() so that we can examine them by order, not by name index.
         $children = array_values(iterator_to_array($folder));
 
-        self::assertEquals('A', $children[0]->title());
-        self::assertEquals('B', $children[1]->title());
-        self::assertEquals('C', $children[2]->title());
-        self::assertEquals('D', $children[3]->title());
-        self::assertEquals('E', $children[4]->title());
-        self::assertEquals('F', $children[5]->title());
+        self::assertEquals('A', $children[0]->title);
+        self::assertEquals('B', $children[1]->title);
+        self::assertEquals('C', $children[2]->title);
+        self::assertEquals('D', $children[3]->title);
+        self::assertEquals('E', $children[4]->title);
+        self::assertEquals('F', $children[5]->title);
 
         self::assertEquals('/flattened/a', $children[0]->path);
         self::assertEquals('/flattened/b', $children[1]->path);
@@ -257,12 +257,12 @@ class RootFolderTest extends TestCase
         // array_values() so that we can examine them by order, not by name index.
         $children = array_values(iterator_to_array($folder));
 
-        self::assertEquals('A', $children[5]->title());
-        self::assertEquals('B', $children[4]->title());
-        self::assertEquals('C', $children[3]->title());
-        self::assertEquals('D', $children[2]->title());
-        self::assertEquals('E', $children[1]->title());
-        self::assertEquals('F', $children[0]->title());
+        self::assertEquals('A', $children[5]->title);
+        self::assertEquals('B', $children[4]->title);
+        self::assertEquals('C', $children[3]->title);
+        self::assertEquals('D', $children[2]->title);
+        self::assertEquals('E', $children[1]->title);
+        self::assertEquals('F', $children[0]->title);
 
         self::assertEquals('/flatreversed/a', $children[5]->path);
         self::assertEquals('/flatreversed/b', $children[4]->path);

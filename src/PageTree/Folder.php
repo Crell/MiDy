@@ -11,8 +11,8 @@ class Folder implements Page, PageSet, \IteratorAggregate
 {
     public const string IndexPageName = 'index';
 
-    private FolderData $folderData { get => $this->folderData ??= $this->parser->loadFolder($this); };
-    private ?Page $indexPage { get => $this->folderData->indexPage; }
+    private FolderData $folderData { get => $this->folderData ??= $this->parser->loadFolder($this); }
+    public ?Page $indexPage { get => $this->folderData->indexPage; }
 
     public string $title { get => $this->title ??= $this->indexPage?->title
         ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME)); }
@@ -21,8 +21,8 @@ class Folder implements Page, PageSet, \IteratorAggregate
     public string $slug { get => $this->slug = $this->indexPage->slug ?? ''; }
     public bool $hidden { get => $this->hidden = $this->indexPage?->hidden ?? true; }
 
-    public bool $routable { get => $this->indexPage !== null }
-    public bool $path { get => str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }
+    public bool $routable { get => $this->indexPage !== null; }
+    public string $path { get => str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }
 
     public function __construct(
         public readonly string $physicalPath,
@@ -114,7 +114,7 @@ class Folder implements Page, PageSet, \IteratorAggregate
          * @var Hidable $child
          */
         foreach ($this->folderData->all() as $name => $child) {
-            if ($child->hidden()) {
+            if ($child->hidden) {
                 continue;
             }
             yield $name => match (true) {

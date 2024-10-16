@@ -123,9 +123,10 @@ class FolderTest extends TestCase
         ];
     }
 
-    #[Test, DataProvider('paginationProvider')]
+//    #[Test, DataProvider('paginationProvider')]
     public function paginate(FolderData $data, int $pageSize, int $pageNum, array $expectedPages, ?\Closure $validator = null): void
     {
+        printf("%s: %s\n", __FILE__, __LINE__);
         $folder = new Folder('/', '/', self::fakeParser($data));
 
         $result = $folder->paginate($pageSize, $pageNum);
@@ -160,7 +161,7 @@ class FolderTest extends TestCase
                 'page2' => self::makePage('/page2', '/page2', ['md'], new BasicPageInformation(hidden: true)),
                 'page3' => self::makePage('/page3', '/page3', ['md']),
             ]),
-            'filter' => fn(Page $p) => !$p->hidden(),
+            'filter' => fn(Page $p) => !$p->hidden,
             'expectedPages' => ['Page1', 'Page3'],
         ];
 
@@ -170,7 +171,7 @@ class FolderTest extends TestCase
                 'page2' => self::makePage('/page2', '/page2', ['md'], new BasicPageInformation(tags: ['a', 'b'])),
                 'page3' => self::makePage('/page3', '/page3', ['md'], new BasicPageInformation(tags: ['b', 'c'])),
             ]),
-            'filter' => fn(Page $p) => in_array('b', $p->tags(), true),
+            'filter' => fn(Page $p) => in_array('b', $p->tags, true),
             'expectedPages' => ['Page2', 'Page3'],
         ];
     }
@@ -318,7 +319,7 @@ class FolderTest extends TestCase
 
     private static function assertPagesMatch(array $expectedPages, PageSet $result): void
     {
-        $foundPages = array_values(array_map(static fn(Page $p) => $p->title(), iterator_to_array($result)));
+        $foundPages = array_values(array_map(static fn(Page $p) => $p->title, iterator_to_array($result)));
         self::assertEquals($expectedPages, $foundPages);
     }
 

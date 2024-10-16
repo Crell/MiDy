@@ -52,6 +52,6 @@ class MarkdownPageTest extends TestCase
     #[Test, DataProvider('pageProvider')]
     public function correct_summary_extracted(MarkdownPage $page, string $summary): void
     {
-        self::assertSame($page->summary(), $summary);
+        self::assertSame($summary, $page->summary);
     }
 }
