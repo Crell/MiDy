@@ -14,15 +14,15 @@ class Folder implements Page, PageSet, \IteratorAggregate
     private FolderData $folderData { get => $this->folderData ??= $this->parser->loadFolder($this); }
     public ?Page $indexPage { get => $this->folderData->indexPage; }
 
-    public string $title { get => $this->title ??= $this->indexPage?->title
+    public private(set) string $title { get => $this->title ??= $this->indexPage?->title
         ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME)); }
-    public string $summary { get => $this->summary ??= $this->indexPage?->summary ?? ''; }
-    public array $tags { get => $this->tags ??= $this->indexPage?->tags ?? []; }
-    public string $slug { get => $this->slug = $this->indexPage->slug ?? ''; }
-    public bool $hidden { get => $this->hidden = $this->indexPage?->hidden ?? true; }
+    public private(set) string $summary { get => $this->summary ??= $this->indexPage?->summary ?? ''; }
+    public private(set) array $tags { get => $this->tags ??= $this->indexPage?->tags ?? []; }
+    public private(set) string $slug { get => $this->slug = $this->indexPage->slug ?? ''; }
+    public private(set) bool $hidden { get => $this->hidden = $this->indexPage?->hidden ?? true; }
 
     public bool $routable { get => $this->indexPage !== null; }
-    public string $path { get => str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }
+    public private(set) string $path { get => $this->path ??= str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }
 
     public function __construct(
         public readonly string $physicalPath,
