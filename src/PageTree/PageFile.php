@@ -16,7 +16,7 @@ class PageFile implements Page
     public string $slug { get => $this->info->slug ?? ''; }
     public bool $hidden { get => $this->info->hidden; }
 
-    public bool $routable { get => true; }
+    public private(set) bool $routable = true;
     public string $path { get => $this->logicalPath; }
 
     public function __construct(

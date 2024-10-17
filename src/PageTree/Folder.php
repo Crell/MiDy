@@ -21,8 +21,8 @@ class Folder implements Page, PageSet, \IteratorAggregate
         }
     public private(set) string $summary { get => $this->summary ??= $this->indexPage?->summary ?? ''; }
     public private(set) array $tags { get => $this->tags ??= $this->indexPage?->tags ?? []; }
-    public private(set) string $slug { get => $this->slug = $this->indexPage->slug ?? ''; }
-    public private(set) bool $hidden { get => $this->hidden = $this->indexPage?->hidden ?? true; }
+    public private(set) string $slug { get => $this->slug ??= $this->indexPage?->slug ?? ''; }
+    public private(set) bool $hidden { get => $this->hidden ??= $this->indexPage?->hidden ?? true; }
 
     public bool $routable { get => $this->indexPage !== null; }
     public private(set) string $path { get => $this->path ??= str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }

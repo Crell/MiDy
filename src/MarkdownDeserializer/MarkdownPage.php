@@ -16,7 +16,7 @@ class MarkdownPage implements PageInformation
     public function __construct(
         #[Content]
         public(set) readonly string $content,
-        public(set) readonly string $title = '',
+        public readonly string $title = '',
         // This is not ideal, as it will try to re-summarize on every request if the summary is empty.
         public private(set) string $summary = '' { get => $this->summary ?: $this->summarize(); },
         public readonly string $template = '',
