@@ -7,8 +7,8 @@ namespace Crell\MiDy\PageTree;
 class PageFile implements Page
 {
     public private(set) string $title {
-        get => $this->title
-            ??= $this->info->title
+        get => $this->title ??=
+            $this->info->title
             ?: ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME));
     }
     public string $summary { get => $this->info->summary; }

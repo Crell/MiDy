@@ -8,8 +8,11 @@ class AggregatePage implements Page
 {
     protected Page $activePage { get => $this->activePage ??= array_values($this->variants)[0]; }
 
-    public private(set) string $title { get => $this->title ??= $this->activePage->title
-        ?: ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME)); }
+    public private(set) string $title {
+        get => $this->title ??=
+            $this->activePage->title
+            ?: ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME));
+        }
     public string $summary { get => $this->activePage->summary; }
     public array $tags { get => $this->activePage->tags; }
     public string $slug { get => $this->activePage->slug ?? ''; }

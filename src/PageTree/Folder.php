@@ -14,8 +14,11 @@ class Folder implements Page, PageSet, \IteratorAggregate
     private FolderData $folderData { get => $this->folderData ??= $this->parser->loadFolder($this); }
     public ?Page $indexPage { get => $this->folderData->indexPage; }
 
-    public private(set) string $title { get => $this->title ??= $this->indexPage?->title
-        ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME)); }
+    public private(set) string $title {
+        get => $this->title ??=
+            $this->indexPage?->title
+            ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME));
+        }
     public private(set) string $summary { get => $this->summary ??= $this->indexPage?->summary ?? ''; }
     public private(set) array $tags { get => $this->tags ??= $this->indexPage?->tags ?? []; }
     public private(set) string $slug { get => $this->slug = $this->indexPage->slug ?? ''; }
