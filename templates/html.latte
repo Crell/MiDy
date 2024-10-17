@@ -1,0 +1,14 @@
+{* This won't affect the actual response, but does influence the escaping logic in Latte. *}
+{contentType text/html}
+{default $siteName = ''}
+
+{varType \Crell\MiDy\PageTree\Folder $root}
+
+<html>
+<head>
+    <title>{$siteName}: {ifset title}{include title}{else}Untitled{/ifset}</title>
+</head>
+<body>
+    {block body}{/block}
+</body>
+</html>

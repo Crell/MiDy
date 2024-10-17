@@ -1,15 +1,10 @@
-{*{default $title = 'Untitled'}*}
-{* This won't affect the actual response, but does influence the escaping logic in Latte. *}
 {contentType text/html}
+{layout $templateRoot . '/html.latte'}
 {default $siteName = ''}
 
 {varType \Crell\MiDy\PageTree\Folder $root}
 
-<html>
-<head>
-    <title>{$siteName}: {ifset title}{include title}{else}Untitled{/ifset}</title>
-</head>
-<body>
+{block body}
     <h1>{ifset title}{include title}{else}Untitled{/ifset}</h1>
     <main>
         {block content}{/block}
@@ -20,5 +15,4 @@
     {/block}
 
 </aside>
-</body>
-</html>
+{/block}
