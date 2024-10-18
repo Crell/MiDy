@@ -237,10 +237,9 @@ class MiDy implements RequestHandlerInterface
                 ->method('addInterpreter', get(MarkdownLatteFileInterpreter::class))
                 ->method('addInterpreter', get(PhpFileInterpreter::class))
             ,
-            LocalFolderParser::class => autowire()->constructor(
-                    cache: get('path_cache'),
-                    interpreter: get(MultiplexedFileInterpreter::class),
-                )
+            LocalFolderParser::class => autowire()
+                ->constructorParameter('cache', get('path_cache'))
+                ->constructorParameter('interpreter', get(MultiplexedFileInterpreter::class))
             ,
             FolderParser::class => get(LocalFolderParser::class),
             RootFolder::class => create(RootFolder::class)->constructor(
