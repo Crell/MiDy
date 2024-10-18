@@ -12,6 +12,8 @@ use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Services\TemplateRenderer;
+use Latte\Runtime\Html;
+use League\CommonMark\ConverterInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -26,6 +28,7 @@ class MarkdownLatteHandler implements PageHandler
         private string $templateRoot,
         private TemplateRenderer $renderer,
         private MarkdownLatteConfiguration $config,
+        private ConverterInterface $converter,
     ) {}
 
     public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
@@ -42,8 +45,12 @@ class MarkdownLatteHandler implements PageHandler
     public function action(string $file): ResponseInterface
     {
         $page = $this->loader->load($file);
+
         $template = $this->templateRoot . '/' . ($page->template ?: $this->config->defaultPageTemplate);
-        $output = $this->renderer->render($template, $page->toTemplateParameters());
+        $args = $page->toTemplateParameters();
+        // Pre-render the Content rather than making the template do it.
+        $args['content'] = new Html($this->converter->convert($page->content));
+        $output = $this->renderer->render($template, $args);
 
         return $this->builder->ok($output, 'text/html');
     }
