@@ -15,6 +15,7 @@ use Crell\MiDy\PageTree\FileInterpreter\StaticFileInterpreter;
 use Crell\MiDy\PageTree\FolderParser\LocalFolderParser;
 use Crell\MiDy\PageTree\RootFolder;
 use Crell\MiDy\TimedCache\FilesystemTimedCache;
+use Crell\Serde\SerdeCommon;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -51,7 +52,7 @@ trait RootFilesystemSetup
 
         $cache->clear();
 
-        $parser = new LocalFolderParser($cache, $this->makeFileInterpreter());
+        $parser = new LocalFolderParser($cache, $this->makeFileInterpreter(), new SerdeCommon());
 
         return new RootFolder($filePath, $parser);
     }

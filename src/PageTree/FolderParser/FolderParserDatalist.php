@@ -6,6 +6,7 @@ namespace Crell\MiDy\PageTree\FolderParser;
 
 use Crell\MiDy\PageTree\FileInterpreter\FileInterpreterError;
 use Crell\MiDy\PageTree\Folder;
+use Crell\MiDy\PageTree\FolderDef;
 use Crell\MiDy\PageTree\OldFolder;
 use Crell\MiDy\PageTree\PageFile;
 use Crell\MiDy\PageTree\SortOrder;
@@ -47,7 +48,7 @@ class FolderParserDatalist implements \IteratorAggregate
         $this->toBuild[$routeFile->logicalPath]['variants'][$variant] = $routeFile;
     }
 
-    public function addFolder(string $basename, int $order, \SplFileInfo $file, array $controlData, string $childPhysicalPath, string $childLogicalPath): void
+    public function addFolder(string $basename, int $order, \SplFileInfo $file, FolderDef $controlData, string $childPhysicalPath, string $childLogicalPath): void
     {
         $this->sorted = false;
 
@@ -56,7 +57,7 @@ class FolderParserDatalist implements \IteratorAggregate
             'physicalPath' => $childPhysicalPath,
             'order' => $order,
             'fileName' => $basename,
-            'hidden' => $controlData['hidden'],
+            'hidden' => $controlData->hidden,
         ];
 
         $this->toBuild[$childLogicalPath]['data'] = $file;

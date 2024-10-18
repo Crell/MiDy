@@ -168,7 +168,7 @@ class RootFolderTest extends TestCase
         file_put_contents('vfs://root/data/reversed/01_z.md', '# Z');
         file_put_contents('vfs://root/data/reversed/07_a/index.md', '# A');
         file_put_contents('vfs://root/data/reversed/02_k.md', '# K');
-        file_put_contents('vfs://root/data/reversed/folder.midy', '{"order":"desc"}');
+        file_put_contents('vfs://root/data/reversed/folder.midy', '{"order":"Desc"}');
 
         $r = $this->makeRootFolder();
 
@@ -240,7 +240,7 @@ class RootFolderTest extends TestCase
         mkdir('vfs://root/data/flatreversed/2022');
         mkdir('vfs://root/data/flatreversed/2023');
         mkdir('vfs://root/data/flatreversed/2024');
-        file_put_contents('vfs://root/data/flatreversed/folder.midy', '{"flatten": true, "order": "desc"}');
+        file_put_contents('vfs://root/data/flatreversed/folder.midy', '{"flatten": true, "order": "Desc"}');
         file_put_contents('vfs://root/data/flatreversed/2024/2024-05-01_e.md', '# E');
         file_put_contents('vfs://root/data/flatreversed/2024/2024-06-01_f.md', '# F');
         file_put_contents('vfs://root/data/flatreversed/2022/2022-02-01_a.md', '# A');
@@ -293,7 +293,7 @@ class RootFolderTest extends TestCase
     }
 
     #[Test]
-    public function folder_can_be_hiden(): void
+    public function folder_can_be_hidden(): void
     {
         mkdir('vfs://root/data/hidefolder');
         mkdir('vfs://root/data/hidefolder/hidden');

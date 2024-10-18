@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-enum SortOrder
+enum SortOrder: string
 {
-    case Asc;
-    case Desc;
+    case Asc = 'Asc';
+    case Desc = 'Desc';
 
     public static function fromString(?string $order): ?self
     {

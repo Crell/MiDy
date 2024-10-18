@@ -8,9 +8,11 @@ use Crell\MiDy\PageTree\AggregatePage;
 use Crell\MiDy\PageTree\FileInterpreter\FileInterpreter;
 use Crell\MiDy\PageTree\Folder;
 use Crell\MiDy\PageTree\FolderData;
+use Crell\MiDy\PageTree\FolderDef;
 use Crell\MiDy\PageTree\FolderRef;
 use Crell\MiDy\PageTree\SortOrder;
 use Crell\MiDy\TimedCache\TimedCache;
+use Crell\Serde\Serde;
 
 /**
  * Parser for filesystem data.
@@ -26,6 +28,7 @@ readonly class LocalFolderParser implements FolderParser
     public function __construct(
         public TimedCache $cache,
         protected FileInterpreter $interpreter,
+        protected Serde $serde,
     ) {}
 
     /**
@@ -41,10 +44,10 @@ readonly class LocalFolderParser implements FolderParser
     {
         $controlData = $this->parseControlFile($folder->physicalPath);
 
-        $datalist = new FolderParserDatalist($controlData['sortOrder']);
+        $datalist = new FolderParserDatalist($controlData->order);
 
         /** @var \SplFileInfo $file */
-        foreach ($this->getChildIterator($folder->physicalPath, $controlData['flatten']) as $file) {
+        foreach ($this->getChildIterator($folder->physicalPath, $controlData->flatten) as $file) {
             if ($file->isFile()) {
                 // SPL is so damned stupid...
                 [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
@@ -105,36 +108,16 @@ readonly class LocalFolderParser implements FolderParser
 
     /**
      * Parse the control file for a directory, which tells us how to handle it.
-     *
-     * @todo using an array here is gross.
-     * @return array{'sortOrder': SortOrder, 'flatten': bool, 'hidden': bool}
      */
-    private function parseControlFile(string $physicalPath): array
+    private function parseControlFile(string $physicalPath): FolderDef
     {
-        $ret = [
-            'sortOrder' => SortOrder::Asc,
-            'flatten' => false,
-            'hidden' => false,
-        ];
-
         $controlFile = $physicalPath . '/' . self::ControlFile;
         if (!file_exists($controlFile)) {
-            return $ret;
+            return new FolderDef();
         }
 
-        // @todo We can probably do better than this manual nonsense, but I'd prefer to not
-        //   inject Serde into the Folder tree as well.
         $contents = file_get_contents($controlFile);
-        try {
-            $def = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-            $ret['sortOrder'] = SortOrder::fromString($def['order'] ?? null) ?? SortOrder::Asc;
-            $ret['flatten'] = $def['flatten'] ?? false;
-            $ret['hidden'] = $def['hidden'] ?? false;
-        } catch (\JsonException) {
-            // @todo Log this, but otherwise we don't care.
-        }
-
-        return $ret;
+        return $this->serde->deserialize($contents, from: 'json', to: FolderDef::class);
     }
 
     /**
