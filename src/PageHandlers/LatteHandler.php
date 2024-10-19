@@ -13,22 +13,15 @@ use Crell\MiDy\Services\TemplateRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-readonly class LatteHandler implements PageHandler
+class LatteHandler implements PageHandler
 {
+    public private(set) array $supportedMethods = ['GET'];
+    public private(set) array $supportedExtensions = ['latte'];
+
     public function __construct(
-        private ResponseBuilder $builder,
-        private TemplateRenderer $renderer,
+        private readonly ResponseBuilder $builder,
+        private readonly TemplateRenderer $renderer,
     ) {}
-
-    public function supportedMethods(): array
-    {
-        return ['GET'];
-    }
-
-    public function supportedExtensions(): array
-    {
-        return ['latte'];
-    }
 
     public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
     {

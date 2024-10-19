@@ -54,15 +54,8 @@ class HandlerRouterTest extends TestCase
         $router = new HandlerRouter($root);
 
         $router->addHandler(new class implements PageHandler {
-            public function supportedMethods(): array
-            {
-                return ['GET'];
-            }
-
-            public function supportedExtensions(): array
-            {
-                return ['md'];
-            }
+            public array $supportedMethods = ['GET'];
+            public array $supportedExtensions = ['md'];
 
             public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
             {
@@ -95,9 +88,8 @@ class HandlerRouterTest extends TestCase
         $router = new HandlerRouter($root);
 
         $router->addHandler(new class implements PageHandler {
-            public function supportedMethods(): array { return ['GET']; }
-
-            public function supportedExtensions(): array { return ['md']; }
+            public array $supportedMethods = ['GET'];
+            public array $supportedExtensions = ['md'];
 
             public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
             {
@@ -126,9 +118,8 @@ class HandlerRouterTest extends TestCase
         $router = new HandlerRouter($root);
 
         $router->addHandler(new class implements SupportsTrailingPath {
-            public function supportedMethods(): array { return ['GET']; }
-
-            public function supportedExtensions(): array { return ['md']; }
+            public array $supportedMethods = ['GET'];
+            public array $supportedExtensions = ['md'];
 
             public function handle(ServerRequestInterface $request, Page $page, string $ext, array $trailing = []): ?RouteResult
             {

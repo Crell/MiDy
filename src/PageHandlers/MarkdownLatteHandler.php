@@ -15,8 +15,11 @@ use Crell\MiDy\Services\TemplateRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-readonly class MarkdownLatteHandler implements PageHandler
+class MarkdownLatteHandler implements PageHandler
 {
+    public private(set) array $supportedMethods = ['GET'];
+    public private(set) array $supportedExtensions = ['md'];
+
     public function __construct(
         private ResponseBuilder $builder,
         private MarkdownPageLoader $loader,
@@ -24,16 +27,6 @@ readonly class MarkdownLatteHandler implements PageHandler
         private TemplateRenderer $renderer,
         private MarkdownLatteConfiguration $config,
     ) {}
-
-    public function supportedMethods(): array
-    {
-        return ['GET'];
-    }
-
-    public function supportedExtensions(): array
-    {
-        return ['md'];
-    }
 
     public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
     {

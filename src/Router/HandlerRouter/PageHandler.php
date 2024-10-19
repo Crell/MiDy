@@ -10,9 +10,9 @@ use Psr\Http\Message\ServerRequestInterface;
 
 interface PageHandler
 {
-    public function supportedMethods(): array;
+    public array $supportedMethods { get; }
 
-    public function supportedExtensions(): array;
+    public array $supportedExtensions { get; }
 
     public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult;
 }

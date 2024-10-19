@@ -12,26 +12,19 @@ use Crell\MiDy\Router\RouteSuccess;
 use DI\FactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-readonly class PhpHandler implements SupportsTrailingPath
+class PhpHandler implements SupportsTrailingPath
 {
+    public private(set) array $supportedMethods = ['GET', 'POST', 'HEAD', 'PUT', 'DELETE'];
+    public private(set) array $supportedExtensions = ['php'];
+
     /**
      * @param FactoryInterface $container
      *   If we ever change containers, this will be impacted.
      */
     public function __construct(
-        private FactoryInterface $container,
-        private ClassFinder $finder,
+        private readonly FactoryInterface $container,
+        private readonly ClassFinder $finder,
     ) {}
-
-    public function supportedMethods(): array
-    {
-        return ['GET', 'POST', 'HEAD', 'PUT', 'DELETE'];
-    }
-
-    public function supportedExtensions(): array
-    {
-        return ['php'];
-    }
 
     public function handle(ServerRequestInterface $request, Page $page, string $ext, array $trailing = []): ?RouteResult
     {

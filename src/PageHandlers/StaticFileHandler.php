@@ -14,23 +14,18 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
-readonly class StaticFileHandler implements PageHandler
+class StaticFileHandler implements PageHandler
 {
+    public private(set) array $supportedMethods = ['GET'];
+    public array $supportedExtensions {
+        get => array_keys($this->config->allowedExtensions);
+    }
+
     public function __construct(
-        private ResponseBuilder $builder,
-        private StreamFactoryInterface $streamFactory,
-        private StaticRoutes $config,
+        private readonly ResponseBuilder $builder,
+        private readonly StreamFactoryInterface $streamFactory,
+        private readonly StaticRoutes $config,
     ) {}
-
-    public function supportedMethods(): array
-    {
-        return ['GET'];
-    }
-
-    public function supportedExtensions(): array
-    {
-        return array_keys($this->config->allowedExtensions);
-    }
 
     public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
     {

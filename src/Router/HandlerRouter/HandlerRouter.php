@@ -27,8 +27,8 @@ class HandlerRouter implements Router
 
     public function addHandler(PageHandler $handler): void
     {
-        foreach ($handler->supportedMethods() as $method) {
-            foreach ($handler->supportedExtensions() as $ext) {
+        foreach ($handler->supportedMethods as $method) {
+            foreach ($handler->supportedExtensions as $ext) {
                 $this->handlerMap[$ext][$method][] = $handler;
             }
         }
