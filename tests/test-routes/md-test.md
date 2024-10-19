@@ -14,4 +14,8 @@ Some raw HTML.
 
 ```php
 $some = php_code($here);
+
+class Example {
+    public function __construct(public string $a) {}
+}
 ```

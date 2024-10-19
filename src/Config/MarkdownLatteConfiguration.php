@@ -11,5 +11,8 @@ readonly class MarkdownLatteConfiguration
 {
     public function __construct(
         public string $defaultPageTemplate = 'page.latte',
+        // Be sure to copy this file from vendor/scrivo/highlight.php/styles
+        // to your docroot. The path here is relative to the routes directory.
+        public string $codeThemeStyles = 'styles/darcula.css',
     ) {}
 }

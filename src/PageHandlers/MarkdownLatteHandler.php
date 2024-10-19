@@ -12,6 +12,7 @@ use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Services\TemplateRenderer;
+use DI\Attribute\Inject;
 use Latte\Runtime\Html;
 use League\CommonMark\ConverterInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -50,6 +51,9 @@ class MarkdownLatteHandler implements PageHandler
         $args = $page->toTemplateParameters();
         // Pre-render the Content rather than making the template do it.
         $args['content'] = new Html($this->converter->convert($page->content));
+
+        $args['extraStyles'][] = sprintf('%s', $this->config->codeThemeStyles);
+
         $output = $this->renderer->render($template, $args);
 
         return $this->builder->ok($output, 'text/html');
