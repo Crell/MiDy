@@ -24,12 +24,12 @@ class MarkdownLatteHandler implements PageHandler
     public private(set) array $supportedExtensions = ['md'];
 
     public function __construct(
-        private ResponseBuilder $builder,
-        private MarkdownPageLoader $loader,
-        private string $templateRoot,
-        private TemplateRenderer $renderer,
-        private MarkdownLatteConfiguration $config,
-        private ConverterInterface $converter,
+        private readonly ResponseBuilder $builder,
+        private readonly MarkdownPageLoader $loader,
+        private readonly string $templateRoot,
+        private readonly TemplateRenderer $renderer,
+        private readonly MarkdownLatteConfiguration $config,
+        private readonly ConverterInterface $converter,
     ) {}
 
     public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
