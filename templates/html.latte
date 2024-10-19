@@ -3,12 +3,19 @@
 {default $siteName = ''}
 
 {varType \Crell\MiDy\PageTree\Folder $root}
+{varType array $extraStyles}
 
 <html>
 <head>
     <title>{$siteName}: {ifset title}{include title}{else}Untitled{/ifset}</title>
+    {foreach $extraStyles as $url}
+        <link type="text/css" rel="stylesheet" href="{$url}">
+    {/foreach}
+    {block styles}{/block}
+    {block scripts}{/block}
 </head>
 <body>
     {block body}{/block}
+    {block scriptsFooter}{/block}
 </body>
 </html>
