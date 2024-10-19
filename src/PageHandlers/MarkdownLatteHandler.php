@@ -12,7 +12,6 @@ use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Services\TemplateRenderer;
-use DI\Attribute\Inject;
 use Latte\Runtime\Html;
 use League\CommonMark\ConverterInterface;
 use Psr\Http\Message\ResponseInterface;
