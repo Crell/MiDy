@@ -13,7 +13,8 @@
         "crell/config": "^0.2.0",
         "league/commonmark": "^2.4",
         "symfony/yaml": "^7.1",
-        "httpsoft/http-emitter": "^1.1"
+        "httpsoft/http-emitter": "^1.1",
+        "spatie/commonmark-highlighter": "^3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.2.0",

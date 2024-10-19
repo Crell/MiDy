@@ -59,9 +59,13 @@ use Crell\Tukio\OrderedListenerProvider;
 use DI\ContainerBuilder;
 use HttpSoft\Emitter\SapiEmitter;
 use Latte\Engine;
-use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\ConverterInterface;
-use League\CommonMark\GithubFlavoredMarkdownConverter;
+use League\CommonMark\Environment\Environment;
+use League\CommonMark\Environment\EnvironmentInterface;
+use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
+use League\CommonMark\Extension\CommonMark\Node\Block\IndentedCode;
+use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
 use League\CommonMark\MarkdownConverter;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
@@ -79,6 +83,8 @@ use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Spatie\CommonMarkHighlighter\FencedCodeRenderer;
+use Spatie\CommonMarkHighlighter\IndentedCodeRenderer;
 
 use function DI\autowire;
 use function DI\create;
@@ -302,10 +308,18 @@ class MiDy implements RequestHandlerInterface
         // Commonmark
         // @todo Configure this better so it's configurable somehow?
         $containerBuilder->addDefinitions([
-            CommonMarkConverter::class => autowire(),
-            GithubFlavoredMarkdownConverter::class => autowire(),
-            ConverterInterface::class => get(GithubFlavoredMarkdownConverter::class),
-            MarkdownConverter::class =>get(GithubFlavoredMarkdownConverter::class),
+            CommonMarkCoreExtension::class => autowire(),
+            GithubFlavoredMarkdownExtension::class => autowire(),
+            FencedCodeRenderer::class => autowire(),
+            IndentedCodeRenderer::class => autowire(),
+            EnvironmentInterface::class => autowire(Environment::class)
+                ->method('addExtension', get(CommonMarkCoreExtension::class))
+                ->method('addExtension', get(GithubFlavoredMarkdownExtension::class))
+                ->method('addRenderer', FencedCode::class, get(FencedCodeRenderer::class))
+                ->method('addRenderer', IndentedCode::class, get(IndentedCodeRenderer::class))
+            ,
+            MarkdownConverter::class => autowire(),
+            ConverterInterface::class => get(MarkdownConverter::class),
         ]);
 
         // My Latte/Commonmark extension.
