@@ -17,6 +17,7 @@ use Crell\Config\PhpFileSource;
 use Crell\Config\SerializedFilesystemCache;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
+use Crell\MiDy\Middleware\CacheHeaderMiddleware;
 use Crell\MiDy\Middleware\CacheMiddleware;
 use Crell\MiDy\Middleware\DeriveFormatMiddleware;
 use Crell\MiDy\Middleware\EnforceHeadMiddleware;
@@ -206,13 +207,13 @@ class MiDy implements RequestHandlerInterface
                 ->method('addMiddleware', get(RequestPathMiddleware::class))
                 ->method('addMiddleware', get(DeriveFormatMiddleware::class))
 //        ->method('addMiddleware', get(AuthenticationMiddleware::class))
-                ->method('addMiddleware', get(CacheMiddleware::class))
+                ->method('addMiddleware', get(CacheHeaderMiddleware::class))
+//                ->method('addMiddleware', get(CacheMiddleware::class))
                 ->method('addMiddleware', get(EnforceHeadMiddleware::class))
                 ->method('addMiddleware', get(LogMiddleware::class))
             ,
-            SapiEmitter::class => autowire(SapiEmitter::class)
-            ,
-            ActionInvoker::class => get(RuntimeActionInvoker::class)
+            SapiEmitter::class => autowire(SapiEmitter::class),
+            ActionInvoker::class => get(RuntimeActionInvoker::class),
         ]);
 
         // Routing
