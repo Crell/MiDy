@@ -39,6 +39,10 @@ class HandlerRouter implements Router
 
         $page = $this->root->route($request->getUri()->getPath());
 
+        if ($page === null) {
+            return new RouteNotFound();
+        }
+
         // A folder with no index page is non-routable.
         if ($page instanceof Folder && !$page->indexPage) {
             return new RouteNotFound();

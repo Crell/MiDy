@@ -8,7 +8,6 @@ use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\Attributes\After;
-use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -88,13 +87,23 @@ class HttpValidationTest extends TestCase
     #[Test, DataProvider('successGetRoutes')]
     public function basic_200_checks(string $path): void
     {
-        $app = $this->app;
-
         $serverRequest = $this->makeRequest($path);
 
-        $response = $app->handle($serverRequest);
+        $response = $this->app->handle($serverRequest);
 
         self::assertEquals(200, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function not_found_handling(): void
+    {
+        $serverRequest = $this->makeRequest('/missing');
+
+        $response = $this->app->handle($serverRequest);
+
+        self::assertEquals(404, $response->getStatusCode());
+        self::assertStringContainsString('We apologize for the inconvenience.', $response->getBody()->getContents());
+        self::assertEmpty($response->getHeaderLine('cache-control'));
     }
 
     #[Test]
