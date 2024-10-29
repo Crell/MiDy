@@ -18,7 +18,6 @@ use Crell\Config\SerializedFilesystemCache;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
 use Crell\MiDy\Middleware\CacheHeaderMiddleware;
-use Crell\MiDy\Middleware\CacheMiddleware;
 use Crell\MiDy\Middleware\DeriveFormatMiddleware;
 use Crell\MiDy\Middleware\EnforceHeadMiddleware;
 use Crell\MiDy\Middleware\LogMiddleware;
@@ -112,9 +111,9 @@ class MiDy implements RequestHandlerInterface
      * @param string|null $cachePath
      *   The root of the cache folder.
      * @param string|null $configPath
-     *   The root of the cnofiguration folder.
+     *   The root of the configuration folder.
      * @param string|null $templatesPath
-     *   The root of teh templates folder.
+     *   The root of the templates folder.
      * @param string|null $publicPath
      *   The root of the public (web-accessible) folder.
      */
