@@ -2,9 +2,15 @@
 
 declare(strict_types=1);
 
+use Symfony\Component\Dotenv\Dotenv;
+use Crell\MiDy\MiDy;
+
 require __DIR__ . '/vendor/autoload.php';
 
-$app = new \Crell\MiDy\MiDy('.');
+$dotenv = new Dotenv();
+$dotenv->loadEnv(__DIR__ . '/.env');
+
+$app = new MiDy('.');
 
 /** @var \Crell\MiDy\Commands\StaticFilePregenerator $cmd */
 $cmd = $app->container->get(\Crell\MiDy\Commands\CleanGeneratedFiles::class);

@@ -125,12 +125,11 @@ class MiDy implements RequestHandlerInterface
         ?string $templatesPath = null,
         ?string $publicPath = null,
     ) {
-        $this->cachePath = $this->ensurePath($cachePath, '/cache');
-        $this->routePath = $this->ensurePath($routesPath, '/routes');
-        $this->configPath = $this->ensurePath($configPath, '/configuration');
-        $this->templatesPath = $this->ensurePath($templatesPath, '/templates');
-        $this->publicPath = $this->ensurePath($publicPath, '/public');
-
+        $this->cachePath = $this->ensurePath($cachePath, $_ENV['CACHE_PATH'] ?? '/cache');
+        $this->routePath = $this->ensurePath($routesPath, $_ENV['ROUTES_PATH'] ?? '/routes');
+        $this->configPath = $this->ensurePath($configPath, $_ENV['CONFIG_PATH'] ?? '/configuration');
+        $this->templatesPath = $this->ensurePath($templatesPath, $_ENV['TEMPLATES_PATH'] ?? '/templates');
+        $this->publicPath = $this->ensurePath($publicPath, $_ENV['PUBLIC_PATH'] ?? '/public');
 
         $this->container = $this->buildContainer();
         $this->setupListeners();
@@ -138,7 +137,7 @@ class MiDy implements RequestHandlerInterface
 
     protected function ensurePath(?string $override, string $default): string
     {
-        $dir = $override ?? $this->appRoot . $default;
+        $dir = $override ?? ($this->appRoot . '/' . trim($default, '/'));
 
         return ensure_dir($dir);
     }

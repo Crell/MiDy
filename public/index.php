@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 use HttpSoft\Emitter\SapiEmitter;
 use Nyholm\Psr7Server\ServerRequestCreator;
+use Symfony\Component\Dotenv\Dotenv;
+use Crell\MiDy\MiDy;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$app = new \Crell\MiDy\MiDy(routesPath: \realpath('../tests/test-routes'));
-//$app = new \Crell\MiDy\MiDy();
+$dotenv = new Dotenv();
+$dotenv->loadEnv(__DIR__ . '/../.env');
+
+$app = new MiDy();
 
 $serverRequest = $app->container->get(ServerRequestCreator::class)->fromGlobals();
 
