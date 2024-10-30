@@ -35,10 +35,11 @@ class LatteHandler implements PageHandler
         );
     }
 
-    public function action(string $file, array $query): ResponseInterface
+    public function action(ServerRequestInterface $request, string $file, array $query): ResponseInterface
     {
-        $page = $this->renderer->render($file, ['query' => $query]);
-
-        return $this->builder->ok($page, 'text/html');
+        return $this->builder->handleCacheableFileRequest($request, $file, function () use ($file, $query) {
+            $page = $this->renderer->render($file, ['query' => $query]);
+            return $this->builder->ok($page, 'text/html');
+        });
     }
 }

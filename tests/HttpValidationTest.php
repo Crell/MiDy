@@ -73,14 +73,14 @@ class HttpValidationTest extends TestCase
     public static function successGetRoutes(): iterable
     {
         return [
-            ['/html-test'],
-            ['/latte-test'],
-            ['/md-test'],
-            ['/png-test'],
-            ['/php-test'],
-            ['/png-test.png'],
-            ['/subdir/page-three'],
-            ['/subdir'],
+            'static html' => ['/html-test'],
+            'latte page' => ['/latte-test'],
+            'markdown page' => ['/md-test'],
+            'png image' => ['/png-test'],
+            'php handler' => ['/php-test'],
+            'png image with extension' => ['/png-test.png'],
+            'subdir page' => ['/subdir/page-three'],
+            'subdir index' => ['/subdir'],
         ];
     }
 
@@ -150,5 +150,31 @@ class HttpValidationTest extends TestCase
         self::assertNotFalse($jpos);
         self::assertTrue($jpos < $kpos);
         self::assertTrue($kpos < $zpos);
+    }
+
+    // @TODO Tests for static file cache headers, and then for all other file types.
+    //   Also make sure 404/403 pages are not cached.
+
+
+    #[Test, DataProvider('successGetRoutes')]
+    public function cache_headers_etag(string $path): void
+    {
+        $serverRequest = $this->makeRequest($path);
+
+        $response = $this->app->handle($serverRequest);
+
+        self::assertEquals(200, $response->getStatusCode());
+
+        $modifiedTimeRequest = $serverRequest
+            ->withHeader('if-modified-since', $response->getHeaderLine('last-modified'))
+        ;
+        $response = $this->app->handle($modifiedTimeRequest);
+        self::assertEquals(304, $response->getStatusCode());
+
+        $etagRequest = $serverRequest
+            ->withHeader('if-none-match', $response->getHeaderLine('etag'))
+        ;
+        $response = $this->app->handle($modifiedTimeRequest);
+        self::assertEquals(304, $response->getStatusCode());
     }
 }

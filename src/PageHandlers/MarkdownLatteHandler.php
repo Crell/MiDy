@@ -42,19 +42,21 @@ class MarkdownLatteHandler implements PageHandler
         );
     }
 
-    public function action(string $file): ResponseInterface
+    public function action(ServerRequestInterface $request, string $file): ResponseInterface
     {
-        $page = $this->loader->load($file);
+        return $this->builder->handleCacheableFileRequest($request, $file, function() use ($file) {
+            $page = $this->loader->load($file);
 
-        $template = $this->templateRoot . '/' . ($page->template ?: $this->config->defaultPageTemplate);
-        $args = $page->toTemplateParameters();
-        // Pre-render the Content rather than making the template do it.
-        $args['content'] = new Html($this->converter->convert($page->content));
+            $template = $this->templateRoot . '/' . ($page->template ?: $this->config->defaultPageTemplate);
+            $args = $page->toTemplateParameters();
+            // Pre-render the Content rather than making the template do it.
+            $args['content'] = new Html($this->converter->convert($page->content));
 
-        $args['extraStyles'][] = sprintf('%s', $this->config->codeThemeStyles);
+            $args['extraStyles'][] = sprintf('%s', $this->config->codeThemeStyles);
 
-        $output = $this->renderer->render($template, $args);
+            $output = $this->renderer->render($template, $args);
 
-        return $this->builder->ok($output, 'text/html');
+            return $this->builder->ok($output, 'text/html');
+        });
     }
 }

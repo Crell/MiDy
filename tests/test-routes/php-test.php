@@ -14,7 +14,9 @@ class PhpTest
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->builder->ok("GET received: " . $request->getUri()->getPath());
+        return $this->builder->handleCacheableFileRequest($request, __FILE__, function () use ($request) {
+            return $this->builder->ok("GET received: " . $request->getUri()->getPath());
+        });
     }
 
     public function post(ServerRequestInterface $request): ResponseInterface

@@ -9,6 +9,7 @@ use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
+use Crell\MiDy\Services\ResponseBuilder;
 use DI\FactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -28,6 +29,10 @@ class PhpHandler implements SupportsTrailingPath
 
     public function handle(ServerRequestInterface $request, Page $page, string $ext, array $trailing = []): ?RouteResult
     {
+        // Because the actual action callable isn't in this class but in the class that gets
+        // loaded later, we cannot put the cache header handling here.  The class file
+        // has to do it itself.
+
         $actionObject = $this->loadAction($page->variant($ext)->physicalPath);
 
         $method = $request->getMethod();
@@ -42,13 +47,11 @@ class PhpHandler implements SupportsTrailingPath
             );
         }
 
+        // This is all error handling.
         $rAction = new \ReflectionObject($actionObject);
-
         $rMethods = $rAction->getMethods(\ReflectionMethod::IS_PUBLIC);
         $methodNames = array_map(fn(\ReflectionMethod $m) => strtoupper($m->name), $rMethods);
-
-        $allowedMethods = array_intersect($methodNames, $this->supportedMethods());
-
+        $allowedMethods = array_intersect($methodNames, $this->supportedMethods);
         return new RouteMethodNotAllowed($allowedMethods);
     }
 
