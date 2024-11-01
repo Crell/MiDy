@@ -59,6 +59,8 @@ MiDy requires PHP 8.4.  (We're living on the edge.)  The easiest way to try it o
 5. Go to `http://localhost:30000` in your browser and get a 404 page. :-)
 6. Now start populating the `/routes` folder with your content!
 
+See the [`tests/test-routes`](tests/test-routes) folder for many examples.  (That's the fixture used for integration tests.)
+
 ## Templating
 
 Templating is provided by the [Latte template engine](https://latte.nette.org/en/).  (If there's interest, I can explore supporting Twig as well, though doing both at once could be tricky.)  If you've used Twig, it's very similar but uses a more PHP-ish syntax.
@@ -120,6 +122,7 @@ While the task list is long, here's the main things still on my radar before 1.0
 * Build a "skeleton" app, and move 99% of the code to composer packages used by that.  As little code as possible should be "in" a real site.
 * Make publication date a first class value, and derive it from the file if possible.
 * Flesh out the shell commands a lot better.  Like, use a real command framework.
+* Way more detailed documentation.
 
 ## Feedback
 
