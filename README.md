@@ -140,10 +140,10 @@ If you discover any security related issues, please use the [GitHub security rep
 
 ## License
 
-The Lesser GPL version 3 or later. Please see [License File](LICENSE.md) for more information.
+The GPL version 3 or later. Please see [License File](LICENSE.md) for more information.
 
 [ico-version]: https://img.shields.io/packagist/v/Crell/MiDy.svg?style=flat-square
-[ico-license]: https://img.shields.io/badge/License-LGPLv3-green.svg?style=flat-square
+[ico-license]: https://img.shields.io/badge/License-GPLv3-green.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/Crell/MiDy.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/Crell/MiDy
