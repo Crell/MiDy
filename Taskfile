@@ -17,6 +17,11 @@ function stop {
     docker compose down
 }
 
+function restart {
+  stop
+  start
+}
+
 function shell {
   start
   docker exec -it $(docker ps -q --filter="NAME=${project}-${appContainer}") bash
