@@ -27,6 +27,8 @@ RUN apt-get update \
         php8.4-opcache \
         php8.4-readline \
         php8.4-xml \
+        php8.4-pdo \
+        php8.4-pdo-sqlite \
         php8.4-dev \
         php-pear \
         make \
