@@ -2,7 +2,7 @@
 
 ### CLI ###
 
-FROM ubuntu:jammy AS cli
+FROM ubuntu:noble AS cli
 
 # Fixes some weird terminal issues such as broken clear / CTRL+L
 ENV TERM=linux
