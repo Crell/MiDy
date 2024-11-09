@@ -13,11 +13,20 @@ use PHPUnit\Framework\TestCase;
 class PageCacheDBTest extends TestCase
 {
     private ParsedFile $parsedFile;
+    private ParsedFolder $parsedFolder;
     private \PDO $db;
 
     #[Before]
     public function setupData(): void
     {
+        $this->parsedFolder = new ParsedFolder(
+            '/foo',
+            '/foo',
+            0,
+            false,
+            'Foo',
+        );
+
         $this->parsedFile = new ParsedFile(
             logicalPath: '/foo/bar',
             ext: 'md',
@@ -74,7 +83,7 @@ class PageCacheDBTest extends TestCase
 
         $cache->reinitialize();
 
-        $folder = new ParsedFolder('/foo', '/foo', 0, false, 'Foo');
+        $folder = $this->parsedFolder;
 
         $cache->writeFolder($folder);
 
@@ -90,7 +99,7 @@ class PageCacheDBTest extends TestCase
 
         $cache->reinitialize();
 
-        $folder = new ParsedFolder('/foo', '/foo', 0, false, 'Foo');
+        $folder = $this->parsedFolder;
         $cache->writeFolder($folder);
 
         $newFolder = new ParsedFolder('/foo', '/foo', 123456, true, 'Foo2');
@@ -111,7 +120,7 @@ class PageCacheDBTest extends TestCase
 
         $cache->reinitialize();
 
-        $folder = new ParsedFolder('/foo', '/foo', 0, false, 'Foo');
+        $folder = $this->parsedFolder;
         $cache->writeFolder($folder);
 
         $savedFolder = $cache->readFolder('/foo');
@@ -123,13 +132,31 @@ class PageCacheDBTest extends TestCase
     }
 
     #[Test]
+    public function can_delete_folder(): void
+    {
+        $cache = new PageCacheDB($this->db);
+
+        $cache->reinitialize();
+
+        $folder = $this->parsedFolder;
+        $cache->writeFolder($folder);
+
+        $cache->deleteFolder('/foo');
+
+        $stmt = $this->db->query("SELECT * FROM folder WHERE logicalPath='/foo'");
+        $record = $stmt->fetchObject();
+
+        self::assertFalse($record);
+    }
+
+    #[Test]
     public function can_write_new_file(): void
     {
         $cache = new PageCacheDB($this->db);
 
         $cache->reinitialize();
 
-        $folder = new ParsedFolder('/foo', '/foo', 0, false, 'Foo');
+        $folder = $this->parsedFolder;
         $cache->writeFolder($folder);
 
         $file = $this->parsedFile;
@@ -148,7 +175,7 @@ class PageCacheDBTest extends TestCase
 
         $cache->reinitialize();
 
-        $folder = new ParsedFolder('/foo', '/foo', 0, false, 'Foo');
+        $folder = $this->parsedFolder;
         $cache->writeFolder($folder);
 
         $file = $this->parsedFile;
@@ -190,5 +217,46 @@ class PageCacheDBTest extends TestCase
 
         // This should throw.
         $cache->writeFile($file);
+    }
+
+    #[Test]
+    public function can_read_file(): void
+    {
+        $cache = new PageCacheDB($this->db);
+
+        $cache->reinitialize();
+
+        $folder = $this->parsedFolder;
+        $cache->writeFolder($folder);
+
+        $file = $this->parsedFile;
+        $cache->writeFile($file);
+
+        $savedFile = $cache->readFile('/foo/bar', 'ext');
+
+        self::assertEquals($file->physicalPath, $savedFile->physicalPath);
+        self::assertEquals($file->mtime, $savedFile->mtime);
+        self::assertEquals($file->title, $savedFile->title);
+    }
+
+    #[Test]
+    public function can_delete_file(): void
+    {
+        $cache = new PageCacheDB($this->db);
+
+        $cache->reinitialize();
+
+        $folder = $this->parsedFolder;
+        $cache->writeFolder($folder);
+
+        $file = $this->parsedFile;
+        $cache->writeFile($file);
+
+        $cache->deleteFile('/foo/bar', 'md');
+
+        $stmt = $this->db->query("SELECT * FROM file WHERE logicalPath='/foo' AND ext='md'");
+        $record = $stmt->fetchObject();
+
+        self::assertFalse($record);
     }
 }

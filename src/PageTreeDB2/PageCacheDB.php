@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
+use Crell\MiDy\PageTree\BasicPageInformation;
+
 class PageCacheDB
 {
     private const string FolderTableDdl = <<<END
@@ -183,12 +185,22 @@ class PageCacheDB
 
     public function deleteFile(string $logicalPath, string $ext)
     {
-
+        $this->deleteFileStmt->execute([$logicalPath, $ext]);
     }
 
-    public function readFile(string $logicalPath, string $ext)
+    public function readFile(string $logicalPath, string $ext): ParsedFile
     {
+        $this->readFileStmt->execute([$logicalPath]);
+        $record = $this->readFileStmt->fetch(\PDO::FETCH_ASSOC);
 
+        // SQLite gives back badly typed data, so we have to clean it up a bit.
+        $record['hidden'] = (bool)$record['hidden'];
+        $record['routable'] = (bool)$record['routable'];
+        $record['publishDate'] = new \DateTimeImmutable($record['publishDate']);
+        $record['lastModifiedDate'] = new \DateTimeImmutable($record['lastModifiedDate']);
+        $record['frontmatter'] = new BasicPageInformation($record['frontmatter']);
+
+        return new ParsedFile(...$record);
     }
 
     public function inTransaction(\Closure $closure): mixed
