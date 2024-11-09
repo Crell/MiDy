@@ -132,6 +132,18 @@ class PageCacheDBTest extends TestCase
     }
 
     #[Test]
+    public function returns_null_for_missing_folder(): void
+    {
+        $cache = new PageCacheDB($this->db);
+
+        $cache->reinitialize();
+
+        $savedFolder = $cache->readFolder('/foo');
+
+        self::assertNull($savedFolder);
+    }
+
+    #[Test]
     public function can_delete_folder(): void
     {
         $cache = new PageCacheDB($this->db);
@@ -232,11 +244,24 @@ class PageCacheDBTest extends TestCase
         $file = $this->parsedFile;
         $cache->writeFile($file);
 
-        $savedFile = $cache->readFile('/foo/bar', 'ext');
+        $savedFile = $cache->readFile('/foo/bar', 'md');
 
         self::assertEquals($file->physicalPath, $savedFile->physicalPath);
         self::assertEquals($file->mtime, $savedFile->mtime);
         self::assertEquals($file->title, $savedFile->title);
+        self::assertEquals($file->publishDate, $savedFile->publishDate);
+    }
+
+    #[Test]
+    public function returns_null_for_missing_file(): void
+    {
+        $cache = new PageCacheDB($this->db);
+
+        $cache->reinitialize();
+
+        $savedFile = $cache->readFile('/beep', 'md');
+
+        self::assertNull($savedFile);
     }
 
     #[Test]

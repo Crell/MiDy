@@ -18,7 +18,7 @@ class PageTree
     /**
      * Returns the Folder read-object for this path.
      */
-    public function folder(string $logicalPath): FolderRead
+    public function folder(string $logicalPath): ParsedFolder
     {
         $folder = $this->cache->readFolder($logicalPath);
 
