@@ -31,49 +31,52 @@ class Parser
 
     public function parseFolder(string $physicalPath, string $logicalPath)
     {
-        $controlData = $this->parseControlFile($physicalPath);
 
-        $this->cache->deleteFolder($logicalPath);
+        $this->cache->inTransaction(function() use ($physicalPath, $logicalPath) {
+            $controlData = $this->parseControlFile($physicalPath);
 
-        /** @var \SplFileInfo $file */
-        foreach ($this->getChildIterator($physicalPath, $controlData->flatten) as $file) {
-            if ($file->isFile()) {
-                // SPL is so damned stupid...
-                [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
-                $pageFile = $this->fileParser->map($file, $logicalPath, $basename);
-                $pageFile->order = $order;
+            // Rebuild the folder record.
+            $this->cache->deleteFolder($logicalPath);
+            $folderInfo = new \SplFileInfo($physicalPath);
+            $folder = new ParsedFolder(
+                logicalPath: $logicalPath,
+                physicalPath: $physicalPath,
+                mtime: $folderInfo->getMTime(),
+                flatten: $controlData->flatten,
+                title: $folderInfo->getBasename(),
+            );
+            $this->cache->writeFolder($folder);
 
-                $this->cache->writeFile($pageFile);
-            } else {
-                // It's a directory.
-                [$basename, $order] = $this->parseName($file->getFilename());
-                $childPhysicalPath = $file->getPathname();
-                $childLogicalPath = rtrim($logicalPath, '/') . '/' . $basename;
-                $childControlData = $this->parseControlFile($childPhysicalPath);
+            // Now reindex every file in the folder.
+            /** @var \SplFileInfo $file */
+            foreach ($this->getChildIterator($physicalPath, $controlData->flatten) as $file) {
+                if ($file->isFile()) {
+                    // SPL is so damned stupid...
+                    [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
+                    $pageFile = $this->fileParser->map($file, $logicalPath, $basename);
+                    $pageFile->order = $order;
 
-                $childFolder = new ParsedFolder(
-                    logicalPath: $childLogicalPath,
-                    physicalPath: $childPhysicalPath,
-                    mtime: 0,
-                    flatten: $childControlData->flatten,
-                    title: $file->getBasename(),
-                // @todo What do we do with order?  Crap.
-                );
+                    $this->cache->writeFile($pageFile);
+                } else {
+                    // It's a directory.
+                    [$basename, $order] = $this->parseName($file->getFilename());
+                    $childPhysicalPath = $file->getPathname();
+                    $childLogicalPath = rtrim($logicalPath, '/') . '/' . $basename;
+                    $childControlData = $this->parseControlFile($childPhysicalPath);
 
-                $this->cache->writeFolder($childFolder);
+                    $childFolder = new ParsedFolder(
+                        logicalPath: $childLogicalPath,
+                        physicalPath: $childPhysicalPath,
+                        mtime: 0,
+                        flatten: $childControlData->flatten,
+                        title: $file->getBasename(),
+                    // @todo What do we do with order?  Crap.
+                    );
+
+                    $this->cache->writeFolder($childFolder);
+                }
             }
-        }
-
-        $folderInfo = new \SplFileInfo($physicalPath);
-        $folder = new ParsedFolder(
-            logicalPath: $logicalPath,
-            physicalPath: $physicalPath,
-            mtime: $folderInfo->getMTime(),
-            flatten: $controlData->flatten,
-            title: $file->getBasename(),
-        );
-
-        $this->cache->writeFolder($folder);
+        });
     }
 
     /**
