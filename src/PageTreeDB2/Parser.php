@@ -13,21 +13,21 @@ class Parser
     private const string StripPrefix = '/^([\d_-]+)_(.*)/m';
     public const string ControlFile = 'folder.midy';
 
-    private array $mounts = [];
+//    private array $mounts = [];
 
     public function __construct(
-        string $rootPhysicalPath,
+//        string $rootPhysicalPath,
         private PageCacheDB $cache,
         private FileParser $fileParser,
         private Serde $serde = new SerdeCommon(),
     ) {
-        $this->mounts['/'] = $rootPhysicalPath;
+//        $this->mounts['/'] = $rootPhysicalPath;
     }
 
-    public function mountFolder(string $physicalPath, string $logicalPath)
-    {
-        $this->mounts[$logicalPath] = $physicalPath;
-    }
+//    public function mountFolder(string $physicalPath, string $logicalPath)
+//    {
+//        $this->mounts[$logicalPath] = $physicalPath;
+//    }
 
     public function parseFolder(string $physicalPath, string $logicalPath)
     {
@@ -63,6 +63,17 @@ class Parser
                 $this->cache->writeFolder($childFolder);
             }
         }
+
+        $folderInfo = new \SplFileInfo($physicalPath);
+        $folder = new ParsedFolder(
+            logicalPath: $logicalPath,
+            physicalPath: $physicalPath,
+            mtime: $folderInfo->getMTime(),
+            flatten: $controlData->flatten,
+            title: $file->getBasename(),
+        );
+
+        $this->cache->writeFolder($folder);
     }
 
     /**

@@ -4,16 +4,26 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-use Crell\MiDy\PageTree\FolderDef;
-use Crell\Serde\Serde;
-use Crell\Serde\SerdeCommon;
-
 class PageTree
 {
+    /**
+     * @var array<string, string>
+     *     A map from logical folder paths to the physical paths they correspond to.
+     */
+    private array $paths = [];
+
     public function __construct(
         private PageCacheDB $cache,
         private Parser $parser,
-    ) {}
+        string $rootPhysicalPath,
+    ) {
+        $this->mount($rootPhysicalPath, '/');
+    }
+
+    public function mount(string $physicalPath, string $logicalPath): void
+    {
+        $this->paths[$logicalPath] = $physicalPath;
+    }
 
     /**
      * Returns the Folder read-object for this path.
@@ -22,14 +32,28 @@ class PageTree
     {
         $folder = $this->cache->readFolder($logicalPath);
 
-        if (!$folder) {
-            $parts = explode('/', $logicalPath);
-            array_pop($parts);
-            $parent = $this->folder(implode('/', $parts));
+        if (!$folder || $folder->mtime < filemtime($folder->physicalPath)) {
+            $folder = $this->reindexFolder($logicalPath);
         }
 
-        if ($this->parser->folderNeedsUpdate($folder->mtime)) {
-            $this->parser->parseFolder($folder->physicalPath);
+        return $folder;
+    }
+
+    /**
+     * Re-parse a folder at a given location by reparsing its parent's contents.
+     *
+     * @param string $logicalPath
+     * @return ParsedFolder
+     */
+    private function reindexFolder(string $logicalPath): ParsedFolder
+    {
+        if (array_key_exists($logicalPath, $this->paths)) {
+            $this->parser->parseFolder($this->paths[$logicalPath], $logicalPath);
         }
+        $parts = explode('/', $logicalPath);
+        $slug = array_pop($parts);
+        $parent = $this->folder(implode('/', $parts));
+        $this->parser->parseFolder($parent->physicalPath . '/' . $slug, $logicalPath);
+        return $this->cache->readFolder($logicalPath);
     }
 }

@@ -22,6 +22,8 @@ use PHPUnit\Framework\TestCase;
 
 class ParserTest extends TestCase
 {
+    use SetupCache;
+
     /**
      * The VFS needs to be static so it's reused, so the require_once() call in the PHP interpreter
      * can not require the "same" file multiple times, leading to double-declaration errors.
@@ -53,24 +55,30 @@ class ParserTest extends TestCase
     }
 
     #[Test]
-    public function stuff(): void
+    public function parser_on_subdir_finds_right_files(): void
     {
-        $db = new \PDO('sqlite::memory:');
-
-        $cache = new PageCacheDB($db);
-
-        $cachePath = self::$vfs->getChild('cache')?->url();
         $routesPath = self::$vfs->getChild('routes')?->url();
 
         file_put_contents($routesPath . '/foo.html', 'Foo');
         file_put_contents($routesPath . '/bar.html', 'Bar');
         file_put_contents($routesPath . '/folder.midy', '{"order": "Desc"}');
         mkdir($routesPath . '/subdir');
+        file_put_contents($routesPath . '/subdir/baz.html', 'Baz');
+        file_put_contents($routesPath . '/subdir/beep.html', 'Beep');
+        file_put_contents($routesPath . '/subdir/folder.midy', '{"order": "Desc"}');
 
-        $parser = new Parser($routesPath, $cache, $this->makeFileParser());
+        $parser = new Parser($this->cache, $this->makeFileParser());
 
-        $pagetree = new PageTree($cache, $parser);
+        $parser->parseFolder($routesPath . '/subdir', '/subdir');
 
-        $pagetree->folder('/');
+        $records = $this->db->query("SELECT * FROM file WHERE logicalPath='/subdir/beep'")->fetchAll(\PDO::FETCH_OBJ);
+        self::assertCount(1, $records);
+
+        $allRecords = $this->db->query("SELECT * FROM file")->fetchAll(\PDO::FETCH_OBJ);
+        self::assertCount(2, $allRecords);
+
+        $records = $this->db->query("SELECT * FROM folder WHERE logicalPath='/subdir'")->fetchAll(\PDO::FETCH_OBJ);
+        self::assertCount(1, $records);
+
     }
 }

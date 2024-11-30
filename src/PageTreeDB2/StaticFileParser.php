@@ -40,8 +40,8 @@ readonly class StaticFileParser implements FileParser
             order: 0,
             hidden: true,
             routable: true,
-            publishDate: $fileInfo->getMTime(),
-            lastModifiedDate: $fileInfo->getMTime(),
+            publishDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
+            lastModifiedDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
             frontmatter: $frontmatter,
             summary: '',
         );
