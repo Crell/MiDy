@@ -253,3 +253,43 @@ RouteFile implements Linkable, not Titled
 
 ... Do I need to integrate language variants now?  Yeesh.  I hope not.
 
+-------------------------
+
+OK, need to switch to SQLite.  Which means rewrite everything.  Excrement.
+
+Let's start from the top.  We want to represent a bunch of files in a table, for easier scanning/lookup.  We have folders and files.  Folders are only routable if they have an index file inside them.  However, they can be iterable if referenced directly.  So that means a routable flag on the folder?
+
+Folders are kinda like pages, but have different metadata.  Eg, they have sort order and flatten flag.  Though... Does the sort order even matter if it's in SQL?  It would be trivial to flip the sort order in a query.  
+
+So possible design:
+
+folder(logicalPath, physicalPath, mtime, flatten, title)
+file(logicalPath, ext, physicalPath, mtime, title, folder, summary, hidden, routable, publishDate, lastModifiedDate, order, frontmatter[json])
+tags(logicalPath, ext, tag)
+
+Every folder is listed in `folder`.  If it hasn't been parsed yet, the mtime is set to 0 to force it to get parsed on next lookup.  That way we can still do things incrementally.
+
+Every file is listed in `file`.  (Excluding folder metadata files.)  The folder reference links to the folder's logical path, so we know how to clear things.  (ON DELETE CASCADE?)
+
+All front matter is stored in a JSON blob.  That way, bonus fields are allowed.  Tags get a materialized table, since those will be a common query.
+
+Since data will already be parsed... there's little reason to reparse it at runtime.  Most of it can just be pulled from the DB.  Does that include the content???  Do we cache content as well?  Eeew.
+
+This very likely means separate write and read objects, but that's fine.  Could get interesting if we ever add an admin section, though...
+
+The parser will also need to know how to handle multiple roots.  Rather, multiple mounts.  A given folder can be configured to a different physical path, but still a unified logical tree in the DB.
+
+So we have a PDO connection, wrapped in CRUD command services for the above.
+
+Then there's the parser, which composes the CRUD services.  It handles iteration, but all file parsing is handed off to per-type parsers.  The per-type parsers return a data object, which can do its own extraction or not.  TBD.  (Yay, hooks or methods.)  The parser is where the folder control data gets used, flattening/sorting happens, etc.
+
+Start by just indexing a folder.  Then index its children, which if it's a folder gets added to the folder table with an mtime of 0.
+
+On read of a page, the mtime is checked and if necessary the file is reloaded.
+
+If a file isn't found, check the mtime on the folder.  If it's out of date, reindex and try again before failing.  If it's not out of date, we don't need to reindex.
+
+How do variable paths work with this?  It means we cannot do a logical path match.  Or, rather, we'd need to do a regex match.  Gross.  Which it looks like SQLite doesn't do well.  (It just does WHERE foo REGEXP pattern booleans.)
+
+--------------------
+
