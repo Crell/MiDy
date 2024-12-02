@@ -60,5 +60,7 @@ class PageTreeTest extends TestCase
 
         $folder = $tree->folder('/subdir');
 
+        self::assertEquals('/subdir', $folder->logicalPath);
+
     }
 }

@@ -52,7 +52,7 @@ class PageTree
         }
         $parts = explode('/', $logicalPath);
         $slug = array_pop($parts);
-        $parent = $this->folder(implode('/', $parts));
+        $parent = $this->folder('/' . implode('/', $parts));
         $this->parser->parseFolder($parent->physicalPath . '/' . $slug, $logicalPath);
         return $this->cache->readFolder($logicalPath);
     }
