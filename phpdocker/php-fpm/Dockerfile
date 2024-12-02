@@ -41,7 +41,7 @@ RUN apt-get update \
 #RUN install-php-extensions xdebug/xdebug@master \
 #    && docker-php-ext-enable xdebug
 
-RUN pecl install xdebug-3.4.0beta1
+RUN pecl install xdebug-3.4.0
 
 #RUN git clone https://github.com/xdebug/xdebug.git -b master xdebug \
 #    && cd xdebug && git reset --hard 65f7f69f34 && rm -r .git
