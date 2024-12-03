@@ -108,6 +108,7 @@ class PageCacheDB
 
     private const string DeleteFileSql = 'DELETE FROM file WHERE logicalPath=? AND ext=?';
     private const string ReadFileSql = 'SELECT * FROM file WHERE logicalPath=? AND ext=?';
+    private const string ReadFilesSql = 'SELECT * FROM file WHERE folder=? ORDER BY "order", title';
 
     private \PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
     private \PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
@@ -115,6 +116,7 @@ class PageCacheDB
 
     private \PDOStatement $writeFileStmt { get => $this->writeFileStmt ??= $this->conn->prepare(self::WriteFileSql); }
     private \PDOStatement $readFileStmt { get => $this->readFileStmt ??= $this->conn->prepare(self::ReadFileSql); }
+    private \PDOStatement $readFilesStmt { get => $this->readFilesStmt ??= $this->conn->prepare(self::ReadFilesSql); }
     private \PDOStatement $deleteFileStmt { get => $this->deleteFileStmt ??= $this->conn->prepare(self::DeleteFileSql); }
 
 
@@ -199,6 +201,21 @@ class PageCacheDB
             return null;
         }
 
+        return $this->instantiateFile($record);
+
+    }
+
+    /**
+     * @return array<ParsedFile>
+     */
+    public function readFiles(string $folderPath): array
+    {
+        $this->readFilesStmt->execute([$folderPath]);
+        return array_map($this->instantiateFile(...), $this->readFilesStmt->fetchAll(\PDO::FETCH_ASSOC));
+    }
+
+    private function instantiateFile(array $record): ParsedFile
+    {
         // SQLite gives back badly typed data, so we have to clean it up a bit.
         $record['hidden'] = (bool)$record['hidden'];
         $record['routable'] = (bool)$record['routable'];

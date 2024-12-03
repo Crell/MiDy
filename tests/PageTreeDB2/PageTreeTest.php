@@ -47,7 +47,7 @@ class PageTreeTest extends TestCase
     }
 
     #[Test]
-    public function stuff(): void
+    public function can_lazy_load_folder(): void
     {
         $routesPath = self::$vfs->getChild('routes')?->url();
 
@@ -61,6 +61,25 @@ class PageTreeTest extends TestCase
         $folder = $tree->folder('/subdir');
 
         self::assertEquals('/subdir', $folder->logicalPath);
+    }
 
+    #[Test]
+    public function can_instantiate_pages(): void
+    {
+        $routesPath = self::$vfs->getChild('routes')?->url();
+
+        file_put_contents($routesPath . '/single.html', 'Single');
+        file_put_contents($routesPath . '/double.html', 'Double, HTML');
+        file_put_contents($routesPath . '/double.css', 'Double, CSS');
+        file_put_contents($routesPath . '/folder.midy', '{"order": "Desc"}');
+        mkdir($routesPath . '/subdir');
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $folder = $tree->folder('/');
+        $children = $folder->children;
+
+        self::assertCount(2, $children);
+        self::assertCount(2, $folder);
     }
 }

@@ -13,21 +13,11 @@ class Parser
     private const string StripPrefix = '/^([\d_-]+)_(.*)/m';
     public const string ControlFile = 'folder.midy';
 
-//    private array $mounts = [];
-
     public function __construct(
-//        string $rootPhysicalPath,
         private PageCacheDB $cache,
         private FileParser $fileParser,
         private Serde $serde = new SerdeCommon(),
-    ) {
-//        $this->mounts['/'] = $rootPhysicalPath;
-    }
-
-//    public function mountFolder(string $physicalPath, string $logicalPath)
-//    {
-//        $this->mounts[$logicalPath] = $physicalPath;
-//    }
+    ) {}
 
     public function parseFolder(string $physicalPath, string $logicalPath)
     {
@@ -54,6 +44,10 @@ class Parser
                     // SPL is so damned stupid...
                     [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
                     $pageFile = $this->fileParser->map($file, $logicalPath, $basename);
+                    if ($pageFile instanceof FileParserError) {
+                        // @todo Log or something?
+                        continue;
+                    }
                     $pageFile->order = $order;
 
                     $this->cache->writeFile($pageFile);
