@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
+use Crell\MiDy\ClassFinder;
 use Crell\MiDy\Config\StaticRoutes;
+use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\Before;
@@ -29,6 +31,9 @@ class PageTreeTest extends TestCase
     {
         $fileParser = new MultiplexedFileParser();
         $fileParser->addParser(new StaticFileParser(new StaticRoutes()));
+        $fileParser->addParser(new PhpFileParser());
+        $fileParser->addParser(new LatteFileParser());
+        $fileParser->addParser(new MarkdownLatteFileParser(new MarkdownPageLoader()));
 
         $this->parser = new Parser($this->setupCache(), $fileParser);
     }
@@ -81,5 +86,22 @@ class PageTreeTest extends TestCase
 
         self::assertCount(2, $children);
         self::assertCount(2, $folder);
+    }
+
+    #[Test]
+    public function can_instantiate_supported_file_types(): void
+    {
+        $routesPath = self::$vfs->getChild('routes')?->url();
+
+        file_put_contents($routesPath . '/static.html', 'Foo');
+        file_put_contents($routesPath . '/markdown.md', 'Bar');
+        file_put_contents($routesPath . '/latte.latte', 'Bar');
+        file_put_contents($routesPath . '/php.php', '<?php class Test {}');
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $folder = $tree->folder('/');
+
+        self::assertCount(4, $folder);
     }
 }

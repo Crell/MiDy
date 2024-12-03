@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-use Crell\MiDy\PageTree\PageFile;
-
 interface FileParser
 {
     /**
