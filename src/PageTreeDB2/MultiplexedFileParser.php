@@ -6,21 +6,20 @@ namespace Crell\MiDy\PageTreeDB2;
 
 class MultiplexedFileParser implements FileParser
 {
+    public array $supportedExtensions {
+        get => array_keys($this->parsers);
+    }
+
     /**
      * @var array<string, array<FileParser>>
      */
     private array $parsers = [];
 
-    public function addParser(FileParser $interpreter): void
+    public function addParser(FileParser $parser): void
     {
-        foreach ($interpreter->supportedExtensions() as $ext) {
-            $this->parsers[$ext][] = $interpreter;
+        foreach ($parser->supportedExtensions as $ext) {
+            $this->parsers[$ext][] = $parser;
         }
-    }
-
-    public function supportedExtensions(): array
-    {
-        return array_keys($this->parsers);
     }
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile|FileParserError

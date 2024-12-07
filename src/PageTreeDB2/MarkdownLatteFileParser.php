@@ -12,14 +12,11 @@ use Crell\MiDy\PageTree\PageFile;
 
 class MarkdownLatteFileParser implements FileParser
 {
+    public private(set) array $supportedExtensions = ['md'];
+
     public function __construct(
         private MarkdownPageLoader $loader,
     ) {}
-
-    public function supportedExtensions(): array
-    {
-        return ['md'];
-    }
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile|FileParserError
     {

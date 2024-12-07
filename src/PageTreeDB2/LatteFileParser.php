@@ -15,14 +15,11 @@ class LatteFileParser implements FileParser
     private const string FrontMatterStart = "{*---\n";
     private const string FrontMatterEnd = "---*}";
 
+    public private(set) array $supportedExtensions = ['latte'];
+
     public function __construct(
         protected readonly Serde $serde = new SerdeCommon(),
     ) {}
-
-    public function supportedExtensions(): array
-    {
-        return ['latte'];
-    }
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile|FileParserError
     {

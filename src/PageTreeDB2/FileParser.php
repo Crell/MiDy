@@ -10,7 +10,7 @@ interface FileParser
      * @return array<string>
      *     A list of supported file extensions.
      */
-    public function supportedExtensions(): array;
+    public array $supportedExtensions { get; }
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile|FileParserError;
 }

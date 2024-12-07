@@ -11,16 +11,15 @@ use Crell\MiDy\PageTree\FileInterpreter\FileInterpreterError;
 use Crell\MiDy\PageTree\PageFile;
 use Crell\MiDy\PageTree\PageInformation;
 
-readonly class StaticFileParser implements FileParser
+class StaticFileParser implements FileParser
 {
-    public function __construct(
-        private StaticRoutes $config,
-    ) {}
-
-    public function supportedExtensions(): array
-    {
-        return array_keys($this->config->allowedExtensions);
+    public array $supportedExtensions {
+        get => array_keys($this->config->allowedExtensions);
     }
+
+    public function __construct(
+        private readonly StaticRoutes $config,
+    ) {}
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile|FileParserError
     {

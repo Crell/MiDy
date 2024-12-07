@@ -7,16 +7,13 @@ namespace Crell\MiDy\PageTreeDB2;
 use Crell\MiDy\ClassFinder;
 use Crell\MiDy\PageTreeDB2\Attributes\PageRoute;
 
-readonly class PhpFileParser implements FileParser
+class PhpFileParser implements FileParser
 {
-    public function __construct(
-        private ClassFinder $finder = new ClassFinder(),
-    ) {}
+    public private(set) array $supportedExtensions = ['php'];
 
-    public function supportedExtensions(): array
-    {
-        return ['php'];
-    }
+    public function __construct(
+        private readonly ClassFinder $finder = new ClassFinder(),
+    ) {}
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile
     {
