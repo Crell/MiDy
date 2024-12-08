@@ -12,7 +12,11 @@ class Folder implements \Countable, \IteratorAggregate
         get => $this->logicalPath ??= $this->parsedFolder->logicalPath;
     }
 
-    // @todo eventually this becomes a PageSet.
+    /**
+     * @var array<string, Page>
+     *
+     * @todo eventually this becomes a PageSet.
+     */
     public private(set) array $children {
         get => $this->children ??= $this->pageTree->pages($this->logicalPath);
     }
