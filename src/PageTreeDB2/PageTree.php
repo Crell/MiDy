@@ -40,7 +40,7 @@ class PageTree
         $files = $this->cache->readFiles($folderPath);
 
         foreach ($files as $file) {
-            $grouped[$file->logicalPath][] = $file;
+            $grouped[$file->pathName][] = $file;
         }
 
         $pages = [];

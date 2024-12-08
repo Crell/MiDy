@@ -37,6 +37,7 @@ class PhpFileParser implements FileParser
             lastModifiedDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
             frontmatter: $frontmatter,
             summary: $frontmatter->summary,
+            pathName: $basename,
         );
     }
 

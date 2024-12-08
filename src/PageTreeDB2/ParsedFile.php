@@ -22,5 +22,6 @@ class ParsedFile
         public \DateTimeImmutable $lastModifiedDate,
         public PageInformation $frontmatter,
         public string $summary,
+        public string $pathName,
     ) {}
 }

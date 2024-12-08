@@ -43,6 +43,7 @@ class StaticFileParser implements FileParser
             lastModifiedDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
             frontmatter: $frontmatter,
             summary: '',
+            pathName: $basename,
         );
     }
 }

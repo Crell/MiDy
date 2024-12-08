@@ -36,6 +36,7 @@ class PageCacheDB
             lastModifiedDate  string        not null,
             summary      TEXT    default '' not null,
             frontmatter  TEXT    default '' not null, --JSON
+            pathName     TEXT               not null,
             constraint page_pk
                 primary key (logicalPath, ext),
             foreign key (folder) references folder(logicalPath)
@@ -73,7 +74,8 @@ class PageCacheDB
             publishDate,
             lastModifiedDate,
             frontmatter,
-            summary
+            summary,
+            pathName
         )
         VALUES(
             :logicalPath,
@@ -88,7 +90,8 @@ class PageCacheDB
             :publishDate,
             :lastModifiedDate,
             :frontmatter,
-            :summary
+            :summary,
+            :pathName
         )
         ON CONFLICT(logicalPath, ext) DO UPDATE SET
             logicalPath = excluded.logicalPath,
@@ -103,7 +106,8 @@ class PageCacheDB
             publishDate = excluded.publishDate,
             lastModifiedDate = excluded.lastModifiedDate,
             frontmatter = excluded.frontmatter,
-            summary = excluded.summary
+            summary = excluded.summary,
+            pathName = excluded.pathName
     END;
 
     private const string DeleteFileSql = 'DELETE FROM file WHERE logicalPath=? AND ext=?';
@@ -185,6 +189,7 @@ class PageCacheDB
             ':lastModifiedDate' => $file->lastModifiedDate->format('c'),
             ':frontmatter' => json_encode($file->frontmatter, JSON_THROW_ON_ERROR),
             ':summary' => $file->summary,
+            ':pathName' => $file->pathName,
         ]);
     }
 
