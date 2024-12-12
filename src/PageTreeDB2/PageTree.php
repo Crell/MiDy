@@ -40,6 +40,10 @@ class PageTree
         $files = $this->cache->readFiles($folderPath);
 
         foreach ($files as $file) {
+            if (filemtime($file->physicalPath) > $file->mtime) {
+                // Need to rescan this file.
+                $file = $this->parser->parseFile(new \SplFileInfo($file->physicalPath), $file->folder);
+            }
             $grouped[$file->pathName][] = $file;
         }
 

@@ -107,4 +107,33 @@ class PageTreeTest extends TestCase
 
         self::assertCount(4, $folder);
     }
+
+    #[Test]
+    public function out_of_date_file_is_reloaded(): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        $filename = $routesPath . '/foo.md';
+
+        // Since the test runs in nanoseconds, we need to force the
+        // mtime (measured in seconds) to be in the past.
+        // We need to clear the stat cache so the updated mtime will get noticed.
+        file_put_contents($filename, '# Old');
+        touch($filename, strtotime('-10 min'));
+        clearstatcache(true, $filename);
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $folder = $tree->folder('/');
+
+        self::assertEquals('Old', $folder->children['foo']->title);
+
+        // Update the file.
+        file_put_contents($filename, '# New');
+        clearstatcache(true, $filename);
+
+        // The folder caches its children, so we cannot reuse the same object.
+        $folder = $tree->folder('/');
+        self::assertEquals('New', $folder->children['foo']->title);
+    }
 }

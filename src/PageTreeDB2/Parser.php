@@ -41,16 +41,7 @@ class Parser
             /** @var \SplFileInfo $file */
             foreach ($this->getChildIterator($physicalPath, $controlData->flatten) as $file) {
                 if ($file->isFile()) {
-                    // SPL is so damned stupid...
-                    [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
-                    $pageFile = $this->fileParser->map($file, $logicalPath, $basename);
-                    if ($pageFile instanceof FileParserError) {
-                        // @todo Log or something?
-                        continue;
-                    }
-                    $pageFile->order = $order;
-
-                    $this->cache->writeFile($pageFile);
+                    $this->parseFile($file, $logicalPath);
                 } else {
                     // It's a directory.
                     [$basename, $order] = $this->parseName($file->getFilename());
@@ -71,6 +62,21 @@ class Parser
                 }
             }
         });
+    }
+
+    public function parseFile(\SplFileInfo $file, string $folderLogicalPath): ?ParsedFile
+    {
+        // SPL is so damned stupid...
+        [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
+        $pageFile = $this->fileParser->map($file, $folderLogicalPath, $basename);
+        if ($pageFile instanceof FileParserError) {
+            // @todo Log or something?
+            return null;
+        }
+        $pageFile->order = $order;
+
+        $this->cache->writeFile($pageFile);
+        return $pageFile;
     }
 
     /**
