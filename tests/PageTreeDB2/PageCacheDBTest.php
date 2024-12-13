@@ -41,6 +41,7 @@ class PageCacheDBTest extends TestCase
             lastModifiedDate: new \DateTimeImmutable('2024-10-31'),
             frontmatter: new BasicPageInformation(),
             summary: '',
+            pathName: 'bar',
         );
     }
 
@@ -207,6 +208,7 @@ class PageCacheDBTest extends TestCase
             lastModifiedDate: new \DateTimeImmutable('2024-11-01'),
             frontmatter: new BasicPageInformation(),
             summary: '',
+            pathName: 'bar',
         );
         $cache->writeFile($newFile);
 
