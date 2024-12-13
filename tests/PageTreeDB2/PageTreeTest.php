@@ -10,7 +10,6 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -19,8 +18,12 @@ use PHPUnit\Framework\TestCase;
  *
  * Otherwise, if a .php file is parsed, it will result in double-declaration
  * of the class, and a fatal error.
+ *
+ * However! Any test run in its own process won't work with xdebug, even though
+ * phpunit process isolation is disabled.  I have no idea why.  So instead,
+ * we flag each test individually to be in its own process, so we can selectively
+ * disable that for debugging.  This makes no sense and needs to be fixed.
  */
-#[RunTestsInSeparateProcesses]
 class PageTreeTest extends TestCase
 {
     use SetupCache;
@@ -54,7 +57,7 @@ class PageTreeTest extends TestCase
         return $this->vfs = vfsStream::setup('root', null, $structure);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function can_lazy_load_folder(): void
     {
         $routesPath = $this->vfs->getChild('routes')?->url();
@@ -71,7 +74,7 @@ class PageTreeTest extends TestCase
         self::assertEquals('/subdir', $folder->logicalPath);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function can_instantiate_pages(): void
     {
         $routesPath = $this->vfs->getChild('routes')?->url();
@@ -91,7 +94,7 @@ class PageTreeTest extends TestCase
         self::assertCount(2, $folder);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function can_instantiate_supported_file_types(): void
     {
         $routesPath = $this->vfs->getChild('routes')?->url();
@@ -108,7 +111,7 @@ class PageTreeTest extends TestCase
         self::assertCount(4, $folder);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function out_of_date_file_is_reloaded(): void
     {
         $routesPath = $this->vfs->getChild('routes')?->url();
