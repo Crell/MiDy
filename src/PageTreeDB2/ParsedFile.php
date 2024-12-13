@@ -24,4 +24,15 @@ class ParsedFile
         public string $summary,
         public string $pathName,
     ) {}
+
+    public function __debugInfo(): ?array
+    {
+        return [
+            'logicalPath' => $this->logicalPath,
+            'physicalPath' => $this->physicalPath,
+            'ext' => $this->ext,
+            'title' => $this->title,
+            'mtime' => $this->mtime,
+        ];
+    }
 }

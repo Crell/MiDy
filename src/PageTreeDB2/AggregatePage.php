@@ -64,4 +64,15 @@ class AggregatePage implements Page
     {
         return $this->activeFile->hasAllTags(...$tags);
     }
+
+    public function __debugInfo(): ?array
+    {
+        return [
+            'logicalPath' => $this->path,
+            'exts' => array_keys($this->variants),
+            'title' => $this->title,
+            'routable' => $this->routable,
+            'hidden' => $this->hidden,
+        ];
+    }
 }

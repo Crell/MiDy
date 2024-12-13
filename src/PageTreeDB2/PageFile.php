@@ -53,4 +53,15 @@ class PageFile implements Page
     {
         return $this->file->frontmatter->hasAllTags(...$tags);
     }
+
+    public function __debugInfo(): ?array
+    {
+        return [
+            'logicalPath' => $this->path,
+            'ext' => $this->file->ext,
+            'title' => $this->title,
+            'routable' => $this->routable,
+            'hidden' => $this->hidden,
+        ];
+    }
 }

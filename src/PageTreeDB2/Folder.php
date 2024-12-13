@@ -35,4 +35,14 @@ class Folder implements \Countable, \IteratorAggregate
     {
         return new \ArrayIterator($this->children);
     }
+
+    public function __debugInfo(): ?array
+    {
+        return [
+            'logicalPath' => $this->logicalPath,
+            'physicalPath' => $this->parsedFolder->physicalPath,
+            'mtime' => $this->parsedFolder->mtime,
+            'children count' => count($this->children),
+        ];
+    }
 }
