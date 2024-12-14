@@ -169,4 +169,20 @@ class PageTreeTest extends TestCase
         $folder = $tree->folder('/');
         self::assertCount(2, $folder);
     }
+
+    #[Test, RunInSeparateProcess]
+    public function index_files_in_root_dont_count_toward_child_count(): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        file_put_contents($routesPath . '/first.md', '# First');
+        file_put_contents($routesPath . '/second.md', '# Second');
+        file_put_contents($routesPath . '/index.md', '# Index');
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $folder = $tree->folder('/');
+
+        // The index file in "self" should not count as a child
+        self::assertCount(2, $folder);
+    }
 }

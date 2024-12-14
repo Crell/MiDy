@@ -12,6 +12,7 @@ class Parser
 {
     private const string StripPrefix = '/^([\d_-]+)_(.*)/m';
     public const string ControlFile = 'folder.midy';
+    public const string IndexPageName = 'index';
 
     public function __construct(
         private PageCacheDB $cache,
@@ -21,7 +22,6 @@ class Parser
 
     public function parseFolder(string $physicalPath, string $logicalPath)
     {
-
         $this->cache->inTransaction(function() use ($physicalPath, $logicalPath) {
             $controlData = $this->parseControlFile($physicalPath);
 
@@ -74,6 +74,11 @@ class Parser
             return null;
         }
         $pageFile->order = $order;
+        if ($basename === self::IndexPageName) {
+            //$pageFile->logicalPath = substr($pageFile->logicalPath, 0, strpos($pageFile->logicalPath, '/' . self::IndexPageName, -1));
+            $pageFile->logicalPath = dirname($pageFile->logicalPath);
+            $pageFile->folder = $pageFile->folder === '/' ? '' : dirname($pageFile->folder);
+        }
 
         $this->cache->writeFile($pageFile);
         return $pageFile;
