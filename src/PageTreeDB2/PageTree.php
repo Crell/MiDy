@@ -12,7 +12,7 @@ class PageTree
      * @var array<string, string>
      *     A map from logical folder paths to the physical paths they correspond to.
      */
-    private array $paths = [];
+    private array $mountPoints = [];
 
     public function __construct(
         private PageCacheDB $cache,
@@ -24,7 +24,7 @@ class PageTree
 
     public function mount(string $physicalPath, string $logicalPath): void
     {
-        $this->paths[$logicalPath] = $physicalPath;
+        $this->mountPoints[$logicalPath] = $physicalPath;
     }
 
     /**
@@ -83,8 +83,8 @@ class PageTree
     private function reindexFolder(string $logicalPath): ParsedFolder
     {
         // If it's one of the mount roots, just parse that directly.
-        if (array_key_exists($logicalPath, $this->paths)) {
-            $this->parser->parseFolder($this->paths[$logicalPath], $logicalPath);
+        if (array_key_exists($logicalPath, $this->mountPoints)) {
+            $this->parser->parseFolder($this->mountPoints[$logicalPath], $logicalPath);
             return $this->cache->readFolder($logicalPath);
         }
 
