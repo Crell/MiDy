@@ -35,6 +35,11 @@ class PageTree
         return new Folder($this->loadFolder($logicalPath), $this);
     }
 
+    /**
+     * Retrieves all visible pages under the specified path.
+     *
+     * @return array<string, Page>
+     */
     public function pages(string $folderPath): array
     {
         $files = $this->cache->readFiles($folderPath);
@@ -77,9 +82,15 @@ class PageTree
      */
     private function reindexFolder(string $logicalPath): ParsedFolder
     {
+        // If it's one of the mount roots, just parse that directly.
         if (array_key_exists($logicalPath, $this->paths)) {
             $this->parser->parseFolder($this->paths[$logicalPath], $logicalPath);
+            return $this->cache->readFolder($logicalPath);
         }
+
+        // Otherwise, we need to get the logical parent folder and get its physical
+        // path, so we know what to parse.  If the parent is not yet indexed,
+        // it will get reindexed, too.
         $parts = explode('/', $logicalPath);
         $slug = array_pop($parts);
         $parent = $this->loadFolder('/' . implode('/', $parts));
