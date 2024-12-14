@@ -25,4 +25,9 @@ trait SetupCache
     {
         return $this->db ??= new \PDO('sqlite::memory:');
     }
+
+    private function dumpFilesTable(): void
+    {
+        var_dump($this->db->query("SELECT logicalPath, physicalPath, folder FROM file")->fetchAll(\PDO::FETCH_ASSOC));
+    }
 }
