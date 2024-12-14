@@ -129,7 +129,7 @@ class PageTreeTest extends TestCase
 
         $folder = $tree->folder('/');
 
-        self::assertEquals('Old', $folder->children['foo']->title);
+        self::assertEquals('Old', $folder->get('foo')->title);
 
         // Update the file.
         file_put_contents($filename, '# New');
@@ -137,7 +137,7 @@ class PageTreeTest extends TestCase
 
         // The folder caches its children, so we cannot reuse the same object.
         $folder = $tree->folder('/');
-        self::assertEquals('New', $folder->children['foo']->title);
+        self::assertEquals('New', $folder->get('foo')->title);
     }
 
     #[Test, RunInSeparateProcess]
@@ -187,7 +187,7 @@ class PageTreeTest extends TestCase
         self::assertCount(2, $folder);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function index_files_in_subdir_count_toward_parent_count(): void
     {
         $routesPath = $this->vfs->getChild('routes')?->url();

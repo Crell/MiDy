@@ -25,7 +25,7 @@ interface PageSet extends \Countable, \Traversable
      * @param int $pageNum
      *   Which page's data to show.  1-based, so page 1 is the first page.
      */
-    public function paginate(int $pageSize, int $pageNum = 1): Pagination;
+//    public function paginate(int $pageSize, int $pageNum = 1): Pagination;
 
     /**
      * Returns all pages in this set, without any filtering at all.  Use with caution.
@@ -54,10 +54,10 @@ interface PageSet extends \Countable, \Traversable
     /**
      * Filters this page set to just those items that have at least one specified tag.
      */
-    public function filterAnyTag(string ...$tags): PageSet;
+//    public function filterAnyTag(string ...$tags): PageSet;
 
     /**
      * Filters this page set to just those items that have all the specified tags.
      */
-    public function filterAllTags(string ...$tags): PageSet;
+//    public function filterAllTags(string ...$tags): PageSet;
 }
