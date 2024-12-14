@@ -20,7 +20,7 @@ class Parser
         private Serde $serde = new SerdeCommon(),
     ) {}
 
-    public function parseFolder(string $physicalPath, string $logicalPath)
+    public function parseFolder(string $physicalPath, string $logicalPath): void
     {
         $this->cache->inTransaction(function() use ($physicalPath, $logicalPath) {
             $controlData = $this->parseControlFile($physicalPath);
@@ -57,8 +57,15 @@ class Parser
                         title: $file->getBasename(),
                     // @todo What do we do with order?  Crap.
                     );
-
                     $this->cache->writeFolder($childFolder);
+
+                    // See if the folder has an index page, in which case we treat that
+                    // as the "folder".
+                    $childIndexFile = $this->getIndexFile($childFolder->physicalPath);
+                    if ($childIndexFile !== null) {
+                        $this->parseFile($childIndexFile, $childFolder->logicalPath);
+                    }
+
                 }
             }
         });
@@ -84,12 +91,20 @@ class Parser
         return $pageFile;
     }
 
+    private function getIndexFile(string $folderPhysicalPath): ?\SplFileInfo
+    {
+        $indexFilter = static fn(\SplFileInfo $f) => $f->getBasename('.' . $f->getExtension()) === self::IndexPageName;
+        $iter = new \CallbackFilterIterator($this->getChildIterator($folderPhysicalPath, false), $indexFilter);
+        $files = iterator_to_array($iter);
+        return current($files) ?: null;   // @todo More robust than guessing it's the first file.
+    }
+
     /**
      * Creates an iterator for the specified path and configuration.
      *
      * @return iterable<\SplFileInfo>
      */
-    private function getChildIterator(string $physicalPath, bool $flatten): iterable
+    private function getChildIterator(string $physicalPath, bool $flatten): \Iterator
     {
         // @todo This approach has one limitation: The order of the skipped directories has no effect.
         //   If the files themselves have a logical ordering, that's no issue. If not, that could be

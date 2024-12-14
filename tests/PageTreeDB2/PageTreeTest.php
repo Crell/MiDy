@@ -178,11 +178,34 @@ class PageTreeTest extends TestCase
         file_put_contents($routesPath . '/first.md', '# First');
         file_put_contents($routesPath . '/second.md', '# Second');
         file_put_contents($routesPath . '/index.md', '# Index');
+
         $tree = new PageTree($this->cache, $this->parser, $routesPath);
 
         $folder = $tree->folder('/');
 
         // The index file in "self" should not count as a child
         self::assertCount(2, $folder);
+    }
+
+    #[Test]
+    public function index_files_in_subdir_count_toward_parent_count(): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        mkdir($routesPath . '/sub');
+        file_put_contents($routesPath . '/first.md', '# First');
+        file_put_contents($routesPath . '/second.md', '# Second');
+        file_put_contents($routesPath . '/index.md', '# Index');
+        file_put_contents($routesPath . '/sub/child1.md', '# Child 1');
+        file_put_contents($routesPath . '/sub/child2.md', '# Child 2');
+        file_put_contents($routesPath . '/sub/index.md', '# Child Index');
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $folder = $tree->folder('/');
+
+        // The index file in "self" should not count as a child,
+        // but the sub/index page should.
+        self::assertCount(3, $folder);
     }
 }
