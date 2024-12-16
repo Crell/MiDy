@@ -85,6 +85,13 @@ class PageTree
         // If it's one of the mount roots, just parse that directly.
         if (array_key_exists($logicalPath, $this->mountPoints)) {
             $this->parser->parseFolder($this->mountPoints[$logicalPath], $logicalPath);
+            // In case there is another mount point that is an immediate child,
+            // reindex that too so we get any index file in it.
+            foreach ($this->mountPoints as $logicalMount => $physicalMount) {
+                if ($logicalMount !== $logicalPath && dirname($logicalMount) === $logicalPath) {
+                    $this->reindexFolder($logicalMount);
+                }
+            }
             return $this->cache->readFolder($logicalPath);
         }
 

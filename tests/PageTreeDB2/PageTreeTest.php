@@ -229,4 +229,61 @@ class PageTreeTest extends TestCase
 
         self::assertCount(2, $folder);
     }
+
+    #[Test, RunInSeparateProcess]
+    public function multiple_mount_points_merge_cleanly_if_direct_child(): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        $rootPath = $routesPath;
+        $adminPath = $routesPath . '/adminPages';
+        mkdir($adminPath);
+
+        file_put_contents($rootPath . '/first.md', '# First');
+        file_put_contents($rootPath . '/second.md', '# Second');
+        file_put_contents($adminPath . '/child1.md', '# Admin 1');
+        file_put_contents($adminPath . '/child2.md', '# Admin 2');
+        file_put_contents($adminPath . '/index.md', '# Admin Index');
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree->mount($adminPath, '/admin');
+
+        // Two files and the subdir, which is a mount.
+        $folder = $tree->folder('/');
+        self::assertCount(3, $folder);
+
+        $folder = $tree->folder('/admin');
+        self::assertCount(2, $folder);
+    }
+
+    #[Test, RunInSeparateProcess]
+    public function multiple_mount_points_merge_cleanly_if_deep_child(): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        $rootPath = $routesPath;
+        $adminPath = $routesPath . '/adminPages';
+        mkdir($adminPath);
+        mkdir($rootPath . '/admin');
+
+        file_put_contents($rootPath . '/first.md', '# First');
+        file_put_contents($rootPath . '/second.md', '# Second');
+        file_put_contents($adminPath . '/child1.md', '# Admin 1');
+        file_put_contents($adminPath . '/child2.md', '# Admin 2');
+        file_put_contents($adminPath . '/index.md', '# Admin Index');
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree->mount($adminPath, '/admin/sub');
+
+        // Two files and the subdir, which is a mount.
+        $folder = $tree->folder('/');
+        self::assertCount(3, $folder);
+
+        $folder = $tree->folder('/admin/sub');
+        self::assertCount(2, $folder);
+
+        // Just the subdir.
+        $folder = $tree->folder('/admin');
+        self::assertCount(1, $folder);
+    }
 }
