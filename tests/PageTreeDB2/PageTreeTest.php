@@ -208,4 +208,25 @@ class PageTreeTest extends TestCase
         // but the sub/index page should.
         self::assertCount(3, $folder);
     }
+
+    #[Test, RunInSeparateProcess]
+    public function can_access_hidden_folder_directly(): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        // sub has no index, so it won't be shown as a child of root.
+        // But we should still be able to access it if we know it's there.
+
+        mkdir($routesPath . '/sub');
+        file_put_contents($routesPath . '/first.md', '# First');
+        file_put_contents($routesPath . '/second.md', '# Second');
+        file_put_contents($routesPath . '/sub/child1.md', '# Child 1');
+        file_put_contents($routesPath . '/sub/child2.md', '# Child 2');
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $folder = $tree->folder('/sub');
+
+        self::assertCount(2, $folder);
+    }
 }
