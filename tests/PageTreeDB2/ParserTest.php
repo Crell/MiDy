@@ -69,7 +69,7 @@ class ParserTest extends TestCase
 
         $parser = new Parser($this->cache, $this->makeFileParser());
 
-        $parser->parseFolder($routesPath . '/subdir', '/subdir');
+        $parser->parseFolder($routesPath . '/subdir', '/subdir', []);
 
         $records = $this->db->query("SELECT * FROM file WHERE logicalPath='/subdir/beep'")->fetchAll(\PDO::FETCH_OBJ);
         self::assertCount(1, $records);

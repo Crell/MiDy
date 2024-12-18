@@ -275,9 +275,12 @@ class PageTreeTest extends TestCase
         $tree = new PageTree($this->cache, $this->parser, $routesPath);
         $tree->mount($adminPath, '/admin/sub');
 
-        // Two files and the subdir, which is a mount.
+
+        // Two files, but the /admin folder has no files in it
+        // (because adminPages is mounted to /admin/sub), so
+        // the directory doesn't show.
         $folder = $tree->folder('/');
-        self::assertCount(3, $folder);
+        self::assertCount(2, $folder);
 
         $folder = $tree->folder('/admin/sub');
         self::assertCount(2, $folder);

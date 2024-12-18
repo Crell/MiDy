@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-use function Crell\fp\prop;
-
 class PageTree
 {
     /**
@@ -84,7 +82,7 @@ class PageTree
     {
         // If it's one of the mount roots, just parse that directly.
         if (array_key_exists($logicalPath, $this->mountPoints)) {
-            $this->parser->parseFolder($this->mountPoints[$logicalPath], $logicalPath);
+            $this->parser->parseFolder($this->mountPoints[$logicalPath], $logicalPath, $this->mountPoints);
             // In case there is another mount point that is an immediate child,
             // reindex that too so we get any index file in it.
             foreach ($this->mountPoints as $logicalMount => $physicalMount) {
@@ -100,8 +98,9 @@ class PageTree
         // it will get reindexed, too.
         $parts = explode('/', $logicalPath);
         $slug = array_pop($parts);
-        $parent = $this->loadFolder('/' . implode('/', $parts));
-        $this->parser->parseFolder($parent->physicalPath . '/' . $slug, $logicalPath);
+        $parentFolderPath = '/' . implode('/', array_filter($parts));
+        $parent = $this->loadFolder($parentFolderPath);
+        $this->parser->parseFolder($parent->physicalPath . '/' . $slug, $logicalPath, $this->mountPoints);
         return $this->cache->readFolder($logicalPath);
     }
 }

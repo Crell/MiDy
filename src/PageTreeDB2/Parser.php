@@ -20,9 +20,9 @@ class Parser
         private Serde $serde = new SerdeCommon(),
     ) {}
 
-    public function parseFolder(string $physicalPath, string $logicalPath): void
+    public function parseFolder(string $physicalPath, string $logicalPath, array $mounts): void
     {
-        $this->cache->inTransaction(function() use ($physicalPath, $logicalPath) {
+        $this->cache->inTransaction(function() use ($physicalPath, $logicalPath, $mounts) {
             $controlData = $this->parseControlFile($physicalPath);
 
             // Rebuild the folder record.
@@ -46,6 +46,15 @@ class Parser
                     // It's a directory.
                     [$basename, $order] = $this->parseName($file->getFilename());
                     $childPhysicalPath = $file->getPathname();
+
+                    // I really dislike needing to pass the mounts list in here,
+                    // but I don't know of another way to be able to get a logical
+                    // name for the folder that doesn't match the physical path,
+                    // when the folder is a mount point.
+                    if ($key = array_find_key($mounts, static fn(string $val, string $key) => $val === $physicalPath . '/' . $basename)) {
+                        $basename = trim($key, '/');
+                    }
+
                     $childLogicalPath = rtrim($logicalPath, '/') . '/' . $basename;
                     $childControlData = $this->parseControlFile($childPhysicalPath);
 
