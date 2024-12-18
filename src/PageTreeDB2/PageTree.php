@@ -61,6 +61,15 @@ class PageTree
         return $pages;
     }
 
+    public function reindexAll(string $logicalRoot = '/'): void
+    {
+        $this->reindexFolder($logicalRoot);
+
+        foreach ($this->cache->childFolders($logicalRoot) as $child) {
+            $this->reindexAll($child->logicalPath);
+        }
+    }
+
     private function loadFolder(string $logicalPath): ParsedFolder
     {
         $folder = $this->cache->readFolder($logicalPath);

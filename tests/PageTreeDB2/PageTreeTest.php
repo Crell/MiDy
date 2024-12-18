@@ -289,4 +289,39 @@ class PageTreeTest extends TestCase
         $folder = $tree->folder('/admin');
         self::assertCount(1, $folder);
     }
+
+    #[Test, RunInSeparateProcess]
+    public function deep_reindex_finds_all_files(): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        $rootPath = $routesPath;
+        $adminPath = $routesPath . '/adminPages';
+        mkdir($adminPath);
+        mkdir($rootPath . '/admin');
+        mkdir($rootPath . '/sub');
+        mkdir($rootPath . '/sub/sub');
+        mkdir($rootPath . '/sub/sub/sub');
+
+        file_put_contents($rootPath . '/first.md', '# First');
+        file_put_contents($rootPath . '/second.md', '# Second');
+        file_put_contents($rootPath . '/sub/sub1.md', '# Child 1');
+        file_put_contents($rootPath . '/sub/sub2.md', '# Child 2');
+        file_put_contents($rootPath . '/sub/sub/grandchild1.md', '# Grandchild 1');
+        file_put_contents($rootPath . '/sub/sub/grandchild2.md', '# Grandchild 2');
+        file_put_contents($rootPath . '/sub/sub/index.md', '# Grandchild Index');
+        file_put_contents($adminPath . '/child1.md', '# Admin 1');
+        file_put_contents($adminPath . '/child2.md', '# Admin 2');
+        file_put_contents($adminPath . '/index.md', '# Admin Index');
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree->mount($adminPath, '/admin');
+
+        $tree->reindexAll();
+
+        // Every file above should be found here as a page.
+        $stmt = $this->db->query("SELECT COUNT(*) FROM file");
+        $count = $stmt->fetchColumn();
+        self::assertEquals(10, $count);
+    }
 }
