@@ -10,9 +10,10 @@ class PageCacheDB
 {
     private const string FolderTableDdl = <<<END
         create table folder (
-            logicalPath  varchar               not null
+            logicalPath  text               not null
                 primary key,
-            physicalPath varchar               not null,
+            physicalPath text               not null,
+            parent       text                  not null,
             flatten      int     default 0     not null,
             mtime        integer               not null,
             title        string                not null
@@ -46,11 +47,12 @@ class PageCacheDB
 
     private const string WriteFolderSql = <<<END
         INSERT INTO
-        folder (logicalPath, physicalPath, flatten, mtime, title)
-        VALUES(:logicalPath, :physicalPath, :flatten, :mtime, :title)
+        folder (logicalPath, physicalPath, parent, flatten, mtime, title)
+        VALUES(:logicalPath, :physicalPath, :parent, :flatten, :mtime, :title)
         ON CONFLICT(logicalPath) DO UPDATE SET
             logicalPath = excluded.logicalPath,
             physicalPath = excluded.physicalPath,
+            parent = excluded.parent,
             flatten = excluded.flatten,
             mtime = excluded.mtime,
             title = excluded.title
@@ -58,6 +60,7 @@ class PageCacheDB
 
     private const string DeleteFolderSql = 'DELETE FROM folder WHERE logicalPath=?';
     private const string ReadFolderSql = 'SELECT * FROM folder WHERE logicalPath=?';
+    private const string ChildFoldersSql = 'SELECT * FROM folder WHERE parent=?';
 
     private const string WriteFileSql = <<<END
         INSERT INTO
@@ -117,6 +120,7 @@ class PageCacheDB
     private \PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
     private \PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
     private \PDOStatement $deleteFolderStmt { get => $this->deleteFolderStmt ??= $this->conn->prepare(self::DeleteFolderSql); }
+    private \PDOStatement $childFolderStmt { get => $this->childFolderStmt ??= $this->conn->prepare(self::ChildFoldersSql); }
 
     private \PDOStatement $writeFileStmt { get => $this->writeFileStmt ??= $this->conn->prepare(self::WriteFileSql); }
     private \PDOStatement $readFileStmt { get => $this->readFileStmt ??= $this->conn->prepare(self::ReadFileSql); }
@@ -147,6 +151,7 @@ class PageCacheDB
         $this->writeFolderStmt->execute([
             'logicalPath' => $folder->logicalPath,
             'physicalPath' => $folder->physicalPath,
+            'parent' => $folder->parent,
             'flatten' => $folder->flatten,
             'mtime' => $folder->mtime,
             'title' => $folder->title,
@@ -160,9 +165,8 @@ class PageCacheDB
         if (!$record) {
             return null;
         }
-        // SQLite gives back badly typed data, so we have to clean it up a bit.
-        $record['flatten'] = (bool)$record['flatten'];
-        return new ParsedFolder(...$record);
+
+        return $this->instantiateFolder($record);
     }
 
     /**
@@ -171,6 +175,15 @@ class PageCacheDB
     public function deleteFolder(string $logicalPath): void
     {
         $this->deleteFolderStmt->execute([$logicalPath]);
+    }
+
+    /**
+     * @return array<ParsedFolder>
+     */
+    public function childFolders(string $parentLogicalPath): array
+    {
+        $this->childFolderStmt->execute([$parentLogicalPath]);
+        return array_map($this->instantiateFolder(...), $this->childFolderStmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
     public function writeFile(ParsedFile $file): void
@@ -207,7 +220,6 @@ class PageCacheDB
         }
 
         return $this->instantiateFile($record);
-
     }
 
     /**
@@ -229,6 +241,17 @@ class PageCacheDB
         $record['frontmatter'] = new BasicPageInformation($record['frontmatter']);
 
         return new ParsedFile(...$record);
+    }
+
+    private function instantiateFolder(array $record): ParsedFolder
+    {
+        // Parent isn't part of the constructor.  It's just a derived field,
+        // so skip it.
+        unset($record['parent']);
+
+        // SQLite gives back badly typed data, so we have to clean it up a bit.
+        $record['flatten'] = (bool)$record['flatten'];
+        return new ParsedFolder(...$record);
     }
 
     public function inTransaction(\Closure $closure): mixed

@@ -8,13 +8,17 @@ use Crell\MiDy\PageTree\FolderDef;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 
-readonly class ParsedFolder
+class ParsedFolder
 {
+    public string $parent {
+        get => $this->logicalPath === '/' ? '' : dirname($this->logicalPath);
+    }
+
     public function __construct(
-        public string $logicalPath,
-        public string $physicalPath,
-        public int $mtime,
-        public bool $flatten,
-        public string $title,
+        public readonly string $logicalPath,
+        public readonly string $physicalPath,
+        public readonly int $mtime,
+        public readonly bool $flatten,
+        public readonly string $title,
     ) {}
 }
