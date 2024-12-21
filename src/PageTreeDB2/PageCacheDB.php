@@ -41,9 +41,22 @@ class PageCacheDB
             constraint page_pk
                 primary key (logicalPath, ext),
             foreign key (folder) references folder(logicalPath)
-                on delete cascade 
+                on delete cascade
         );
     END;
+
+    private const string FileTagTableDdl = <<<END
+        create table file_tag (
+            logicalPath varchar not null,
+            ext varchar not null,
+            tag varchar not null,
+            constraint page_pk
+                primary key (logicalPath, ext, tag),
+            foreign key (logicalPath, ext) references file(logicalPath, ext)
+                on delete cascade
+        );
+    END;
+
 
     private const string WriteFolderSql = <<<END
         INSERT INTO
@@ -116,6 +129,11 @@ class PageCacheDB
     private const string DeleteFileSql = 'DELETE FROM file WHERE logicalPath=? AND ext=?';
     private const string ReadFileSql = 'SELECT * FROM file WHERE logicalPath=? AND ext=?';
     private const string ReadFilesSql = 'SELECT * FROM file WHERE folder=? ORDER BY "order", title';
+    private const string DeleteTagSql = 'DELETE FROM file_tag WHERE logicalPath=? AND ext=?';
+    private const string WriteTagSql = <<<END
+        INSERT INTO file_tag (logicalPath, ext, tag) VALUES (:logicalPath, :ext, :tag)
+        ON CONFLICT (logicalPath, ext, tag) DO NOTHING
+    END;
 
     private \PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
     private \PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
@@ -127,6 +145,8 @@ class PageCacheDB
     private \PDOStatement $readFilesStmt { get => $this->readFilesStmt ??= $this->conn->prepare(self::ReadFilesSql); }
     private \PDOStatement $deleteFileStmt { get => $this->deleteFileStmt ??= $this->conn->prepare(self::DeleteFileSql); }
 
+    private \PDOStatement $deleteTagsStmt { get => $this->deleteTagsStmt ??= $this->conn->prepare(self::DeleteTagSql); }
+    private \PDOStatement $writeTagsStmt { get => $this->writeTagsStmt ??= $this->conn->prepare(self::WriteTagSql); }
 
     public function __construct(
         private \PDO $conn,
@@ -140,9 +160,11 @@ class PageCacheDB
         $this->inTransaction(function (\PDO $conn) {
             $conn->exec('DROP TABLE IF EXISTS file');
             $conn->exec('DROP TABLE IF EXISTS folder');
+            $conn->exec('DROP TABLE IF EXISTS file_tag');
 
             $conn->exec(self::FolderTableDdl);
             $conn->exec(self::FileTableDdl);
+            $conn->exec(self::FileTagTableDdl);
         });
     }
 
@@ -204,6 +226,15 @@ class PageCacheDB
             ':summary' => $file->summary,
             ':pathName' => $file->pathName,
         ]);
+
+        $this->deleteTagsStmt->execute([$file->logicalPath, $file->ext]);
+        foreach ($file->frontmatter->tags as $tag) {
+            $this->writeTagsStmt->execute([
+                ':logicalPath' => $file->logicalPath,
+                ':ext' => $file->ext,
+                ':tag' => $tag,
+            ]);
+        }
     }
 
     public function deleteFile(string $logicalPath, string $ext): void

@@ -30,4 +30,9 @@ trait SetupCache
     {
         var_dump($this->db->query("SELECT logicalPath, physicalPath, folder FROM file")->fetchAll(\PDO::FETCH_ASSOC));
     }
+
+    private function dumpTagsTable(): void
+    {
+        var_dump($this->db->query("SELECT * FROM file_tag")->fetchAll(\PDO::FETCH_ASSOC));
+    }
 }

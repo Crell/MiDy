@@ -324,4 +324,36 @@ class PageTreeTest extends TestCase
         $count = $stmt->fetchColumn();
         self::assertEquals(10, $count);
     }
+
+    #[Test]
+    public function tags_are_indexed(): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        file_put_contents($routesPath . '/first.md', <<<END
+        ---
+        title: First
+        tags: [first, page]
+        ---
+        First page
+        END);
+        file_put_contents($routesPath . '/second.md', <<<END
+        ---
+        title: Second
+        tags: [second, page]
+        ---
+        Second page
+        END);
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $tree->reindexAll();
+
+        $stmt = $this->db->query("SELECT COUNT(*) FROM file_tag");
+        $count = $stmt->fetchColumn();
+        self::assertEquals(4, $count);
+        $stmt = $this->db->query("SELECT DISTINCT tag FROM file_tag");
+        $records = $stmt->fetchAll();
+        self::assertCount(3, $records);
+    }
 }
