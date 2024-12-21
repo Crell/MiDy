@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTreeDB2;
 
 use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\Serde\Serde;
+use Crell\Serde\SerdeCommon;
 
 class PageCacheDB
 {
@@ -150,6 +152,7 @@ class PageCacheDB
 
     public function __construct(
         private \PDO $conn,
+        private Serde $serde = new SerdeCommon(),
     ) {}
 
     /**
@@ -269,7 +272,7 @@ class PageCacheDB
         $record['routable'] = (bool)$record['routable'];
         $record['publishDate'] = new \DateTimeImmutable($record['publishDate']);
         $record['lastModifiedDate'] = new \DateTimeImmutable($record['lastModifiedDate']);
-        $record['frontmatter'] = new BasicPageInformation($record['frontmatter']);
+        $record['frontmatter'] = $this->serde->deserialize($record['frontmatter'], from: 'json', to: BasicPageInformation::class);
 
         return new ParsedFile(...$record);
     }
