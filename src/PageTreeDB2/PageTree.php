@@ -61,6 +61,12 @@ class PageTree
         return $pages;
     }
 
+    public function page(string $path): ?Page
+    {
+        // @todo We can make this faster, no question.
+        return $this->folder(dirname($path))->get(basename($path));
+    }
+
     public function reindexAll(string $logicalRoot = '/'): void
     {
         $this->reindexFolder($logicalRoot);

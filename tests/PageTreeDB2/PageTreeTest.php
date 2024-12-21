@@ -325,7 +325,7 @@ class PageTreeTest extends TestCase
         self::assertEquals(10, $count);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function tags_are_indexed(): void
     {
         $routesPath = $this->vfs->getChild('routes')?->url();
@@ -355,5 +355,8 @@ class PageTreeTest extends TestCase
         $stmt = $this->db->query("SELECT DISTINCT tag FROM file_tag");
         $records = $stmt->fetchAll();
         self::assertCount(3, $records);
+
+        $page = $tree->page('/first');
+        self::assertEquals(['first', 'page'], $page->tags);
     }
 }
