@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Router\HandlerRouter;
 
-use Crell\MiDy\PageHandlers\SupportsTrailingPath;
-use Crell\MiDy\PageTree\Folder;
 use Crell\MiDy\PageTree\RootFolder;
+use Crell\MiDy\PageHandlers\SupportsTrailingPath;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
