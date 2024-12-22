@@ -23,10 +23,14 @@ class Parser
         private Serde $serde = new SerdeCommon(),
     ) {}
 
-    public function parseFolder(string $physicalPath, string $logicalPath, array $mounts): void
+    public function parseFolder(string $physicalPath, string $logicalPath, array $mounts): bool
     {
-        $this->cache->inTransaction(function() use ($physicalPath, $logicalPath, $mounts) {
+        return $this->cache->inTransaction(function() use ($physicalPath, $logicalPath, $mounts) {
             $controlData = $this->parseControlFile($physicalPath);
+
+            if (!file_exists($physicalPath)) {
+                return false;
+            }
 
             // Rebuild the folder record.
             $this->cache->deleteFolder($logicalPath);
@@ -80,6 +84,9 @@ class Parser
 
                 }
             }
+
+            // The folder was parsed successfully.
+            return true;
         });
     }
 
