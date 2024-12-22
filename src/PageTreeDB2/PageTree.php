@@ -30,9 +30,10 @@ class PageTree
     /**
      * Returns the Folder read-object for this path.
      */
-    public function folder(string $logicalPath): Folder
+    public function folder(string $logicalPath): ?Folder
     {
-        return new Folder($this->loadFolder($logicalPath), $this);
+        $data = $this->loadFolder($logicalPath);
+        return $data ? new Folder($data, $this) : null;
     }
 
     /**
@@ -44,6 +45,7 @@ class PageTree
     {
         $files = $this->cache->readFiles($folderPath);
 
+        $grouped = [];
         foreach ($files as $file) {
             if (filemtime($file->physicalPath) > $file->mtime) {
                 // Need to rescan this file.
@@ -66,7 +68,7 @@ class PageTree
     public function page(string $path): ?Page
     {
         // @todo We can make this faster, no question.
-        return $this->folder(dirname($path))->get(basename($path));
+        return $this->folder(dirname($path))?->get(basename($path));
     }
 
     public function reindexAll(string $logicalRoot = '/'): void
@@ -78,7 +80,7 @@ class PageTree
         }
     }
 
-    private function loadFolder(string $logicalPath): ParsedFolder
+    private function loadFolder(string $logicalPath): ?ParsedFolder
     {
         $folder = $this->cache->readFolder($logicalPath);
 
@@ -91,15 +93,16 @@ class PageTree
 
     /**
      * Re-parse a folder at a given location by reparsing its parent's contents.
-     *
-     * @param string $logicalPath
-     * @return ParsedFolder
      */
-    private function reindexFolder(string $logicalPath): ParsedFolder
+    private function reindexFolder(string $logicalPath): ?ParsedFolder
     {
         // If it's one of the mount roots, just parse that directly.
         if (array_key_exists($logicalPath, $this->mountPoints)) {
-            $this->parser->parseFolder($this->mountPoints[$logicalPath], $logicalPath, $this->mountPoints);
+            $ret = $this->parser->parseFolder($this->mountPoints[$logicalPath], $logicalPath, $this->mountPoints);
+            // In case of parser error, fail here.
+            if (!$ret) {
+                return null;
+            }
             // In case there is another mount point that is an immediate child,
             // reindex that too so we get any index file in it.
             foreach ($this->mountPoints as $logicalMount => $physicalMount) {
@@ -117,7 +120,14 @@ class PageTree
         $slug = array_pop($parts);
         $parentFolderPath = '/' . implode('/', array_filter($parts));
         $parent = $this->loadFolder($parentFolderPath);
-        $this->parser->parseFolder($parent->physicalPath . '/' . $slug, $logicalPath, $this->mountPoints);
+        if (!$parent) {
+            return null;
+        }
+        $ret = $this->parser->parseFolder($parent->physicalPath . '/' . $slug, $logicalPath, $this->mountPoints);
+        // In case of parser error, fail here.
+        if (!$ret) {
+            return null;
+        }
         return $this->cache->readFolder($logicalPath);
     }
 }
