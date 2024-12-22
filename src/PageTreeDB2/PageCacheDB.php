@@ -7,6 +7,7 @@ namespace Crell\MiDy\PageTreeDB2;
 use Crell\MiDy\PageTree\BasicPageInformation;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
+use Psr\Log\LoggerInterface;
 
 class PageCacheDB
 {
@@ -153,6 +154,7 @@ class PageCacheDB
     public function __construct(
         private \PDO $conn,
         private Serde $serde = new SerdeCommon(),
+        private ?LoggerInterface $logger = null,
     ) {}
 
     /**
@@ -297,6 +299,7 @@ class PageCacheDB
             return $ret;
         } catch (\Exception $e) {
             $this->conn->rollBack();
+            $this->logger?->error($e->getMessage(), ['exception' => $e]);
             return null;
         }
     }

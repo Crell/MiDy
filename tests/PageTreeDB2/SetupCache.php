@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
+use Crell\MiDy\ConsoleLogger;
 use PHPUnit\Framework\Attributes\Before;
 
 trait SetupCache
@@ -15,7 +16,7 @@ trait SetupCache
     #[Before(priority: 15)]
     public function setupCache(): PageCacheDB
     {
-        $this->cache ??= new PageCacheDB($this->db);
+        $this->cache ??= new PageCacheDB(conn: $this->db, logger: new ConsoleLogger());
         $this->cache->reinitialize();
         return $this->cache;
     }
