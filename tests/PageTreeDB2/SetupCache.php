@@ -12,7 +12,7 @@ trait SetupCache
 
     private \PDO $db;
 
-    #[Before]
+    #[Before(priority: 15)]
     public function setupCache(): PageCacheDB
     {
         $this->cache ??= new PageCacheDB($this->db);
@@ -20,7 +20,7 @@ trait SetupCache
         return $this->cache;
     }
 
-    #[Before]
+    #[Before(priority: 20)]
     public function setupMockDb(): \PDO
     {
         return $this->db ??= new \PDO('sqlite::memory:');
