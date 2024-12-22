@@ -2,13 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTreeDB2;
+namespace Crell\MiDy\PageTreeDB2\Parser;
 
 use Crell\MiDy\MarkdownDeserializer\MarkdownError;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
-use Crell\MiDy\PageTree\FileInterpreter\FileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\FileInterpreterError;
-use Crell\MiDy\PageTree\PageFile;
+use Crell\MiDy\PageTreeDB2\ParsedFile;
 
 class MarkdownLatteFileParser implements FileParser
 {

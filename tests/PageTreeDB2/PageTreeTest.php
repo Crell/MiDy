@@ -6,6 +6,12 @@ namespace Crell\MiDy\PageTreeDB2;
 
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
+use Crell\MiDy\PageTreeDB2\Parser\LatteFileParser;
+use Crell\MiDy\PageTreeDB2\Parser\MarkdownLatteFileParser;
+use Crell\MiDy\PageTreeDB2\Parser\MultiplexedFileParser;
+use Crell\MiDy\PageTreeDB2\Parser\Parser;
+use Crell\MiDy\PageTreeDB2\Parser\PhpFileParser;
+use Crell\MiDy\PageTreeDB2\Parser\StaticFileParser;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\Before;

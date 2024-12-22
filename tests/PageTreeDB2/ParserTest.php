@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-use Crell\MiDy\ClassFinder;
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
-use Crell\MiDy\PageTree\FileInterpreter\FileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\LatteFileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\MarkdownLatteFileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\MultiplexedFileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\PhpFileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\StaticFileInterpreter;
+use Crell\MiDy\PageTreeDB2\Parser\FileParser;
+use Crell\MiDy\PageTreeDB2\Parser\MultiplexedFileParser;
+use Crell\MiDy\PageTreeDB2\Parser\Parser;
+use Crell\MiDy\PageTreeDB2\Parser\StaticFileParser;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

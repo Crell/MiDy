@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTreeDB2;
+namespace Crell\MiDy\PageTreeDB2\Parser;
 
 use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\PageTreeDB2\ParsedFile;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 

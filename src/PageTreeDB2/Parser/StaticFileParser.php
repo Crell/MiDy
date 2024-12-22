@@ -2,14 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTreeDB2;
+namespace Crell\MiDy\PageTreeDB2\Parser;
 
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\PageTree\BasicPageInformation;
-use Crell\MiDy\PageTree\FileInterpreter\FileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\FileInterpreterError;
-use Crell\MiDy\PageTree\PageFile;
-use Crell\MiDy\PageTree\PageInformation;
+use Crell\MiDy\PageTreeDB2\ParsedFile;
 
 class StaticFileParser implements FileParser
 {

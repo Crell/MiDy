@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTreeDB2;
+namespace Crell\MiDy\PageTreeDB2\Parser;
+
+use Crell\MiDy\PageTreeDB2\ParsedFile;
 
 interface FileParser
 {

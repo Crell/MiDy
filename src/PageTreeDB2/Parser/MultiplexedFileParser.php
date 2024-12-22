@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTreeDB2;
+namespace Crell\MiDy\PageTreeDB2\Parser;
+
+use Crell\MiDy\PageTreeDB2\ParsedFile;
 
 class MultiplexedFileParser implements FileParser
 {
@@ -11,7 +13,7 @@ class MultiplexedFileParser implements FileParser
     }
 
     /**
-     * @var array<string, array<FileParser>>
+     * @var FileParser
      */
     private array $parsers = [];
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
+use Crell\MiDy\PageTreeDB2\Parser\Parser;
+
 class PageTree
 {
     /**
