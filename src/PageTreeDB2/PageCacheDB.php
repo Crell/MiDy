@@ -155,7 +155,19 @@ class PageCacheDB
         private \PDO $conn,
         private Serde $serde = new SerdeCommon(),
         private ?LoggerInterface $logger = null,
-    ) {}
+    ) {
+        $this->ensureTables();
+    }
+
+    private function ensureTables(): void
+    {
+        // If there's no file table, assume there's nothing and recreate all tables.
+        $sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='file'";
+        $names = $this->conn->query($sql)->fetchColumn();
+        if (!$names) {
+            $this->reinitialize();
+        }
+    }
 
     /**
      * Recreate all tables.
