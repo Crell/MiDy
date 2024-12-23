@@ -22,6 +22,9 @@ class AggregatePage implements Page
     public bool $routable { get => $this->activeFile->routable; }
     public string $path { get => $this->logicalPath; }
 
+    /**
+     * @param array<PageFile> $variants
+     */
     public function __construct(
         protected readonly string $logicalPath,
         protected readonly array $variants,
@@ -35,7 +38,7 @@ class AggregatePage implements Page
         return $this->variants;
     }
 
-    public function variant(string $ext): ?Page
+    public function variant(string $ext): ?PageFile
     {
         return $this->variants[$ext] ?? null;
     }

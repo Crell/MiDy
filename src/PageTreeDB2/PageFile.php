@@ -24,7 +24,7 @@ class PageFile implements Page
         return [$this->file->ext => $this];
     }
 
-    public function variant(string $ext): ?Page
+    public function variant(string $ext): ?PageFile
     {
         return $ext === $this->file->ext ? $this : null;
     }

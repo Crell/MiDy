@@ -13,7 +13,7 @@ interface Page extends PageInformation
      * @return array<Page>
      */
     public function variants(): array;
-    public function variant(string $ext): ?Page;
+    public function variant(string $ext): ?PageFile;
     // Still not a huge fan of this, but...
     public function getTrailingPath(string $fullPath): array;
 }

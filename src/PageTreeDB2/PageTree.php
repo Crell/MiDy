@@ -58,7 +58,7 @@ class PageTree
         foreach ($grouped as $logicalPath => $set) {
             $pages[$logicalPath] = match(count($set)) {
                 1 => new PageFile($set[0]),
-                default => new AggregatePage($logicalPath, $set),
+                default => new AggregatePage($logicalPath, array_map(static fn(ParsedFile $f) => new PageFile($f), $set)),
             };
         }
 
