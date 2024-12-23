@@ -15,6 +15,8 @@ class PageFile implements Page
     public bool $routable { get => $this->file->routable; }
     public string $path { get => $this->file->logicalPath; }
 
+    public string $physicalPath { get => $this->file->physicalPath; }
+
     public function __construct(
         private readonly ParsedFile $file,
     ) {}
