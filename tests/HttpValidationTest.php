@@ -73,6 +73,7 @@ class HttpValidationTest extends TestCase
     public static function successGetRoutes(): iterable
     {
         return [
+            'index' => ['/'],
             'static html' => ['/html-test'],
             'latte page' => ['/latte-test'],
             'markdown page' => ['/md-test'],
