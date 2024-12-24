@@ -5,16 +5,11 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTree\Page;
-use Crell\MiDy\PageTree\PageFile;
 use Crell\MiDy\PageTree\RootFolder;
+use Crell\MiDy\PageTreeDB2\PageCacheDB;
 use Crell\MiDy\StackMiddlewareKernel;
 use DI\Attribute\Inject;
-
 use Nyholm\Psr7Server\ServerRequestCreator;
-
-use Nyholm\Psr7Server\ServerRequestCreatorInterface;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use function Crell\MiDy\ensure_dir;
@@ -24,7 +19,7 @@ readonly class AllFilePregenerator
     private array $extensionLookup;
 
     public function __construct(
-        private RootFolder $root,
+        private PageCacheDB $cache,
         private StaticRoutes $staticRoutes,
         #[Inject('paths.public')]
         private string $publicPath,
@@ -41,15 +36,13 @@ readonly class AllFilePregenerator
         // need to handle those differently.
         $this->staticPregenerator->run();
 
+        // The static pregenerator will have already reindexed the site, so
+        // we don't need to do it again.
+
         $baseRequest = $this->makeRequest();
 
-
-        // Build the home page first.
-        $this->generatePage('/', $baseRequest);
-
-        /** @var Page $page */
-        foreach ($this->root->descendants(false) as $page) {
-            $this->generatePage($page->path, $baseRequest);
+        foreach ($this->cache->allPaths() as $path) {
+            $this->generatePage($path, $baseRequest);
         }
     }
 
@@ -83,18 +76,5 @@ readonly class AllFilePregenerator
                 'Accept' => "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
             ],
         );
-    }
-
-    private function pageFileIterator(): \Generator
-    {
-        /** @var Page $page */
-        foreach ($this->root->descendants(false) as $page) {
-            yield from $page->variants();
-        }
-    }
-
-    private function filterStatic(PageFile $p): bool
-    {
-        return array_key_exists($p->ext, $this->staticRoutes->allowedExtensions);
     }
 }
