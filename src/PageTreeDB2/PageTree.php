@@ -51,7 +51,7 @@ class PageTree
                 // Need to rescan this file.
                 $file = $this->parser->parseFile(new \SplFileInfo($file->physicalPath), $file->folder);
             }
-            $grouped[$file->pathName][] = $file;
+            $grouped[$file->logicalPath][] = $file;
         }
 
         $pages = [];
