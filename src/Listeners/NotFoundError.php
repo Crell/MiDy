@@ -27,7 +27,7 @@ readonly class NotFoundError
     public function __invoke(HandleError $event): void
     {
         if ($event->error instanceof NotFound) {
-            $errorPath = $this->config->specialFilesPath . '/404';
+            $errorPath = '/' . trim($this->config->specialFilesPath, '/') . '/404';
             $request = $event->request
                 ->withMethod('GET')
                 ->withParsedBody(null)
