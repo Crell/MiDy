@@ -12,7 +12,7 @@ class Folder implements \Countable, \IteratorAggregate, PageSet
         get => $this->logicalPath ??= $this->parsedFolder->logicalPath;
     }
 
-    public private(set) PageSet $children {
+    private PageSet $children {
         get => $this->children ??= new BasicPageSet($this->pageTree->pages($this->logicalPath));
     }
 

@@ -94,9 +94,7 @@ class PageTreeTest extends TestCase
         $tree = new PageTree($this->cache, $this->parser, $routesPath);
 
         $folder = $tree->folder('/');
-        $children = $folder->children;
 
-        self::assertCount(2, $children);
         self::assertCount(2, $folder);
     }
 
