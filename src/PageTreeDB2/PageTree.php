@@ -67,8 +67,18 @@ class PageTree
 
     public function page(string $path): ?Page
     {
-        // @todo We can make this faster, no question.
-        return $this->folder(dirname($path))?->get(basename($path));
+        // We don't need the folder, but this ensures
+        // the folder has been parsed so that the files
+        // table is populated.
+        $this->folder(dirname($path));
+
+        $files = $this->cache->readPage($path);
+
+        return match(count($files)) {
+            0 => null,
+            1 => new PageFile($files[0]),
+            default => new AggregatePage($path, array_map(static fn(ParsedFile $f) => new PageFile($f), $files)),
+        };
     }
 
     public function reindexAll(string $logicalRoot = '/'): void
