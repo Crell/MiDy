@@ -86,13 +86,16 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
     {
         $info = pathinfo($name);
 
+        /** @var array<Page> $children */
         $children = iterator_to_array($this->pages);
 
-        /** @var ?Page $files */
-        $files = $children[$info['filename']] ?? null;
+        // @todo This is probably stupidly slow.
+        $key = array_find_key($children, static fn(Page $p) => $p->name === $name);
+        $page = $children[$key] ?? null;
+
         if ($info['extension'] ?? false) {
-            return $files?->variant($info['extension']);
+            return $page?->variant($info['extension']);
         }
-        return $files;
+        return $page;
     }
 }
