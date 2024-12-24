@@ -94,20 +94,27 @@ class Parser
     {
         // SPL is so damned stupid...
         [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
-        $pageFile = $this->fileParser->map($file, $folderLogicalPath, $basename);
-        if ($pageFile instanceof FileParserError) {
+        $parsedFile = $this->fileParser->map($file, $folderLogicalPath, $basename);
+        if ($parsedFile instanceof FileParserError) {
             // @todo Log or something?
             return null;
         }
-        $pageFile->order = $order;
+        $parsedFile->order = $order;
+        // In case it's an index page, we need to "shift up" some of the data
+        // since the file is standing in for its folder.
         if ($basename === self::IndexPageName) {
-            //$pageFile->logicalPath = substr($pageFile->logicalPath, 0, strpos($pageFile->logicalPath, '/' . self::IndexPageName, -1));
-            $pageFile->logicalPath = dirname($pageFile->logicalPath);
-            $pageFile->folder = $pageFile->folder === '/' ? '' : dirname($pageFile->folder);
+            // The logical path of the index page is its parent folder's path.
+            $parsedFile->logicalPath = dirname($parsedFile->logicalPath);
+            // The folder it should appear under is its folder's parent,
+            // so that it "is" a child of that parent.
+            $parsedFile->folder = dirname($parsedFile->folder);
+            // The pathName of the index page should be its folder's basename.
+            $folderParts = \explode('/', $folderLogicalPath);
+            $parsedFile->pathName = array_pop($folderParts);
         }
 
-        $this->cache->writeFile($pageFile);
-        return $pageFile;
+        $this->cache->writeFile($parsedFile);
+        return $parsedFile;
     }
 
     private function getIndexFile(string $folderPhysicalPath): ?\SplFileInfo
