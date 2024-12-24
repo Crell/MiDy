@@ -6,6 +6,7 @@ namespace Crell\MiDy\Listeners;
 
 use Crell\MiDy\Config\TemplateVariables;
 use Crell\MiDy\PageTree\RootFolder;
+use Crell\MiDy\PageTreeDB2\PageTree;
 use Crell\MiDy\Services\TemplatePreRender;
 use Crell\Tukio\Listener;
 use DI\Attribute\Inject;
@@ -18,12 +19,16 @@ readonly class TemplateGlobalVariables
         #[Inject('paths.templates')]
         private string $templatePath,
         private RootFolder $root,
+        private PageTree $tree,
     ) {}
 
     public function __invoke(TemplatePreRender $event): void
     {
         $event->args += $this->templateVariables->variables;
-        $event->args += ['templateRoot' => $this->templatePath];
-        $event->args += ['root' => $this->root];
+        $event->args += [
+            'templateRoot' => $this->templatePath,
+            'root' => $this->root,
+            'pageTree' => $this->tree,
+        ];
     }
 }
