@@ -50,6 +50,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 CMD ["php", "-a"]
 
+# Git keeps whining if I don't do this.
+RUN git config --global --add safe.directory /app
+
 ### FPM ###
 
 FROM cli AS fpm
