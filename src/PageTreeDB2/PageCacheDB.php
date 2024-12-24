@@ -139,6 +139,7 @@ class PageCacheDB
         ON CONFLICT (logicalPath, ext, tag) DO NOTHING
     END;
     private const string AllFilesSql = 'SELECT * from file';
+    private const string AllPathsSql = 'SELECT DISTINCT logicalPath from file ORDER BY logicalPath';
 
     private \PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
     private \PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
@@ -155,6 +156,7 @@ class PageCacheDB
     private \PDOStatement $writeTagsStmt { get => $this->writeTagsStmt ??= $this->conn->prepare(self::WriteTagSql); }
 
     private \PDOStatement $allFilesStmt { get => $this->allFilesStmt ??= $this->conn->prepare(self::AllFilesSql); }
+    private \PDOStatement $allPathsStmt { get => $this->allPathsStmt ??= $this->conn->prepare(self::AllPathsSql); }
 
     public function __construct(
         private \PDO $conn,
@@ -305,6 +307,15 @@ class PageCacheDB
         $this->allFilesStmt->setFetchMode(\PDO::FETCH_ASSOC);
         foreach ($this->allFilesStmt as $record) {
             yield $this->instantiateFile($record);
+        }
+    }
+
+    public function allPaths(): iterable
+    {
+        $this->allPathsStmt->execute();
+        $this->allFilesStmt->setFetchMode(\PDO::FETCH_ASSOC);
+        foreach ($this->allPathsStmt as $record) {
+            yield $record['logicalPath'];
         }
     }
 
