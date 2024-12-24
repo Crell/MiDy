@@ -19,6 +19,8 @@ class PageFile implements Page
 
     public string $physicalPath { get => $this->file->physicalPath; }
 
+    public string $ext { get => $this->file->ext; }
+
     public function __construct(
         private readonly ParsedFile $file,
     ) {}
