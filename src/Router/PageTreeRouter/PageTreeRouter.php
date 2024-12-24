@@ -6,6 +6,7 @@ namespace Crell\MiDy\Router\PageTreeRouter;
 
 use Crell\MiDy\PageTreeDB2\Page;
 use Crell\MiDy\PageTreeDB2\PageTree;
+use Crell\MiDy\PageTreeDB2\Parser\Parser;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
@@ -36,7 +37,9 @@ class PageTreeRouter implements Router
     {
         $method = $request->getMethod();
 
-        $page = $this->getPage($request->getUri()->getPath());
+        $requestPath = $request->getUri()->getPath();
+
+        $page = $this->getPage($requestPath);
 
         if ($page === null) {
             return new RouteNotFound();
@@ -77,10 +80,18 @@ class PageTreeRouter implements Router
      */
     private function getPage(string $logicalPath): ?Page
     {
+        $info = pathinfo($logicalPath);
+        if ($info['extension'] ?? false) {
+            $logicalPath = $info['dirname'] . $info['filename'];
+        }
         do {
             $page = $this->tree->page($logicalPath);
             $logicalPath = dirname($logicalPath);
         } while ($page === null && $logicalPath !== '/');
+
+        if ($info['extension'] ?? false) {
+            return $page?->variant($info['extension']);
+        }
         return $page;
     }
 }
