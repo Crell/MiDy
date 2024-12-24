@@ -76,7 +76,7 @@ class PageCacheDB
 
     private const string DeleteFolderSql = 'DELETE FROM folder WHERE logicalPath=?';
     private const string ReadFolderSql = 'SELECT * FROM folder WHERE logicalPath=?';
-    private const string ChildFoldersSql = 'SELECT * FROM folder WHERE parent=?';
+    private const string ChildFoldersSql = 'SELECT * FROM folder WHERE parent=? AND NOT parent=logicalPath';
 
     private const string WriteFileSql = <<<END
         INSERT INTO
