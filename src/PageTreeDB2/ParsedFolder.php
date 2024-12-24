@@ -11,7 +11,7 @@ use Crell\Serde\SerdeCommon;
 class ParsedFolder
 {
     public string $parent {
-        get => $this->logicalPath === '/' ? '' : dirname($this->logicalPath);
+        get => dirname($this->logicalPath);
     }
 
     public function __construct(
