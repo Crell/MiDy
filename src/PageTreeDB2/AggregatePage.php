@@ -22,6 +22,8 @@ class AggregatePage implements Page
     public bool $routable { get => $this->activeFile->routable; }
     public string $path { get => $this->logicalPath; }
 
+    public string $name { get => $this->activeFile->name; }
+
     /**
      * @param array<PageFile> $variants
      */

@@ -12,6 +12,8 @@ class PageFile implements Page
     public ?string $slug { get => $this->file->frontmatter->slug; }
     public bool $hidden { get => $this->file->hidden; }
 
+    public string $name { get => $this->file->pathName; }
+
     public bool $routable { get => $this->file->routable; }
     public string $path { get => $this->file->logicalPath; }
 

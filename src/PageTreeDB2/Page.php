@@ -10,6 +10,11 @@ interface Page extends PageInformation
     public string $path { get; }
 
     /**
+     * The (file) name of this particular page, without any path.
+     */
+    public string $name { get; }
+
+    /**
      * @return array<Page>
      */
     public function variants(): array;
