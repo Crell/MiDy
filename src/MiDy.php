@@ -24,10 +24,12 @@ use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
-use Crell\MiDy\PageHandlers\LatteHandler;
-use Crell\MiDy\PageHandlers\MarkdownLatteHandler;
-use Crell\MiDy\PageHandlers\PhpHandler;
-use Crell\MiDy\PageHandlers\StaticFileHandler;
+use Crell\MiDy\PageTreeDB2\PageTree;
+use Crell\MiDy\Router\PageTreeRouter\LatteHandler;
+use Crell\MiDy\Router\PageTreeRouter\MarkdownLatteHandler;
+use Crell\MiDy\Router\PageTreeRouter\PageTreeRouter;
+use Crell\MiDy\Router\PageTreeRouter\PhpHandler;
+use Crell\MiDy\Router\PageTreeRouter\StaticFileHandler;
 use Crell\MiDy\PageTree\AggregatePage;
 use Crell\MiDy\PageTree\Attributes\PageRoute;
 use Crell\MiDy\PageTree\BasicPageInformation;
@@ -42,6 +44,13 @@ use Crell\MiDy\PageTree\FolderParser\LocalFolderParser;
 use Crell\MiDy\PageTree\FolderRef;
 use Crell\MiDy\PageTree\PageFile;
 use Crell\MiDy\PageTree\RootFolder;
+use Crell\MiDy\PageTreeDB2\PageCacheDB;
+use Crell\MiDy\PageTreeDB2\Parser\LatteFileParser;
+use Crell\MiDy\PageTreeDB2\Parser\MarkdownLatteFileParser;
+use Crell\MiDy\PageTreeDB2\Parser\MultiplexedFileParser;
+use Crell\MiDy\PageTreeDB2\Parser\Parser;
+use Crell\MiDy\PageTreeDB2\Parser\PhpFileParser;
+use Crell\MiDy\PageTreeDB2\Parser\StaticFileParser;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter\EventRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
@@ -174,6 +183,7 @@ class MiDy implements RequestHandlerInterface
             'paths.cache.routes' => value(ensure_dir($this->cachePath . '/routes')),
             'paths.cache.config' => value(ensure_dir($this->cachePath . '/config')),
             'paths.cache.latte' => value(ensure_dir($this->cachePath . '/latte')),
+            'path.cache.routes.dsn' => value('sqlite:' . $this->cachePath . '/routes/routes.sq3'),
         ]);
 
         // General utilities
@@ -217,19 +227,20 @@ class MiDy implements RequestHandlerInterface
         // Routing
         $containerBuilder->addDefinitions([
             DelegatingRouter::class => autowire()
-                ->constructorParameter('default', get(HandlerRouter::class))
+                ->constructorParameter('default', get(PageTreeRouter::class))
+//                ->constructorParameter('default', get(HandlerRouter::class))
 //                ->method('delegateTo', '/aggregateblog', get(MappedRouter::class))
             ,
-            EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
+//            EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
             HandlerRouter::class => autowire()
                 ->constructorParameter('root', get(RootFolder::class))
-                ->method('addHandler', get(StaticFileHandler::class))
-                ->method('addHandler', get(LatteHandler::class))
-                ->method('addHandler', get(MarkdownLatteHandler::class))
-                ->method('addHandler', get(PhpHandler::class))
+                ->method('addHandler', get(\Crell\MiDy\PageHandlers\StaticFileHandler::class))
+                ->method('addHandler', get(\Crell\MiDy\PageHandlers\LatteHandler::class))
+                ->method('addHandler', get(\Crell\MiDy\PageHandlers\MarkdownLatteHandler::class))
+                ->method('addHandler', get(\Crell\MiDy\PageHandlers\PhpHandler::class))
             ,
             Router::class => get(DelegatingRouter::class),
-            MarkdownLatteHandler::class => autowire()
+            \Crell\MiDy\PageHandlers\MarkdownLatteHandler::class => autowire()
                 ->constructorParameter('templateRoot', get('paths.templates'))
             ,
              'path_cache' => autowire(FilesystemTimedCache::class)->constructor(
@@ -251,6 +262,32 @@ class MiDy implements RequestHandlerInterface
                 physicalPath: get('paths.routes'),
                 parser: get(LocalFolderParser::class),
             ),
+
+            // PageTreeDB2 version
+            \PDO::class => autowire()
+                ->constructor(get('path.cache.routes.dsn'))
+            ,
+            Parser::class => autowire()
+                ->constructorParameter('fileParser', get(MultiplexedFileParser::class))
+            ,
+            MultiplexedFileParser::class => autowire()
+                ->method('addParser', get(StaticFileParser::class))
+                ->method('addParser', get(LatteFileParser::class))
+                ->method('addParser', get(MarkdownLatteFileParser::class))
+                ->method('addParser', get(PhpFileParser::class))
+            ,
+            PageTreeRouter::class => autowire()
+                ->method('addHandler', get(StaticFileHandler::class))
+                ->method('addHandler', get(LatteHandler::class))
+                ->method('addHandler', get(MarkdownLatteHandler::class))
+                ->method('addHandler', get(PhpHandler::class))
+            ,
+            MarkdownLatteHandler::class => autowire()
+                ->constructorParameter('templateRoot', get('paths.templates'))
+            ,
+            PageTree::class => autowire()
+                ->constructorParameter('rootPhysicalPath', get('paths.routes'))
+            ,
         ]);
 
         // Tukio Event Dispatcher
@@ -283,6 +320,7 @@ class MiDy implements RequestHandlerInterface
         $containerBuilder->addDefinitions([
             NullLogger::class => autowire(),
             PrintLogger::class => autowire(),
+            ConsoleLogger::class => autowire(),
             LoggerInterface::class => get(NullLogger::class),
         ]);
 
