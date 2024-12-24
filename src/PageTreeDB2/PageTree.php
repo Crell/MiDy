@@ -43,7 +43,7 @@ class PageTree
      */
     public function pages(string $folderPath): array
     {
-        $files = $this->cache->readFiles($folderPath);
+        $files = $this->cache->readFilesForFolder($folderPath);
 
         $grouped = [];
         foreach ($files as $file) {

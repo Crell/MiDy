@@ -131,7 +131,8 @@ class PageCacheDB
 
     private const string DeleteFileSql = 'DELETE FROM file WHERE logicalPath=? AND ext=?';
     private const string ReadFileSql = 'SELECT * FROM file WHERE logicalPath=? AND ext=?';
-    private const string ReadFilesSql = 'SELECT * FROM file WHERE folder=? ORDER BY "order", title';
+    private const string ReadFilesForFolderSql = 'SELECT * FROM file WHERE folder=? AND NOT logicalPath=folder ORDER BY "order", title';
+    private const string ReadPageSql = 'SELECT * FROM file WHERE logicalPath=?';
     private const string DeleteTagSql = 'DELETE FROM file_tag WHERE logicalPath=? AND ext=?';
     private const string WriteTagSql = <<<END
         INSERT INTO file_tag (logicalPath, ext, tag) VALUES (:logicalPath, :ext, :tag)
@@ -145,7 +146,8 @@ class PageCacheDB
 
     private \PDOStatement $writeFileStmt { get => $this->writeFileStmt ??= $this->conn->prepare(self::WriteFileSql); }
     private \PDOStatement $readFileStmt { get => $this->readFileStmt ??= $this->conn->prepare(self::ReadFileSql); }
-    private \PDOStatement $readFilesStmt { get => $this->readFilesStmt ??= $this->conn->prepare(self::ReadFilesSql); }
+    private \PDOStatement $readFilesForFolderStmt { get => $this->readFilesForFolderStmt ??= $this->conn->prepare(self::ReadFilesForFolderSql); }
+    private \PDOStatement $readPageStmt { get => $this->readPageStmt ??= $this->conn->prepare(self::ReadPageSql); }
     private \PDOStatement $deleteFileStmt { get => $this->deleteFileStmt ??= $this->conn->prepare(self::DeleteFileSql); }
 
     private \PDOStatement $deleteTagsStmt { get => $this->deleteTagsStmt ??= $this->conn->prepare(self::DeleteTagSql); }
@@ -273,10 +275,19 @@ class PageCacheDB
     /**
      * @return array<ParsedFile>
      */
-    public function readFiles(string $folderPath): array
+    public function readFilesForFolder(string $folderPath): array
     {
-        $this->readFilesStmt->execute([$folderPath]);
-        return array_map($this->instantiateFile(...), $this->readFilesStmt->fetchAll(\PDO::FETCH_ASSOC));
+        $this->readFilesForFolderStmt->execute([$folderPath]);
+        return array_map($this->instantiateFile(...), $this->readFilesForFolderStmt->fetchAll(\PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * @return array<ParsedFile>
+     */
+    public function readPage(string $logicalPath): array
+    {
+        $this->readPageStmt->execute([$logicalPath]);
+        return array_map($this->instantiateFile(...), $this->readPageStmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
     private function instantiateFile(array $record): ParsedFile
