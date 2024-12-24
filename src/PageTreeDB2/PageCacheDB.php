@@ -138,6 +138,7 @@ class PageCacheDB
         INSERT INTO file_tag (logicalPath, ext, tag) VALUES (:logicalPath, :ext, :tag)
         ON CONFLICT (logicalPath, ext, tag) DO NOTHING
     END;
+    private const string AllFilesSql = 'SELECT * from file';
 
     private \PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
     private \PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
@@ -152,6 +153,8 @@ class PageCacheDB
 
     private \PDOStatement $deleteTagsStmt { get => $this->deleteTagsStmt ??= $this->conn->prepare(self::DeleteTagSql); }
     private \PDOStatement $writeTagsStmt { get => $this->writeTagsStmt ??= $this->conn->prepare(self::WriteTagSql); }
+
+    private \PDOStatement $allFilesStmt { get => $this->allFilesStmt ??= $this->conn->prepare(self::AllFilesSql); }
 
     public function __construct(
         private \PDO $conn,
@@ -288,6 +291,21 @@ class PageCacheDB
     {
         $this->readPageStmt->execute([$logicalPath]);
         return array_map($this->instantiateFile(...), $this->readPageStmt->fetchAll(\PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * This method is only for pre-generation. Never use it for other things.
+     *
+     * @return iterable<ParsedFile>
+     *     Yields the files as a generator, to avoid memory overload.
+     */
+    public function allFiles(): iterable
+    {
+        $this->allFilesStmt->execute();
+        $this->allFilesStmt->setFetchMode(\PDO::FETCH_ASSOC);
+        foreach ($this->allFilesStmt as $record) {
+            yield $this->instantiateFile($record);
+        }
     }
 
     private function instantiateFile(array $record): ParsedFile
