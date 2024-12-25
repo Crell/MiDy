@@ -56,15 +56,15 @@ class PageTree
 
         $pages = [];
         foreach ($grouped as $logicalPath => $set) {
-            $pages[$logicalPath] = match(count($set)) {
-                1 => new PageFile($set[0]),
-                default => new AggregatePage($logicalPath, array_map(static fn(ParsedFile $f) => new PageFile($f), $set)),
-            };
+            $pages[$logicalPath] = $this->makePage($logicalPath, $set);
         }
 
         return $pages;
     }
 
+    /**
+     * Loads a single page by path.
+     */
     public function page(string $path): ?Page
     {
         // We don't need the folder, but this ensures
@@ -74,11 +74,7 @@ class PageTree
 
         $files = $this->cache->readPage($path);
 
-        return match(count($files)) {
-            0 => null,
-            1 => new PageFile($files[0]),
-            default => new AggregatePage($path, array_map(static fn(ParsedFile $f) => new PageFile($f), $files)),
-        };
+        return $this->makePage($path, $files);
     }
 
     public function reindexAll(string $logicalRoot = '/'): void
@@ -139,5 +135,17 @@ class PageTree
             return null;
         }
         return $this->cache->readFolder($logicalPath);
+    }
+
+    /**
+     * @param array<ParsedFile> $files
+     */
+    private function makePage(string $logicalPath, array $files): ?Page
+    {
+        return match(count($files)) {
+            0 => null,
+            1 => new PageFile($files[0]),
+            default => new AggregatePage($logicalPath, array_map(static fn(ParsedFile $f) => new PageFile($f), $files)),
+        };
     }
 }
