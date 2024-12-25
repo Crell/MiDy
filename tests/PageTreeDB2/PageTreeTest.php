@@ -116,6 +116,26 @@ class PageTreeTest extends TestCase
     }
 
     #[Test, RunInSeparateProcess]
+    public function can_iterate_children(): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        file_put_contents($routesPath . '/static.html', 'Foo');
+        file_put_contents($routesPath . '/markdown.md', 'Bar');
+        file_put_contents($routesPath . '/latte.latte', 'Bar');
+        file_put_contents($routesPath . '/php.php', '<?php class Test {}');
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $folder = $tree->folder('/');
+
+        self::assertCount(4, $folder);
+        foreach ($folder as $page) {
+            self::assertInstanceOf(PageFile::class, $page);
+        }
+    }
+
+    #[Test, RunInSeparateProcess]
     public function out_of_date_file_is_reloaded(): void
     {
         $routesPath = $this->vfs->getChild('routes')?->url();
@@ -172,6 +192,7 @@ class PageTreeTest extends TestCase
         // We need a new folder to ensure we get fresh data.
         $folder = $tree->folder('/');
         self::assertCount(2, $folder);
+        self::assertEquals('First', $folder->get('foo')->title);
     }
 
     #[Test, RunInSeparateProcess]

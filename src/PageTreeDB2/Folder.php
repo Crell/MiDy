@@ -29,9 +29,9 @@ class Folder implements \IteratorAggregate, PageSet, Page
         return count($this->children);
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): PageSet
     {
-        return new \ArrayIterator($this->children);
+        return $this->children;
     }
 
     public function limit(int $count): PageSet
