@@ -142,10 +142,17 @@ class PageTree
      */
     private function makePage(string $logicalPath, array $files): ?Page
     {
-        return match(count($files)) {
+        $page = match(count($files)) {
             0 => null,
             1 => new PageFile($files[0]),
             default => new AggregatePage($logicalPath, array_map(static fn(ParsedFile $f) => new PageFile($f), $files)),
         };
+
+        if (($files[0] ?? null)?->isFolder) {
+            $data = $this->loadFolder($logicalPath);
+            return $data ? new Folder($data, $this, $page) : null;
+        }
+
+        return $page;
     }
 }

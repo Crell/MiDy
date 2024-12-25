@@ -6,8 +6,10 @@ namespace Crell\MiDy\PageTreeDB2;
 
 use Traversable;
 
-class Folder implements \Countable, \IteratorAggregate, PageSet
+class Folder implements \IteratorAggregate, PageSet, Page
 {
+    use FolderIndexPage;
+
     public private(set) string $logicalPath {
         get => $this->logicalPath ??= $this->parsedFolder->logicalPath;
     }
@@ -19,6 +21,7 @@ class Folder implements \Countable, \IteratorAggregate, PageSet
     public function __construct(
         private readonly ParsedFolder $parsedFolder,
         private readonly PageTree $pageTree,
+        private readonly ?Page $indexPage = null,
     ) {}
 
     public function count(): int

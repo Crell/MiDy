@@ -111,6 +111,8 @@ class Parser
             // The pathName of the index page should be its folder's basename.
             $folderParts = \explode('/', $folderLogicalPath);
             $parsedFile->pathName = array_pop($folderParts);
+            // And flag it as a file representing a folder.
+            $parsedFile->isFolder = true;
         }
 
         $this->cache->writeFile($parsedFile);

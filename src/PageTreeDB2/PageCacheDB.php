@@ -36,6 +36,7 @@ class PageCacheDB
             "order"      integer default 0  not null,
             hidden       integer default 0  not null,
             routable     integer default 0  not null,
+            isFolder     integer default 0  not null,
             publishDate  string             not null,
             lastModifiedDate  string        not null,
             summary      TEXT    default '' not null,
@@ -94,7 +95,8 @@ class PageCacheDB
             lastModifiedDate,
             frontmatter,
             summary,
-            pathName
+            pathName,
+            isFolder
         )
         VALUES(
             :logicalPath,
@@ -110,7 +112,8 @@ class PageCacheDB
             :lastModifiedDate,
             :frontmatter,
             :summary,
-            :pathName
+            :pathName,
+            :isFolder
         )
         ON CONFLICT(logicalPath, ext) DO UPDATE SET
             logicalPath = excluded.logicalPath,
@@ -126,7 +129,8 @@ class PageCacheDB
             lastModifiedDate = excluded.lastModifiedDate,
             frontmatter = excluded.frontmatter,
             summary = excluded.summary,
-            pathName = excluded.pathName
+            pathName = excluded.pathName,
+            isFolder = excluded.isFolder
     END;
 
     private const string DeleteFileSql = 'DELETE FROM file WHERE logicalPath=? AND ext=?';
@@ -249,6 +253,7 @@ class PageCacheDB
             ':frontmatter' => json_encode($file->frontmatter, JSON_THROW_ON_ERROR),
             ':summary' => $file->summary,
             ':pathName' => $file->pathName,
+            ':isFolder' => $file->isFolder,
         ]);
 
         $this->deleteTagsStmt->execute([$file->logicalPath, $file->ext]);
@@ -324,6 +329,7 @@ class PageCacheDB
         // SQLite gives back badly typed data, so we have to clean it up a bit.
         $record['hidden'] = (bool)$record['hidden'];
         $record['routable'] = (bool)$record['routable'];
+        $record['isFolder'] = (bool)$record['isFolder'];
         $record['publishDate'] = new \DateTimeImmutable($record['publishDate']);
         $record['lastModifiedDate'] = new \DateTimeImmutable($record['lastModifiedDate']);
         $record['frontmatter'] = $this->serde->deserialize($record['frontmatter'], from: 'json', to: BasicPageInformation::class);

@@ -23,6 +23,7 @@ class ParsedFile
         public PageInformation $frontmatter,
         public string $summary,
         public string $pathName,
+        public bool $isFolder = false,
     ) {}
 
     public function __debugInfo(): ?array
