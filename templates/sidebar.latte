@@ -1,4 +1,5 @@
+{varType \Crell\MiDy\PageTreeDB2\PageTree $pageTree}
 
 <nav>
-    {include menu.latte, root: $root}
+    {include menu.latte, folder: $pageTree->folder('/')}
 </nav>
