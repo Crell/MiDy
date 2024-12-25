@@ -50,6 +50,7 @@ class PageTree
             if (filemtime($file->physicalPath) > $file->mtime) {
                 // Need to rescan this file.
                 $file = $this->parser->parseFile(new \SplFileInfo($file->physicalPath), $file->folder);
+                $this->cache->writeFile($file);
             }
             $grouped[$file->logicalPath][] = $file;
         }

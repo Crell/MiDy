@@ -11,6 +11,9 @@ use Crell\MiDy\PageTreeDB2\ParsedFolder;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 
+use function Crell\fp\amap;
+use function Crell\fp\pipe;
+
 class Parser
 {
     private const string StripPrefix = '/^([\d_-]+)_(.*)/m';
@@ -44,11 +47,13 @@ class Parser
             );
             $this->cache->writeFolder($folder);
 
+            $children = new ParserFileList($controlData->order);
+
             // Now reindex every file in the folder.
             /** @var \SplFileInfo $file */
             foreach ($this->getChildIterator($physicalPath, $controlData->flatten) as $file) {
                 if ($file->isFile()) {
-                    $this->parseFile($file, $logicalPath);
+                    $children->addParsedFile($this->parseFile($file, $logicalPath));
                 } else {
                     // It's a directory.
                     [$basename, $order] = $this->parseName($file->getFilename());
@@ -79,18 +84,21 @@ class Parser
                     // as the "folder".
                     $childIndexFile = $this->getIndexFile($childFolder->physicalPath);
                     if ($childIndexFile !== null) {
-                        $this->parseFile($childIndexFile, $childFolder->logicalPath);
+                        $children->addParsedFile($this->parseFile($childIndexFile, $childFolder->logicalPath, $order));
                     }
-
                 }
             }
+
+            // Now write out all the children.  The file list object
+            // will handle sorting them on the fly.
+            pipe($children, amap($this->cache->writeFile(...)));
 
             // The folder was parsed successfully.
             return true;
         });
     }
 
-    public function parseFile(\SplFileInfo $file, string $folderLogicalPath): ?ParsedFile
+    public function parseFile(\SplFileInfo $file, string $folderLogicalPath, ?int $orderOverride = null): ?ParsedFile
     {
         // SPL is so damned stupid...
         [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
@@ -99,7 +107,7 @@ class Parser
             // @todo Log or something?
             return null;
         }
-        $parsedFile->order = $order;
+        $parsedFile->order = $orderOverride ?? $order;
         // In case it's an index page, we need to "shift up" some of the data
         // since the file is standing in for its folder.
         if ($basename === self::IndexPageName) {
@@ -115,7 +123,6 @@ class Parser
             $parsedFile->isFolder = true;
         }
 
-        $this->cache->writeFile($parsedFile);
         return $parsedFile;
     }
 
