@@ -36,7 +36,7 @@ class MarkdownLatteFileParser implements FileParser
             title: $frontmatter->title,
             folder: $parentLogicalPath,
             order: 0,
-            hidden: true,
+            hidden: $page->hidden,
             routable: true,
             publishDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
             lastModifiedDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
