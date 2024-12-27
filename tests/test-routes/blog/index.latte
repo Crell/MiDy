@@ -1,5 +1,6 @@
 {varType string $templateRoot}
 {varType \Crell\MiDy\PageTree\Folder $root}
+{varType \Crell\MiDy\PageTreeDB2\PageTree $pageTree}
 {varType array $query}
 
 {layout $templateRoot . '/layout.latte'}
@@ -7,15 +8,6 @@
 {define title}Test Page{/define}
 
 {block content}
-    {*
-    {foreach $root->find('/blog') as $page}
-        <article>
-            <h3><a href="{$page->path}">{$page->title}</a></h3>
-            <div>{$page->summary}</div>
-        </article>
-    {/foreach}
-    *}
-
     {var $pagination = $root->find('/blog')->paginate(2, $query['page'] ?? 1)}
 
     {foreach $pagination->items as $page}

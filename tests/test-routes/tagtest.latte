@@ -1,16 +1,19 @@
 {layout $templateRoot . '/layout.latte'}
 
 {varType \Crell\MiDy\PageTree\Folder $root}
+{varType \Crell\MiDy\PageTreeDB2\PageTree $pageTree}
 
 {define title}Tag Test{/define}
 
 {block content}
 
-    {foreach $root->find('/blog')->filterAnyTag('summary') as $page}
-        <article>
-            <h3><a href="{$page->path}">{$page->title}</a></h3>
-            <div>{$page->summary}</div>
-        </article>
-    {/foreach}
+{*    Need to figure out how to select all pages by tag. *}
+
+{*    {foreach $root->find('/blog')->filterAnyTag('summary') as $page}*}
+{*        <article>*}
+{*            <h3><a href="{$page->path}">{$page->title}</a></h3>*}
+{*            <div>{$page->summary}</div>*}
+{*        </article>*}
+{*    {/foreach}*}
 
 {/block}
