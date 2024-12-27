@@ -15,6 +15,7 @@ use Crell\MiDy\PageTreeDB2\Parser\StaticFileParser;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -383,5 +384,114 @@ class PageTreeTest extends TestCase
 
         $page = $tree->page('/first');
         self::assertEquals(['first', 'page'], $page->tags);
+    }
+
+    public static function limitProvider(): iterable
+    {
+        yield '3 pages, show 2' => [
+            'files' => [
+                '/page1.md' => '# Page 1',
+                '/page2.md' => '# Page 2',
+                '/page3.md' => '# Page 3',
+            ],
+            'limit' => 2,
+            'offset' => 0,
+            'expected' => 2,
+        ];
+
+        yield '3 pages, show 4' => [
+            'files' => [
+                '/page1.md' => '# Page 1',
+                '/page2.md' => '# Page 2',
+                '/page3.md' => '# Page 3',
+            ],
+            'limit' => 4,
+            'offset' => 0,
+            'expected' => 3,
+        ];
+
+        yield 'with extra route files, limited' => [
+            'files' => [
+                '/page1.md' => '# Page 1',
+                '/page2.md' => '# Page 2',
+                '/page2.latte' => 'Page 2',
+                '/page3.md' => '# Page 3',
+            ],
+            'limit' => 2,
+            'offset' => 0,
+            'expected' => 2,
+        ];
+
+        yield 'with extra route files, not limited' => [
+            'files' => [
+                '/page1.md' => '# Page 1',
+                '/page2.md' => '# Page 2',
+                '/page2.latte' => 'Page 2',
+                '/page3.md' => '# Page 3',
+            ],
+            'limit' => 4,
+            'offset' => 0,
+            'expected' => 3,
+        ];
+
+        yield 'with an index file, first' => [
+            'files' => [
+                '/index.md' => '# Index',
+                '/page2.md' => '# Page 2',
+                '/page2.latte' => 'Page 2',
+                '/page3.md' => '# Page 3',
+            ],
+            'limit' => 2,
+            'offset' => 0,
+            'expected' => 2,
+            'validator' => function (Folder $folder, BasicPageSet $pages) {
+                //self::assertNotNull($folder);
+            },
+        ];
+
+        yield 'with offset' => [
+            'files' => [
+                '/page1.md' => '# Page 1',
+                '/page2.md' => '# Page 2',
+                '/page2.latte' => 'Page 2',
+                '/page3.md' => '# Page 3',
+                '/page4.md' => '# Page 4',
+                '/page5.md' => '# Page 5',
+            ],
+            'limit' => 2,
+            'offset' => 1,
+            'expected' => 2,
+            'validator' => function (Folder $folder, BasicPageSet $pages) {
+                self::assertInstanceOf(Page::class, $pages->get('page2'));
+                self::assertInstanceOf(Page::class, $pages->get('page3'));
+            },
+        ];
+    }
+
+    /**
+     * @param array<string, string> $files
+     *   A map from file names to file contents. These files will
+     *   be created in the VFS to setup the test.
+     */
+    #[Test, DataProvider('limitProvider')]
+    public function limit(array $files, int $limit, int $offset, int $expected, ?\Closure $validator = null): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        foreach ($files as $file => $content) {
+            file_put_contents($routesPath . $file, $content);
+        }
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $folder = $tree->folder('/');
+
+        $result = $folder->limit($limit, $offset);
+
+        self::assertCount($expected, $result);
+
+        if ($validator) {
+            $validator($folder, $result);
+        }
     }
 }

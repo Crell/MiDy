@@ -41,13 +41,17 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
         return is_array($this->pages) ? new \ArrayIterator($this->pages) : $this;
     }
 
-    public function limit(int $count): PageSet
+    /**
+     * Ideally, the data set will be limited in SQL before we even get to this point.
+     * But if not, runtime limiting is possible.
+     */
+    public function limit(int $limit, int $offset): PageSet
     {
-        if (count($this->pages) <= $count) {
+        if (count($this->pages) <= $limit) {
             return $this;
         }
 
-        $limitedChildren = array_chunk(iterator_to_array($this->pages), $count, preserve_keys: true);
+        $limitedChildren = array_chunk(iterator_to_array($this->pages), $limit, preserve_keys: true);
 
         return new BasicPageSet($limitedChildren);
     }

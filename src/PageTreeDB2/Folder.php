@@ -34,9 +34,9 @@ class Folder implements \IteratorAggregate, PageSet, Page
         return $this->children;
     }
 
-    public function limit(int $count): PageSet
+    public function limit(int $limit, int $offset): PageSet
     {
-        return new BasicPageSet(new \LimitIterator(new \IteratorIterator($this->children), $count));
+        return new BasicPageSet($this->pageTree->pages($this->logicalPath, $limit, $offset));
     }
 
     public function all(): PageSet

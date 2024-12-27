@@ -41,9 +41,9 @@ class PageTree
      *
      * @return array<string, Page>
      */
-    public function pages(string $folderPath): array
+    public function pages(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): array
     {
-        $files = $this->cache->readFilesForFolder($folderPath);
+        $files = $this->cache->readFilesForFolder($folderPath, $limit, $offset);
 
         $grouped = [];
         foreach ($files as $file) {

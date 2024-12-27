@@ -135,7 +135,16 @@ class PageCacheDB
 
     private const string DeleteFileSql = 'DELETE FROM file WHERE logicalPath=? AND ext=?';
     private const string ReadFileSql = 'SELECT * FROM file WHERE logicalPath=? AND ext=?';
-    private const string ReadFilesForFolderSql = 'SELECT * FROM file WHERE folder=? AND NOT logicalPath=folder ORDER BY "order", title';
+    private const string ReadFilesForFolderSql = <<<END
+        SELECT *
+        FROM file
+            INNER JOIN (SELECT DISTINCT logicalPath
+                FROM file
+                WHERE folder=? AND NOT logicalPath=folder -- To exclude the index file
+                LIMIT ? OFFSET ?
+            ) AS paths ON paths.logicalPath=file.logicalPath
+        ORDER BY "order", title
+    END;
     private const string ReadPageSql = 'SELECT * FROM file WHERE logicalPath=?';
     private const string DeleteTagSql = 'DELETE FROM file_tag WHERE logicalPath=? AND ext=?';
     private const string WriteTagSql = <<<END
@@ -285,9 +294,9 @@ class PageCacheDB
     /**
      * @return array<ParsedFile>
      */
-    public function readFilesForFolder(string $folderPath): array
+    public function readFilesForFolder(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): array
     {
-        $this->readFilesForFolderStmt->execute([$folderPath]);
+        $this->readFilesForFolderStmt->execute([$folderPath, $limit, $offset]);
         return array_map($this->instantiateFile(...), $this->readFilesForFolderStmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
