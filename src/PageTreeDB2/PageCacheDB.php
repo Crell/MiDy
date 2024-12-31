@@ -7,6 +7,8 @@ namespace Crell\MiDy\PageTreeDB2;
 use Crell\MiDy\PageTree\BasicPageInformation;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
+use PDO;
+use PDOStatement;
 use Psr\Log\LoggerInterface;
 
 class PageCacheDB
@@ -164,26 +166,26 @@ class PageCacheDB
     END;
 
 
-    private \PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
-    private \PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
-    private \PDOStatement $deleteFolderStmt { get => $this->deleteFolderStmt ??= $this->conn->prepare(self::DeleteFolderSql); }
-    private \PDOStatement $childFolderStmt { get => $this->childFolderStmt ??= $this->conn->prepare(self::ChildFoldersSql); }
+    private PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
+    private PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
+    private PDOStatement $deleteFolderStmt { get => $this->deleteFolderStmt ??= $this->conn->prepare(self::DeleteFolderSql); }
+    private PDOStatement $childFolderStmt { get => $this->childFolderStmt ??= $this->conn->prepare(self::ChildFoldersSql); }
 
-    private \PDOStatement $writeFileStmt { get => $this->writeFileStmt ??= $this->conn->prepare(self::WriteFileSql); }
-    private \PDOStatement $readFileStmt { get => $this->readFileStmt ??= $this->conn->prepare(self::ReadFileSql); }
-    private \PDOStatement $readFilesForFolderStmt { get => $this->readFilesForFolderStmt ??= $this->conn->prepare(self::ReadFilesForFolderSql); }
-    private \PDOStatement $readPageStmt { get => $this->readPageStmt ??= $this->conn->prepare(self::ReadPageSql); }
-    private \PDOStatement $deleteFileStmt { get => $this->deleteFileStmt ??= $this->conn->prepare(self::DeleteFileSql); }
+    private PDOStatement $writeFileStmt { get => $this->writeFileStmt ??= $this->conn->prepare(self::WriteFileSql); }
+    private PDOStatement $readFileStmt { get => $this->readFileStmt ??= $this->conn->prepare(self::ReadFileSql); }
+    private PDOStatement $readFilesForFolderStmt { get => $this->readFilesForFolderStmt ??= $this->conn->prepare(self::ReadFilesForFolderSql); }
+    private PDOStatement $readPageStmt { get => $this->readPageStmt ??= $this->conn->prepare(self::ReadPageSql); }
+    private PDOStatement $deleteFileStmt { get => $this->deleteFileStmt ??= $this->conn->prepare(self::DeleteFileSql); }
 
-    private \PDOStatement $deleteTagsStmt { get => $this->deleteTagsStmt ??= $this->conn->prepare(self::DeleteTagSql); }
-    private \PDOStatement $writeTagsStmt { get => $this->writeTagsStmt ??= $this->conn->prepare(self::WriteTagSql); }
+    private PDOStatement $deleteTagsStmt { get => $this->deleteTagsStmt ??= $this->conn->prepare(self::DeleteTagSql); }
+    private PDOStatement $writeTagsStmt { get => $this->writeTagsStmt ??= $this->conn->prepare(self::WriteTagSql); }
 
-    private \PDOStatement $allFilesStmt { get => $this->allFilesStmt ??= $this->conn->prepare(self::AllFilesSql); }
-    private \PDOStatement $allPathsStmt { get => $this->allPathsStmt ??= $this->conn->prepare(self::AllPathsSql); }
-    private \PDOStatement $countPagesInFolderStmt { get => $this->countPagesInFolderStmt ??= $this->conn->prepare(self::CountPagesInFolderSql); }
+    private PDOStatement $allFilesStmt { get => $this->allFilesStmt ??= $this->conn->prepare(self::AllFilesSql); }
+    private PDOStatement $allPathsStmt { get => $this->allPathsStmt ??= $this->conn->prepare(self::AllPathsSql); }
+    private PDOStatement $countPagesInFolderStmt { get => $this->countPagesInFolderStmt ??= $this->conn->prepare(self::CountPagesInFolderSql); }
 
     public function __construct(
-        private \PDO $conn,
+        private PDO $conn,
         private Serde $serde = new SerdeCommon(),
         private ?LoggerInterface $logger = null,
     ) {
@@ -205,7 +207,7 @@ class PageCacheDB
      */
     public function reinitialize(): void
     {
-        $this->inTransaction(function (\PDO $conn) {
+        $this->inTransaction(function (PDO $conn) {
             $conn->exec('DROP TABLE IF EXISTS file');
             $conn->exec('DROP TABLE IF EXISTS folder');
             $conn->exec('DROP TABLE IF EXISTS file_tag');
@@ -231,7 +233,7 @@ class PageCacheDB
     public function readFolder(string $logicalPath): ?ParsedFolder
     {
         $this->readFolderStmt->execute([$logicalPath]);
-        $record = $this->readFolderStmt->fetch(\PDO::FETCH_ASSOC);
+        $record = $this->readFolderStmt->fetch(PDO::FETCH_ASSOC);
         if (!$record) {
             return null;
         }
@@ -253,7 +255,7 @@ class PageCacheDB
     public function childFolders(string $parentLogicalPath): array
     {
         $this->childFolderStmt->execute([$parentLogicalPath]);
-        return array_map($this->instantiateFolder(...), $this->childFolderStmt->fetchAll(\PDO::FETCH_ASSOC));
+        return array_map($this->instantiateFolder(...), $this->childFolderStmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     public function writeFile(ParsedFile $file): void
@@ -294,7 +296,7 @@ class PageCacheDB
     public function readFile(string $logicalPath, string $ext): ?ParsedFile
     {
         $this->readFileStmt->execute([$logicalPath, $ext]);
-        $record = $this->readFileStmt->fetch(\PDO::FETCH_ASSOC);
+        $record = $this->readFileStmt->fetch(PDO::FETCH_ASSOC);
         if (!$record) {
             return null;
         }
@@ -308,7 +310,7 @@ class PageCacheDB
     public function readFilesForFolder(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): array
     {
         $this->readFilesForFolderStmt->execute([$folderPath, $limit, $offset]);
-        return array_map($this->instantiateFile(...), $this->readFilesForFolderStmt->fetchAll(\PDO::FETCH_ASSOC));
+        return array_map($this->instantiateFile(...), $this->readFilesForFolderStmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     /**
@@ -317,7 +319,7 @@ class PageCacheDB
     public function readPage(string $logicalPath): array
     {
         $this->readPageStmt->execute([$logicalPath]);
-        return array_map($this->instantiateFile(...), $this->readPageStmt->fetchAll(\PDO::FETCH_ASSOC));
+        return array_map($this->instantiateFile(...), $this->readPageStmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     public function countPagesInFolder(string $folderPath): int
@@ -335,7 +337,7 @@ class PageCacheDB
     public function allFiles(): iterable
     {
         $this->allFilesStmt->execute();
-        $this->allFilesStmt->setFetchMode(\PDO::FETCH_ASSOC);
+        $this->allFilesStmt->setFetchMode(PDO::FETCH_ASSOC);
         foreach ($this->allFilesStmt as $record) {
             yield $this->instantiateFile($record);
         }
@@ -344,7 +346,7 @@ class PageCacheDB
     public function allPaths(): iterable
     {
         $this->allPathsStmt->execute();
-        $this->allFilesStmt->setFetchMode(\PDO::FETCH_ASSOC);
+        $this->allFilesStmt->setFetchMode(PDO::FETCH_ASSOC);
         foreach ($this->allPathsStmt as $record) {
             yield $record['logicalPath'];
         }
