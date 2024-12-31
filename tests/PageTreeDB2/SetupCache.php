@@ -9,9 +9,9 @@ use PHPUnit\Framework\Attributes\Before;
 
 trait SetupCache
 {
-    private PageCacheDB $cache;
+    use SetupDB;
 
-    private \PDO $db;
+    private PageCacheDB $cache;
 
     #[Before(priority: 15)]
     public function setupCache(): PageCacheDB
@@ -19,12 +19,6 @@ trait SetupCache
         $this->cache ??= new PageCacheDB(conn: $this->db, logger: new ConsoleLogger());
         $this->cache->reinitialize();
         return $this->cache;
-    }
-
-    #[Before(priority: 20)]
-    public function setupMockDb(): \PDO
-    {
-        return $this->db ??= new \PDO('sqlite::memory:');
     }
 
     private function dumpFilesTable(): void

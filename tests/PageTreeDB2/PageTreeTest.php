@@ -4,17 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
-use Crell\MiDy\PageTreeDB2\Parser\LatteFileParser;
-use Crell\MiDy\PageTreeDB2\Parser\MarkdownLatteFileParser;
-use Crell\MiDy\PageTreeDB2\Parser\MultiplexedFileParser;
-use Crell\MiDy\PageTreeDB2\Parser\Parser;
-use Crell\MiDy\PageTreeDB2\Parser\PhpFileParser;
-use Crell\MiDy\PageTreeDB2\Parser\StaticFileParser;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit\Framework\Attributes\Before;
+use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
@@ -34,47 +24,18 @@ use PHPUnit\Framework\TestCase;
 class PageTreeTest extends TestCase
 {
     use SetupCache;
-
-    protected vfsStreamDirectory $vfs;
-
-    private Parser $parser;
-
-    #[Before]
-    public function setupParser(): void
-    {
-        $fileParser = new MultiplexedFileParser();
-        $fileParser->addParser(new StaticFileParser(new StaticRoutes()));
-        $fileParser->addParser(new PhpFileParser());
-        $fileParser->addParser(new LatteFileParser());
-        $fileParser->addParser(new MarkdownLatteFileParser(new MarkdownPageLoader()));
-
-        $this->parser = new Parser($this->setupCache(), $fileParser);
-    }
-
-    #[Before]
-    public function initFilesystem(): vfsStreamDirectory
-    {
-        // This mess is because vfsstream doesn't let you create multiple streams
-        // at the same time.  Which is dumb.
-        $structure = [
-            'cache' => [],
-            'routes' => [],
-        ];
-
-        return $this->vfs = vfsStream::setup('root', null, $structure);
-    }
+    use SetupParser;
+    use SetupFilesystem;
 
     #[Test, RunInSeparateProcess]
     public function can_lazy_load_folder(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
+        file_put_contents($this->routesPath . '/foo.html', 'Foo');
+        file_put_contents($this->routesPath . '/bar.html', 'Bar');
+        file_put_contents($this->routesPath . '/folder.midy', '{"order": "Desc"}');
+        mkdir($this->routesPath . '/subdir');
 
-        file_put_contents($routesPath . '/foo.html', 'Foo');
-        file_put_contents($routesPath . '/bar.html', 'Bar');
-        file_put_contents($routesPath . '/folder.midy', '{"order": "Desc"}');
-        mkdir($routesPath . '/subdir');
-
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/subdir');
 
@@ -84,15 +45,13 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function can_instantiate_pages(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
+        file_put_contents($this->routesPath . '/single.html', 'Single');
+        file_put_contents($this->routesPath . '/double.html', 'Double, HTML');
+        file_put_contents($this->routesPath . '/double.css', 'Double, CSS');
+        file_put_contents($this->routesPath . '/folder.midy', '{"order": "Desc"}');
+        mkdir($this->routesPath . '/subdir');
 
-        file_put_contents($routesPath . '/single.html', 'Single');
-        file_put_contents($routesPath . '/double.html', 'Double, HTML');
-        file_put_contents($routesPath . '/double.css', 'Double, CSS');
-        file_put_contents($routesPath . '/folder.midy', '{"order": "Desc"}');
-        mkdir($routesPath . '/subdir');
-
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/');
 
@@ -102,14 +61,12 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function can_instantiate_supported_file_types(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
+        file_put_contents($this->routesPath . '/static.html', 'Foo');
+        file_put_contents($this->routesPath . '/markdown.md', 'Bar');
+        file_put_contents($this->routesPath . '/latte.latte', 'Bar');
+        file_put_contents($this->routesPath . '/php.php', '<?php class Test {}');
 
-        file_put_contents($routesPath . '/static.html', 'Foo');
-        file_put_contents($routesPath . '/markdown.md', 'Bar');
-        file_put_contents($routesPath . '/latte.latte', 'Bar');
-        file_put_contents($routesPath . '/php.php', '<?php class Test {}');
-
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/');
 
@@ -119,14 +76,12 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function can_iterate_children(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
+        file_put_contents($this->routesPath . '/static.html', 'Foo');
+        file_put_contents($this->routesPath . '/markdown.md', 'Bar');
+        file_put_contents($this->routesPath . '/latte.latte', 'Bar');
+        file_put_contents($this->routesPath . '/php.php', '<?php class Test {}');
 
-        file_put_contents($routesPath . '/static.html', 'Foo');
-        file_put_contents($routesPath . '/markdown.md', 'Bar');
-        file_put_contents($routesPath . '/latte.latte', 'Bar');
-        file_put_contents($routesPath . '/php.php', '<?php class Test {}');
-
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/');
 
@@ -139,9 +94,7 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function out_of_date_file_is_reloaded(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
-        $filename = $routesPath . '/foo.md';
+        $filename = $this->routesPath . '/foo.md';
 
         // Since the test runs in nanoseconds, we need to force the
         // mtime (measured in seconds) to be in the past.
@@ -150,7 +103,7 @@ class PageTreeTest extends TestCase
         touch($filename, strtotime('-10 min'));
         clearstatcache(true, $filename);
 
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/');
 
@@ -168,19 +121,17 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function out_of_date_folder_is_reloaded(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
-        $firstfile = $routesPath . '/foo.md';
-        $newfile = $routesPath . '/bar.md';
+        $firstfile = $this->routesPath . '/foo.md';
+        $newfile = $this->routesPath . '/bar.md';
 
         // Since the test runs in nanoseconds, we need to force the
         // mtime (measured in seconds) to be in the past.
         // We need to clear the stat cache so the updated mtime will get noticed.
         file_put_contents($firstfile, '# First');
-        touch($routesPath, strtotime('-10 min'));
-        clearstatcache(true, $routesPath);
+        touch($this->routesPath, strtotime('-10 min'));
+        clearstatcache(true, $this->routesPath);
 
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/');
 
@@ -188,7 +139,7 @@ class PageTreeTest extends TestCase
 
         // Add another file to the folder.
         file_put_contents($newfile, '# New');
-        clearstatcache(true, $routesPath);
+        clearstatcache(true, $this->routesPath);
 
         // We need a new folder to ensure we get fresh data.
         $folder = $tree->folder('/');
@@ -199,13 +150,11 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function index_files_in_root_dont_count_toward_child_count(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
+        file_put_contents($this->routesPath . '/first.md', '# First');
+        file_put_contents($this->routesPath . '/second.md', '# Second');
+        file_put_contents($this->routesPath . '/index.md', '# Index');
 
-        file_put_contents($routesPath . '/first.md', '# First');
-        file_put_contents($routesPath . '/second.md', '# Second');
-        file_put_contents($routesPath . '/index.md', '# Index');
-
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/');
 
@@ -216,17 +165,15 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function index_files_in_subdir_count_toward_parent_count(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
+        mkdir($this->routesPath . '/sub');
+        file_put_contents($this->routesPath . '/first.md', '# First');
+        file_put_contents($this->routesPath . '/second.md', '# Second');
+        file_put_contents($this->routesPath . '/index.md', '# Index');
+        file_put_contents($this->routesPath . '/sub/child1.md', '# Child 1');
+        file_put_contents($this->routesPath . '/sub/child2.md', '# Child 2');
+        file_put_contents($this->routesPath . '/sub/index.md', '# Child Index');
 
-        mkdir($routesPath . '/sub');
-        file_put_contents($routesPath . '/first.md', '# First');
-        file_put_contents($routesPath . '/second.md', '# Second');
-        file_put_contents($routesPath . '/index.md', '# Index');
-        file_put_contents($routesPath . '/sub/child1.md', '# Child 1');
-        file_put_contents($routesPath . '/sub/child2.md', '# Child 2');
-        file_put_contents($routesPath . '/sub/index.md', '# Child Index');
-
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/');
 
@@ -238,18 +185,16 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function can_access_hidden_folder_directly(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
         // sub has no index, so it won't be shown as a child of root.
         // But we should still be able to access it if we know it's there.
 
-        mkdir($routesPath . '/sub');
-        file_put_contents($routesPath . '/first.md', '# First');
-        file_put_contents($routesPath . '/second.md', '# Second');
-        file_put_contents($routesPath . '/sub/child1.md', '# Child 1');
-        file_put_contents($routesPath . '/sub/child2.md', '# Child 2');
+        mkdir($this->routesPath . '/sub');
+        file_put_contents($this->routesPath . '/first.md', '# First');
+        file_put_contents($this->routesPath . '/second.md', '# Second');
+        file_put_contents($this->routesPath . '/sub/child1.md', '# Child 1');
+        file_put_contents($this->routesPath . '/sub/child2.md', '# Child 2');
 
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/sub');
 
@@ -259,10 +204,8 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function multiple_mount_points_merge_cleanly_if_direct_child(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
-        $rootPath = $routesPath;
-        $adminPath = $routesPath . '/adminPages';
+        $rootPath = $this->routesPath;
+        $adminPath = $this->routesPath . '/adminPages';
         mkdir($adminPath);
 
         file_put_contents($rootPath . '/first.md', '# First');
@@ -271,7 +214,7 @@ class PageTreeTest extends TestCase
         file_put_contents($adminPath . '/child2.md', '# Admin 2');
         file_put_contents($adminPath . '/index.md', '# Admin Index');
 
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
         $tree->mount($adminPath, '/admin');
 
         // Two files and the subdir, which is a mount.
@@ -285,10 +228,8 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function multiple_mount_points_merge_cleanly_if_deep_child(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
-        $rootPath = $routesPath;
-        $adminPath = $routesPath . '/adminPages';
+        $rootPath = $this->routesPath;
+        $adminPath = $this->routesPath . '/adminPages';
         mkdir($adminPath);
         mkdir($rootPath . '/admin');
 
@@ -298,7 +239,7 @@ class PageTreeTest extends TestCase
         file_put_contents($adminPath . '/child2.md', '# Admin 2');
         file_put_contents($adminPath . '/index.md', '# Admin Index');
 
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
         $tree->mount($adminPath, '/admin/sub');
 
 
@@ -319,10 +260,8 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function deep_reindex_finds_all_files(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
-        $rootPath = $routesPath;
-        $adminPath = $routesPath . '/adminPages';
+        $rootPath = $this->routesPath;
+        $adminPath = $this->routesPath . '/adminPages';
         mkdir($adminPath);
         mkdir($rootPath . '/admin');
         mkdir($rootPath . '/sub');
@@ -340,7 +279,7 @@ class PageTreeTest extends TestCase
         file_put_contents($adminPath . '/child2.md', '# Admin 2');
         file_put_contents($adminPath . '/index.md', '# Admin Index');
 
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
         $tree->mount($adminPath, '/admin');
 
         $tree->reindexAll();
@@ -354,16 +293,14 @@ class PageTreeTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function tags_are_indexed(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
-        file_put_contents($routesPath . '/first.md', <<<END
+        file_put_contents($this->routesPath . '/first.md', <<<END
         ---
         title: First
         tags: [first, page]
         ---
         First page
         END);
-        file_put_contents($routesPath . '/second.md', <<<END
+        file_put_contents($this->routesPath . '/second.md', <<<END
         ---
         title: Second
         tags: [second, page]
@@ -371,7 +308,7 @@ class PageTreeTest extends TestCase
         Second page
         END);
 
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $tree->reindexAll();
 
@@ -476,13 +413,11 @@ class PageTreeTest extends TestCase
     #[Test, DataProvider('limitProvider')]
     public function limit(array $files, int $limit, int $offset, int $expected, ?\Closure $validator = null): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
         foreach ($files as $file => $content) {
-            file_put_contents($routesPath . $file, $content);
+            file_put_contents($this->routesPath . $file, $content);
         }
 
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/');
 
@@ -540,13 +475,11 @@ class PageTreeTest extends TestCase
     #[Test, DataProvider('paginationProvider')]
     public function paginate(array $files, int $pageSize, int $pageNum, array $expectedPages, ?\Closure $validator = null): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
         foreach ($files as $file => $content) {
-            file_put_contents($routesPath . $file, $content);
+            file_put_contents($this->routesPath . $file, $content);
         }
 
-        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
 
         $folder = $tree->folder('/');
 
