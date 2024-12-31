@@ -39,6 +39,8 @@ class PageTree
     /**
      * Retrieves all visible pages under the specified path.
      *
+     * @todo This should probably return lazily for better scalability.
+     *
      * @return array<string, Page>
      */
     public function pages(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): array
