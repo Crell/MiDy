@@ -51,13 +51,24 @@ class Folder implements \IteratorAggregate, PageSet, Page
 
     public function filter(\Closure $filter): PageSet
     {
-        return new BasicPageSet(iterator_to_array(new \CallbackFilterIterator(new \IteratorIterator($this->all()), $filter)));
+        return $this->children->filter($filter);
     }
 
     public function get(string $name): ?Page
     {
         return $this->children->get($name);
     }
+
+    public function filterAnyTag(string ...$tags): PageSet
+    {
+        return new BasicPageSet($this->pageTree->pagesAnyTag($this->logicalPath, $tags));
+    }
+
+    public function filterAllTags(string ...$tags): PageSet
+    {
+        // TODO: Implement filterAllTags() method.
+    }
+
 
     public function __debugInfo(): ?array
     {

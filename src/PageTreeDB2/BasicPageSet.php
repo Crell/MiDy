@@ -75,7 +75,7 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
 
     public function filter(\Closure $filter): PageSet
     {
-        return new BasicPageSet(iterator_to_array(new \CallbackFilterIterator(new \IteratorIterator($this), $filter)));
+        return new BasicPageSet(new \CallbackFilterIterator(new \IteratorIterator($this), $filter));
     }
 
     public function filterAnyTag(string ...$tags): PageSet

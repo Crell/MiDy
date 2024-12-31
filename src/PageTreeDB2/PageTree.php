@@ -15,8 +15,8 @@ class PageTree
     private array $mountPoints = [];
 
     public function __construct(
-        private PageCacheDB $cache,
-        private Parser $parser,
+        private readonly PageCacheDB $cache,
+        private readonly Parser $parser,
         string $rootPhysicalPath,
     ) {
         $this->mount($rootPhysicalPath, '/');
@@ -46,23 +46,13 @@ class PageTree
     public function pages(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): array
     {
         $files = $this->cache->readFilesForFolder($folderPath, $limit, $offset);
+        return $this->instantiatePages($files);
+    }
 
-        $grouped = [];
-        foreach ($files as $file) {
-            if (filemtime($file->physicalPath) > $file->mtime) {
-                // Need to rescan this file.
-                $file = $this->parser->parseFile(new \SplFileInfo($file->physicalPath), $file->folder);
-                $this->cache->writeFile($file);
-            }
-            $grouped[$file->logicalPath][] = $file;
-        }
-
-        $pages = [];
-        foreach ($grouped as $logicalPath => $set) {
-            $pages[$logicalPath] = $this->makePage($logicalPath, $set);
-        }
-
-        return $pages;
+    public function pagesAnyTag(string $folderPath, array $tags): array
+    {
+        $files = $this->cache->readPagesInFolderAnyTag($folderPath, $tags);
+        return $this->instantiatePages($files);
     }
 
     public function paginate(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
@@ -155,6 +145,31 @@ class PageTree
             return null;
         }
         return $this->cache->readFolder($logicalPath);
+    }
+
+
+    /**
+     * @param array<ParsedFile> $files
+     * @return array<Page>
+     */
+    private function instantiatePages(array $files): array
+    {
+        $grouped = [];
+        foreach ($files as $file) {
+            if (filemtime($file->physicalPath) > $file->mtime) {
+                // Need to rescan this file.
+                $file = $this->parser->parseFile(new \SplFileInfo($file->physicalPath), $file->folder);
+                $this->cache->writeFile($file);
+            }
+            $grouped[$file->logicalPath][] = $file;
+        }
+
+        $pages = [];
+        foreach ($grouped as $logicalPath => $set) {
+            $pages[$logicalPath] = $this->makePage($logicalPath, $set);
+        }
+
+        return $pages;
     }
 
     /**

@@ -165,7 +165,6 @@ class PageCacheDB
             ) AS paths ON paths.logicalPath=file.logicalPath
     END;
 
-
     private PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
     private PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
     private PDOStatement $deleteFolderStmt { get => $this->deleteFolderStmt ??= $this->conn->prepare(self::DeleteFolderSql); }
@@ -326,6 +325,37 @@ class PageCacheDB
     {
         $this->countPagesInFolderStmt->execute([$folderPath]);
         return $this->countPagesInFolderStmt->fetchColumn();
+    }
+
+    /**
+     * @param string $folderPath
+     * @param array<string> $tags
+     * @return array<ParsedFile>
+     */
+    public function readPagesInFolderAnyTag(string $folderPath, array $tags): array
+    {
+        if (!count($tags)) {
+            return [];
+        }
+
+        // SQLite doesn't support variable-count WHERE IN clauses the way Postgres does,
+        // so storing a prepared statement once won't work.
+
+        $where = '(' . implode(', ', array_fill(0, count($tags), '?')) . ')';
+
+        $query = <<<END
+            SELECT f.*
+            FROM file_tag t
+                INNER JOIN file f ON f.logicalPath = t.logicalPath AND f.ext = t.ext
+            WHERE f.folder = ?
+                AND t.tag IN $where
+            ORDER BY "order", title, physicalPath
+        END;
+
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->execute([$folderPath, ...$tags]);
+        return array_map($this->instantiateFile(...), $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     /**
