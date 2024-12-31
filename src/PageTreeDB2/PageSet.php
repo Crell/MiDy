@@ -25,7 +25,7 @@ interface PageSet extends \Countable, \Traversable
      * @param int $pageNum
      *   Which page's data to show.  1-based, so page 1 is the first page.
      */
-//    public function paginate(int $pageSize, int $pageNum = 1): Pagination;
+    public function paginate(int $pageSize, int $pageNum = 1): Pagination;
 
     /**
      * Returns all pages in this set, without any filtering at all.  Use with caution.

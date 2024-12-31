@@ -494,4 +494,79 @@ class PageTreeTest extends TestCase
             $validator($folder, $result);
         }
     }
+
+    public static function paginationProvider(): iterable
+    {
+        yield 'first page' => [
+            'files' => [
+                '/page1.md' => '# Page 1',
+                '/page2.md' => '# Page 2',
+                '/page3.md' => '# Page 3',
+                '/page4.md' => '# Page 4',
+                '/page5.md' => '# Page 5',
+            ],
+            'pageSize' => 2,
+            'pageNum' => 1,
+            'expectedPages' => ['Page 1', 'Page 2'],
+        ];
+
+        yield 'middle page' => [
+            'files' => [
+                '/page1.md' => '# Page 1',
+                '/page2.md' => '# Page 2',
+                '/page3.md' => '# Page 3',
+                '/page4.md' => '# Page 4',
+                '/page5.md' => '# Page 5',
+            ],
+            'pageSize' => 2,
+            'pageNum' => 2,
+            'expectedPages' => ['Page 3', 'Page 4'],
+        ];
+
+        yield 'last page' => [
+            'files' => [
+                '/page1.md' => '# Page 1',
+                '/page2.md' => '# Page 2',
+                '/page3.md' => '# Page 3',
+                '/page4.md' => '# Page 4',
+                '/page5.md' => '# Page 5',
+            ],
+            'pageSize' => 2,
+            'pageNum' => 3,
+            'expectedPages' => ['Page 5'],
+        ];
+    }
+
+    #[Test, DataProvider('paginationProvider')]
+    public function paginate(array $files, int $pageSize, int $pageNum, array $expectedPages, ?\Closure $validator = null): void
+    {
+        $routesPath = $this->vfs->getChild('routes')?->url();
+
+        foreach ($files as $file => $content) {
+            file_put_contents($routesPath . $file, $content);
+        }
+
+        $tree = new PageTree($this->cache, $this->parser, $routesPath);
+
+        $folder = $tree->folder('/');
+
+        $result = $folder->paginate($pageSize, $pageNum);
+
+        self::assertEquals($pageSize, $result->pageSize);
+        self::assertEquals($pageNum, $result->pageNum);
+        self::assertEquals(count($folder), $result->total);
+        self::assertEquals(ceil(count($folder)/$pageSize), $result->pageCount);
+
+        self::assertPagesMatch($expectedPages, $result->items);
+
+        if ($validator) {
+            $validator($folder, $result);
+        }
+    }
+
+    private static function assertPagesMatch(array $expectedPages, PageSet $result): void
+    {
+        $foundPages = array_values(array_map(static fn(Page $p) => $p->title, iterator_to_array($result)));
+        self::assertEquals($expectedPages, $foundPages);
+    }
 }

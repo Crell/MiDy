@@ -154,6 +154,16 @@ class PageCacheDB
     private const string AllFilesSql = 'SELECT * from file';
     private const string AllPathsSql = 'SELECT DISTINCT logicalPath from file ORDER BY logicalPath';
 
+    private const string CountPagesInFolderSql = <<<END
+      SELECT COUNT(*)
+        FROM file
+            INNER JOIN (SELECT DISTINCT logicalPath
+                FROM file
+                WHERE folder=? AND NOT logicalPath=folder -- To exclude the index file
+            ) AS paths ON paths.logicalPath=file.logicalPath
+    END;
+
+
     private \PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
     private \PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
     private \PDOStatement $deleteFolderStmt { get => $this->deleteFolderStmt ??= $this->conn->prepare(self::DeleteFolderSql); }
@@ -170,6 +180,7 @@ class PageCacheDB
 
     private \PDOStatement $allFilesStmt { get => $this->allFilesStmt ??= $this->conn->prepare(self::AllFilesSql); }
     private \PDOStatement $allPathsStmt { get => $this->allPathsStmt ??= $this->conn->prepare(self::AllPathsSql); }
+    private \PDOStatement $countPagesInFolderStmt { get => $this->countPagesInFolderStmt ??= $this->conn->prepare(self::CountPagesInFolderSql); }
 
     public function __construct(
         private \PDO $conn,
@@ -307,6 +318,12 @@ class PageCacheDB
     {
         $this->readPageStmt->execute([$logicalPath]);
         return array_map($this->instantiateFile(...), $this->readPageStmt->fetchAll(\PDO::FETCH_ASSOC));
+    }
+
+    public function countPagesInFolder(string $folderPath): int
+    {
+        $this->countPagesInFolderStmt->execute([$folderPath]);
+        return $this->countPagesInFolderStmt->fetchColumn();
     }
 
     /**

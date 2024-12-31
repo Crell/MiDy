@@ -45,7 +45,7 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
      * Ideally, the data set will be limited in SQL before we even get to this point.
      * But if not, runtime limiting is possible.
      */
-    public function limit(int $limit, int $offset): PageSet
+    public function limit(int $limit, int $offset = 0): PageSet
     {
         if (count($this->pages) <= $limit) {
             return $this;
@@ -56,20 +56,22 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
         return new BasicPageSet($limitedChildren);
     }
 
-//    public function paginate(int $pageSize, int $pageNum = 1): Pagination
-//    {
-//        $allPages = iterator_to_array($this->children);
-//        $pageChunks = array_chunk($allPages, $pageSize, preserve_keys: true);
-//
-//        return new Pagination(
-//            total: count($allPages),
-//            pageSize: $pageSize,
-//            pageCount: count($pageChunks),
-//            pageNum: $pageNum,
-//            // -1, because $pageChunks is 0-based.
-//            items: new BasicPageSet($pageChunks[$pageNum - 1]),
-//        );
-//    }
+    public function paginate(int $pageSize, int $pageNum = 1): Pagination
+    {
+        // @todo This likely won't scale well, but works for the moment.
+
+        $allPages = iterator_to_array($this->pages);
+        $pageChunks = array_chunk($allPages, $pageSize, preserve_keys: true);
+
+        return new Pagination(
+            total: count($allPages),
+            pageSize: $pageSize,
+            pageCount: count($pageChunks),
+            pageNum: $pageNum,
+            // -1, because $pageChunks is 0-based.
+            items: new BasicPageSet($pageChunks[$pageNum - 1]),
+        );
+    }
 
     public function filter(\Closure $filter): PageSet
     {

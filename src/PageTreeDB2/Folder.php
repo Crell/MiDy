@@ -34,9 +34,14 @@ class Folder implements \IteratorAggregate, PageSet, Page
         return $this->children;
     }
 
-    public function limit(int $limit, int $offset): PageSet
+    public function limit(int $limit, int $offset = 0): PageSet
     {
         return new BasicPageSet($this->pageTree->pages($this->logicalPath, $limit, $offset));
+    }
+
+    public function paginate(int $pageSize, int $pageNum = 1): Pagination
+    {
+        return $this->pageTree->paginate($this->logicalPath, $pageSize, $pageNum);
     }
 
     public function all(): PageSet

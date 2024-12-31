@@ -63,6 +63,23 @@ class PageTree
         return $pages;
     }
 
+    public function paginate(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
+    {
+        $total = $this->cache->countPagesInFolder($folderPath);
+
+        $numPages = (int)ceil($total / $pageSize);
+
+        $items = new BasicPageSet($this->pages($folderPath, $pageSize, $pageSize * ($pageNum - 1)));
+
+        return new Pagination(
+            total: $total,
+            pageSize: $pageSize,
+            pageCount: $numPages,
+            pageNum: $pageNum,
+            items: $items,
+        );
+    }
+
     /**
      * Loads a single page by path.
      */
