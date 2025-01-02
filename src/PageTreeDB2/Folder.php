@@ -41,7 +41,7 @@ class Folder implements \IteratorAggregate, PageSet, Page
 
     public function paginate(int $pageSize, int $pageNum = 1): Pagination
     {
-        return $this->pageTree->paginate($this->logicalPath, $pageSize, $pageNum);
+        return $this->pageTree->paginateFolder($this->logicalPath, $pageSize, $pageNum);
     }
 
     public function all(): PageSet
