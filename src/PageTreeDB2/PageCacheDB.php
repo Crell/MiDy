@@ -359,6 +359,46 @@ class PageCacheDB
     }
 
     /**
+     * @param string $folderPath
+     * @param array<string> $tags
+     * @return array<ParsedFile>
+     */
+    public function readPagesInFolderAllTags(string $folderPath, array $tags): array
+    {
+        if (!count($tags)) {
+            return [];
+        }
+
+        // SQLite doesn't support variable-count WHERE IN clauses the way Postgres does,
+        // so storing a prepared statement once won't work.
+
+        // @todo This is probably slow at scale.  But unless you're searching for
+        //   many tags at the same time, perhaps it doesn't matter.
+
+        $args = [$folderPath];
+
+        $where = [];
+        foreach ($tags as $tag) {
+            $where[] = "AND ? IN (SELECT tag FROM file_tag t WHERE f.logicalPath = t.logicalPath AND f.ext = t.ext)";
+            $args[] = $tag;
+        }
+
+        $where = implode(' ', $where);
+        $query = <<<END
+            SELECT f.*
+            FROM file f
+            WHERE f.folder = ?
+                $where
+            ORDER BY "order", title, physicalPath
+        END;
+
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->execute($args);
+        return array_map($this->instantiateFile(...), $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /**
      * This method is only for pre-generation. Never use it for other things.
      *
      * @return iterable<ParsedFile>

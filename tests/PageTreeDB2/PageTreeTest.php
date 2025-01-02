@@ -342,7 +342,7 @@ class PageTreeTest extends TestCase
         END);
         file_put_contents($this->routesPath . '/third.md', <<<END
         ---
-        title: Second
+        title: Third
         tags: [third]
         ---
         Second page
@@ -355,6 +355,40 @@ class PageTreeTest extends TestCase
         $result = $folder->filterAnyTag('page', 'first');
 
         self::assertPagesMatch(['First', 'Second'], $result);
+    }
+
+    #[Test]
+    public function can_query_for_all_tags(): void
+    {
+        file_put_contents($this->routesPath . '/first.md', <<<END
+        ---
+        title: First
+        tags: [first, page]
+        ---
+        First page
+        END);
+        file_put_contents($this->routesPath . '/second.md', <<<END
+        ---
+        title: Second
+        tags: [second, page]
+        ---
+        Second page
+        END);
+        file_put_contents($this->routesPath . '/third.md', <<<END
+        ---
+        title: Fake First
+        tags: [first]
+        ---
+        Second page
+        END);
+
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
+
+        $folder = $tree->folder('/');
+
+        $result = $folder->filterAllTags('page', 'first');
+
+        self::assertPagesMatch(['First'], $result);
     }
 
     public static function limitProvider(): iterable

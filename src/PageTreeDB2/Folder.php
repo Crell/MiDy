@@ -66,7 +66,7 @@ class Folder implements \IteratorAggregate, PageSet, Page
 
     public function filterAllTags(string ...$tags): PageSet
     {
-        // TODO: Implement filterAllTags() method.
+        return new BasicPageSet($this->pageTree->pagesAllTags($this->logicalPath, $tags));
     }
 
 
