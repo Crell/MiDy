@@ -363,6 +363,36 @@ class PageCacheDB
      * @param array<string> $tags
      * @return array<ParsedFile>
      */
+    public function readPagesAnyTag(array $tags): array
+    {
+        if (!count($tags)) {
+            return [];
+        }
+
+        // SQLite doesn't support variable-count WHERE IN clauses the way Postgres does,
+        // so storing a prepared statement once won't work.
+
+        $where = '(' . implode(', ', array_fill(0, count($tags), '?')) . ')';
+
+        $query = <<<END
+            SELECT f.*
+            FROM file_tag t
+                INNER JOIN file f ON f.logicalPath = t.logicalPath AND f.ext = t.ext
+            WHERE  t.tag IN $where
+            ORDER BY "order", title, physicalPath
+        END;
+
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->execute($tags);
+        return array_map($this->instantiateFile(...), $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * @param string $folderPath
+     * @param array<string> $tags
+     * @return array<ParsedFile>
+     */
     public function readPagesInFolderAllTags(string $folderPath, array $tags): array
     {
         if (!count($tags)) {

@@ -324,7 +324,7 @@ class PageTreeTest extends TestCase
     }
 
     #[Test]
-    public function can_query_for_any_tag(): void
+    public function can_query_for_any_tag_in_folder(): void
     {
         file_put_contents($this->routesPath . '/first.md', <<<END
         ---
@@ -358,7 +358,7 @@ class PageTreeTest extends TestCase
     }
 
     #[Test]
-    public function can_query_for_all_tags(): void
+    public function can_query_for_all_tags_in_folder(): void
     {
         file_put_contents($this->routesPath . '/first.md', <<<END
         ---
@@ -389,6 +389,61 @@ class PageTreeTest extends TestCase
         $result = $folder->filterAllTags('page', 'first');
 
         self::assertPagesMatch(['First'], $result);
+    }
+
+    #[Test]
+    public function can_query_for_any_tag(): void
+    {
+        file_put_contents($this->routesPath . '/first.md', <<<END
+        ---
+        title: First
+        tags: [a, b]
+        ---
+        First page
+        END);
+        file_put_contents($this->routesPath . '/second.md', <<<END
+        ---
+        title: Second
+        tags: [b, c]
+        ---
+        Second page
+        END);
+        file_put_contents($this->routesPath . '/third.md', <<<END
+        ---
+        title: Third
+        tags: [a]
+        ---
+        Second page
+        END);
+        mkdir($this->routesPath . '/sub');
+        file_put_contents($this->routesPath . '/sub/a.md', <<<END
+        ---
+        title: Sub A
+        tags: [a, b]
+        ---
+        First page
+        END);
+        file_put_contents($this->routesPath . '/sub/b.md', <<<END
+        ---
+        title: Sub B
+        tags: [b, c]
+        ---
+        Second page
+        END);
+        file_put_contents($this->routesPath . '/sub/c.md', <<<END
+        ---
+        title: Sub C
+        tags: [a]
+        ---
+        Second page
+        END);
+
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
+        $tree->reindexAll();
+
+        $result = $tree->anyTag('c', 'b');
+
+        self::assertPagesMatch(['First', 'Sub A', 'Second', 'Sub B'], $result);
     }
 
     public static function limitProvider(): iterable

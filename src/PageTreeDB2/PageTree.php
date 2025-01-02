@@ -61,6 +61,12 @@ class PageTree
         return $this->instantiatePages($files);
     }
 
+    public function anyTag(string ...$tags): PageSet
+    {
+        $files = $this->cache->readPagesAnyTag($tags);
+        return new BasicPageSet($this->instantiatePages($files));
+    }
+
     public function paginate(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
     {
         $total = $this->cache->countPagesInFolder($folderPath);
