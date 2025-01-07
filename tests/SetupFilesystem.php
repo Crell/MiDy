@@ -19,6 +19,13 @@ trait SetupFilesystem
      */
     protected string $routesPath;
 
+    /**
+     * The path in which to store cache files.
+     *
+     * Does not include a trailing /.
+     */
+    protected string $cachePath;
+
     #[Before]
     public function initFilesystem(): void
     {
@@ -31,5 +38,6 @@ trait SetupFilesystem
 
         $this->vfs = vfsStream::setup('root', null, $structure);
         $this->routesPath = $this->vfs->getChild('routes')?->url();
+        $this->cachePath = $this->vfs->getChild('cache')?->url();
     }
 }
