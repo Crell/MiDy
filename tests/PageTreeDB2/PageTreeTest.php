@@ -323,7 +323,7 @@ class PageTreeTest extends TestCase
         self::assertEquals(['first', 'page'], $page->tags);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function can_query_for_any_tag_in_folder(): void
     {
         file_put_contents($this->routesPath . '/first.md', <<<END
@@ -357,7 +357,7 @@ class PageTreeTest extends TestCase
         self::assertPagesMatch(['First', 'Second'], $result);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function can_query_for_all_tags_in_folder(): void
     {
         file_put_contents($this->routesPath . '/first.md', <<<END

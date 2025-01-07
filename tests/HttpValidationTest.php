@@ -9,6 +9,7 @@ use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -85,7 +86,7 @@ class HttpValidationTest extends TestCase
         ];
     }
 
-    #[Test, DataProvider('successGetRoutes')]
+    #[Test, DataProvider('successGetRoutes'), RunInSeparateProcess]
     public function basic_200_checks(string $path): void
     {
         $serverRequest = $this->makeRequest($path);
@@ -95,7 +96,7 @@ class HttpValidationTest extends TestCase
         self::assertEquals(200, $response->getStatusCode());
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function not_found_handling(): void
     {
         $serverRequest = $this->makeRequest('/missing');
@@ -107,7 +108,7 @@ class HttpValidationTest extends TestCase
         self::assertEmpty($response->getHeaderLine('cache-control'));
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function tree_ordering(): void
     {
         $app = $this->app;
@@ -130,7 +131,7 @@ class HttpValidationTest extends TestCase
         self::assertTrue($kpos < $jpos);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function tree_ordering_reversed(): void
     {
         $app = $this->app;
@@ -157,7 +158,7 @@ class HttpValidationTest extends TestCase
     //   Also make sure 404/403 pages are not cached.
 
 
-    #[Test, DataProvider('successGetRoutes')]
+    #[Test, DataProvider('successGetRoutes'), RunInSeparateProcess]
     public function cache_headers_etag(string $path): void
     {
         $serverRequest = $this->makeRequest($path);
