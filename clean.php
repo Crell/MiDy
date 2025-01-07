@@ -12,7 +12,7 @@ $dotenv->loadEnv(__DIR__ . '/.env');
 
 $app = new MiDy('.');
 
-/** @var \Crell\MiDy\Commands\StaticFilePregenerator $cmd */
+/** @var \Crell\MiDy\Commands\CleanGeneratedFiles $cmd */
 $cmd = $app->container->get(\Crell\MiDy\Commands\CleanGeneratedFiles::class);
 
 $cmd->run();
