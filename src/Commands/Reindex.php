@@ -23,8 +23,8 @@ readonly class Reindex
 
     public function run(): void
     {
-        print "Reindexing site...\n";
+//        print "Reindexing site...\n";
         $this->pageTree->reindexAll();
-        print "Done.\n";
+//        print "Done.\n";
     }
 }
