@@ -49,10 +49,12 @@ class PageTree
         return $this->instantiatePages($files);
     }
 
-    public function pagesAnyTag(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): array
+    public function pagesAnyTag(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
-        $files = $this->cache->readPagesInFolderAnyTag($folderPath, $tags);
-        return $this->instantiatePages($files);
+        $total = $this->cache->countPagesInFolder($folderPath);
+        $data = $this->cache->readPagesInFolderAnyTag($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
+
+        return $this->paginate($pageSize, $pageNum, $total, $data);
     }
 
     public function pagesAllTags(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination

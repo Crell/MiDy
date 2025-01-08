@@ -76,12 +76,12 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
         return new BasicPageSet(new \CallbackFilterIterator(new \IteratorIterator($this), $filter));
     }
 
-    public function filterAnyTag(string ...$tags): PageSet
+    public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): PageSet
     {
         return $this->filter(static fn (Page $p) => $p->hasAnyTag(...$tags));
     }
 
-    public function filterAllTags(string ...$tags): PageSet
+    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): PageSet
     {
         return $this->filter(static fn (Page $p) => $p->hasAllTags(...$tags));
     }

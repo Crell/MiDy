@@ -54,10 +54,10 @@ interface PageSet extends \Countable, \Traversable
     /**
      * Filters this page set to just those items that have at least one specified tag.
      */
-    public function filterAnyTag(string ...$tags): PageSet;
+    public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): PageSet;
 
     /**
      * Filters this page set to just those items that have all the specified tags.
      */
-//    public function filterAllTags(string ...$tags): PageSet;
+    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): PageSet;
 }
