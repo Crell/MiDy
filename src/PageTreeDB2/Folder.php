@@ -47,24 +47,24 @@ class Folder implements \IteratorAggregate, PageSet, Page
         return $this->children;
     }
 
-    public function filter(\Closure $filter): PageSet
-    {
-        return $this->children->filter($filter);
-    }
-
     public function get(string $name): ?Page
     {
         return $this->children->get($name);
     }
 
-    public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): PageSet
+    public function filter(\Closure $filter, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return $this->pageTree->pagesAnyTag($this->logicalPath, $tags)->items;
+        return $this->children->filter($filter, $pageSize, $pageNum);
     }
 
-    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): PageSet
+    public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return $this->pageTree->pagesAllTags($this->logicalPath, $tags, $pageSize, $pageNum)->items;
+        return $this->pageTree->pagesAnyTag($this->logicalPath, $tags, $pageSize, $pageNum);
+    }
+
+    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
+    {
+        return $this->pageTree->pagesAllTags($this->logicalPath, $tags, $pageSize, $pageNum);
     }
 
     public function __debugInfo(): ?array

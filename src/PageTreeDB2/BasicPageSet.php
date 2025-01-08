@@ -56,13 +56,17 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
 
     public function paginate(int $pageSize, int $pageNum = 1): Pagination
     {
+        return $this->paginateBuilder(iterator_to_array($this->pages), $pageSize, $pageNum);
+    }
+
+    private function paginateBuilder(array $pages, int $pageSize, int $pageNum = 1): Pagination
+    {
         // @todo This likely won't scale well, but works for the moment.
 
-        $allPages = iterator_to_array($this->pages);
-        $pageChunks = array_chunk($allPages, $pageSize, preserve_keys: true);
+        $pageChunks = array_chunk($pages, $pageSize, preserve_keys: true);
 
         return new Pagination(
-            total: count($allPages),
+            total: count($pages),
             pageSize: $pageSize,
             pageCount: count($pageChunks),
             pageNum: $pageNum,
@@ -71,19 +75,20 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
         );
     }
 
-    public function filter(\Closure $filter): PageSet
+    public function filter(\Closure $filter, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return new BasicPageSet(new \CallbackFilterIterator(new \IteratorIterator($this), $filter));
+        $pages = new \CallbackFilterIterator(new \IteratorIterator($this), $filter);
+        return $this->paginateBuilder(iterator_to_array($pages), $pageSize, $pageNum);
     }
 
-    public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): PageSet
+    public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return $this->filter(static fn (Page $p) => $p->hasAnyTag(...$tags));
+        return $this->filter(static fn (Page $p) => $p->hasAnyTag(...$tags), $pageSize, $pageNum);
     }
 
-    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): PageSet
+    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return $this->filter(static fn (Page $p) => $p->hasAllTags(...$tags));
+        return $this->filter(static fn (Page $p) => $p->hasAllTags(...$tags), $pageSize, $pageNum);
     }
 
     public function get(string $name): ?Page

@@ -360,7 +360,7 @@ class PageTreeTest extends TestCase
 
         $result = $folder->filterAnyTag(['page', 'first']);
 
-        self::assertPagesMatch(['First', 'Second'], $result);
+        self::assertPagesMatch(['First', 'Second'], $result->items);
     }
 
     #[Test, RunInSeparateProcess]
@@ -394,7 +394,7 @@ class PageTreeTest extends TestCase
 
         $result = $folder->filterAllTags(['page', 'first']);
 
-        self::assertPagesMatch(['First'], $result);
+        self::assertPagesMatch(['First'], $result->items);
     }
 
     #[Test, RunInSeparateProcess]
