@@ -17,7 +17,9 @@
         "symfony/yaml": "^7.1",
         "httpsoft/http-emitter": "^1.1",
         "spatie/commonmark-highlighter": "^3.0",
-        "symfony/dotenv": "^7.1"
+        "symfony/dotenv": "^7.1",
+        "yiisoft/db-sqlite": "^1.2",
+        "yiisoft/cache-file": "^3.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.2.0",
