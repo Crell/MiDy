@@ -13,9 +13,9 @@ namespace Crell\MiDy\PageTreeDB2;
 interface PageSet extends \Countable, \Traversable
 {
     /**
-     * Returns a new PageSet, truncated to the specified length with an offset.
+     * Returns a new PageSet, truncated to the specified length.
      */
-    public function limit(int $limit, int $offset = 0): PageSet;
+    public function limit(int $limit): PageSet;
 
     /**
      * Returns a Pagination definition for this page set.

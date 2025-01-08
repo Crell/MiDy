@@ -463,7 +463,6 @@ class PageTreeTest extends TestCase
                 '/page3.md' => '# Page 3',
             ],
             'limit' => 2,
-            'offset' => 0,
             'expected' => 2,
         ];
 
@@ -474,7 +473,6 @@ class PageTreeTest extends TestCase
                 '/page3.md' => '# Page 3',
             ],
             'limit' => 4,
-            'offset' => 0,
             'expected' => 3,
         ];
 
@@ -486,7 +484,6 @@ class PageTreeTest extends TestCase
                 '/page3.md' => '# Page 3',
             ],
             'limit' => 2,
-            'offset' => 0,
             'expected' => 2,
         ];
 
@@ -498,7 +495,6 @@ class PageTreeTest extends TestCase
                 '/page3.md' => '# Page 3',
             ],
             'limit' => 4,
-            'offset' => 0,
             'expected' => 3,
         ];
 
@@ -510,29 +506,7 @@ class PageTreeTest extends TestCase
                 '/page3.md' => '# Page 3',
             ],
             'limit' => 2,
-            'offset' => 0,
             'expected' => 2,
-            'validator' => function (Folder $folder, BasicPageSet $pages) {
-                //self::assertNotNull($folder);
-            },
-        ];
-
-        yield 'with offset' => [
-            'files' => [
-                '/page1.md' => '# Page 1',
-                '/page2.md' => '# Page 2',
-                '/page2.latte' => 'Page 2',
-                '/page3.md' => '# Page 3',
-                '/page4.md' => '# Page 4',
-                '/page5.md' => '# Page 5',
-            ],
-            'limit' => 2,
-            'offset' => 1,
-            'expected' => 2,
-            'validator' => function (Folder $folder, BasicPageSet $pages) {
-                self::assertInstanceOf(Page::class, $pages->get('page2'));
-                self::assertInstanceOf(Page::class, $pages->get('page3'));
-            },
         ];
     }
 
@@ -542,7 +516,7 @@ class PageTreeTest extends TestCase
      *   be created in the VFS to setup the test.
      */
     #[Test, DataProvider('limitProvider')]
-    public function limit(array $files, int $limit, int $offset, int $expected, ?\Closure $validator = null): void
+    public function limit(array $files, int $limit, int $expected, ?\Closure $validator = null): void
     {
         foreach ($files as $file => $content) {
             file_put_contents($this->routesPath . $file, $content);
@@ -552,7 +526,7 @@ class PageTreeTest extends TestCase
 
         $folder = $tree->folder('/');
 
-        $result = $folder->limit($limit, $offset);
+        $result = $folder->limit($limit);
 
         self::assertCount($expected, $result);
 

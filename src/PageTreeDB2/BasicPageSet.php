@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-use Traversable;
-
 /**
  * Possibly the only type of page set, but we need it separate from the interface for flexibility.
  */
@@ -45,7 +43,7 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
      * Ideally, the data set will be limited in SQL before we even get to this point.
      * But if not, runtime limiting is possible.
      */
-    public function limit(int $limit, int $offset = 0): PageSet
+    public function limit(int $limit): PageSet
     {
         if (count($this->pages) <= $limit) {
             return $this;
