@@ -9,6 +9,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Yiisoft\Cache\File\FileCache;
+use Yiisoft\Db\Cache\SchemaCache;
+use Yiisoft\Db\Sqlite\Connection;
+use Yiisoft\Db\Sqlite\Driver;
+use Yiisoft\Db\Sqlite\Dsn;
+use Yiisoft\Db\Tests\Support\Stub\PdoDriver;
 
 /**
  * Tests that use the VFS need to run in their own separate processes.
@@ -391,7 +397,7 @@ class PageTreeTest extends TestCase
         self::assertPagesMatch(['First'], $result);
     }
 
-    #[Test]
+    #[Test, RunInSeparateProcess]
     public function can_query_for_any_tag(): void
     {
         file_put_contents($this->routesPath . '/first.md', <<<END
@@ -441,9 +447,11 @@ class PageTreeTest extends TestCase
         $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
         $tree->reindexAll();
 
-        $result = $tree->anyTag('c', 'b');
+        $result = $tree->anyTag(['c', 'b']);
+        self::assertPagesMatch(['First', 'Sub A', 'Second', 'Sub B'], $result->items);
 
-        self::assertPagesMatch(['First', 'Sub A', 'Second', 'Sub B'], $result);
+        $result = $tree->anyTag(['c', 'b'], 2);
+        self::assertPagesMatch(['First', 'Sub A'], $result->items);
     }
 
     public static function limitProvider(): iterable

@@ -61,10 +61,21 @@ class PageTree
         return $this->instantiatePages($files);
     }
 
-    public function anyTag(string ...$tags): PageSet
+    public function anyTag(array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
-        $files = $this->cache->readPagesAnyTag($tags);
-        return new BasicPageSet($this->instantiatePages($files));
+        $total = $this->cache->countPages();
+
+        $numPages = (int)ceil($total / $pageSize);
+
+        $files = $this->cache->readPagesAnyTag($tags, $pageSize, $pageSize * ($pageNum - 1));
+
+        return new Pagination(
+            total: $total,
+            pageSize: $pageSize,
+            pageCount: $numPages,
+            pageNum: $pageNum,
+            items: new BasicPageSet($this->instantiatePages($files)),
+        );
     }
 
     public function paginateFolder(string $folderPath, int $pageSize, int $pageNum = 1): Pagination

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTreeDB2;
 
 use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Test;
@@ -12,9 +13,11 @@ use PHPUnit\Framework\TestCase;
 
 class PageCacheDBTest extends TestCase
 {
+    use SetupFilesystem;
+    use SetupDB;
+
     private ParsedFile $parsedFile;
     private ParsedFolder $parsedFolder;
-    private \PDO $db;
 
     #[Before]
     public function setupData(): void
@@ -45,16 +48,10 @@ class PageCacheDBTest extends TestCase
         );
     }
 
-    #[Before]
-    public function makeDb(): void
-    {
-        $this->db = new \PDO('sqlite::memory:');
-    }
-
     #[Test, DoesNotPerformAssertions]
     public function reinitialize_creates_tables_if_they_dont_exist(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -66,7 +63,7 @@ class PageCacheDBTest extends TestCase
     #[Test, DoesNotPerformAssertions]
     public function reinitialize_recreates_tables_if_they_do_exist(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $this->db->exec('CREATE TABLE IF NOT EXISTS folder(fake int)');
 
@@ -80,7 +77,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function can_write_new_folder(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -96,7 +93,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function can_write_updated_folder(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -117,7 +114,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function can_read_folder(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -135,7 +132,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function returns_null_for_missing_folder(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -147,7 +144,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function can_delete_folder(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -165,7 +162,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function can_write_new_file(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -184,7 +181,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function can_write_updated_file(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -223,7 +220,7 @@ class PageCacheDBTest extends TestCase
         // @todo This isn't working for some reason. SQL issue of some kind.
         $this->expectException(\PDOException::class);
 
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -236,7 +233,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function can_read_file(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -257,7 +254,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function returns_null_for_missing_file(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 
@@ -269,7 +266,7 @@ class PageCacheDBTest extends TestCase
     #[Test]
     public function can_delete_file(): void
     {
-        $cache = new PageCacheDB($this->db);
+        $cache = new PageCacheDB($this->yiiConn);
 
         $cache->reinitialize();
 

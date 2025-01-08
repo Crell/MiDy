@@ -14,11 +14,10 @@ trait SetupCache
     private PageCacheDB $cache;
 
     #[Before(priority: 15)]
-    public function setupCache(): PageCacheDB
+    public function setupCache(): void
     {
-        $this->cache ??= new PageCacheDB(conn: $this->db, logger: new ConsoleLogger());
+        $this->cache ??= new PageCacheDB(yiiConn: $this->yiiConn, logger: new ConsoleLogger());
         $this->cache->reinitialize();
-        return $this->cache;
     }
 
     private function dumpFilesTable(): void

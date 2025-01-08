@@ -10,6 +10,8 @@ use Crell\Serde\SerdeCommon;
 use PDO;
 use PDOStatement;
 use Psr\Log\LoggerInterface;
+use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Sqlite\Connection;
 
 class PageCacheDB
 {
@@ -165,6 +167,15 @@ class PageCacheDB
             ) AS paths ON paths.logicalPath=file.logicalPath
     END;
 
+    private const string CountPagesSql = <<<END
+      SELECT COUNT(*)
+        FROM file
+            INNER JOIN (SELECT DISTINCT logicalPath
+                FROM file
+                WHERE NOT logicalPath=folder -- To exclude the index file
+            ) AS paths ON paths.logicalPath=file.logicalPath
+    END;
+
     private PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
     private PDOStatement $readFolderStmt { get => $this->readFolderStmt ??= $this->conn->prepare(self::ReadFolderSql); }
     private PDOStatement $deleteFolderStmt { get => $this->deleteFolderStmt ??= $this->conn->prepare(self::DeleteFolderSql); }
@@ -183,11 +194,15 @@ class PageCacheDB
     private PDOStatement $allPathsStmt { get => $this->allPathsStmt ??= $this->conn->prepare(self::AllPathsSql); }
     private PDOStatement $countPagesInFolderStmt { get => $this->countPagesInFolderStmt ??= $this->conn->prepare(self::CountPagesInFolderSql); }
 
+    private PDO $conn;
+
     public function __construct(
-        private PDO $conn,
+        private Connection $yiiConn,
         private Serde $serde = new SerdeCommon(),
         private ?LoggerInterface $logger = null,
     ) {
+        // For queries that need to bypass Yii.
+        $this->conn = $this->yiiConn->getActivePDO();
         $this->ensureTables();
     }
 
@@ -327,6 +342,11 @@ class PageCacheDB
         return $this->countPagesInFolderStmt->fetchColumn();
     }
 
+    public function countPages(): int
+    {
+        return $this->yiiConn->createCommand(self::CountPagesSql)->queryScalar();
+    }
+
     /**
      * @param string $folderPath
      * @param array<string> $tags
@@ -338,24 +358,19 @@ class PageCacheDB
             return [];
         }
 
-        // SQLite doesn't support variable-count WHERE IN clauses the way Postgres does,
-        // so storing a prepared statement once won't work.
+        $query = new Query($this->yiiConn)
+            ->select('f.*')
+            ->from('{{file}} f')
+            ->innerJoin('{{file_tag}} t', 'f.logicalPath = t.logicalPath AND f.ext = t.ext')
+            ->where(['in', 't.tag', $tags])
+            ->andWhere(['f.folder' => $folderPath])
+            ->orderBy([
+                '[[order]]' => SORT_ASC,
+                '[[title]]' => SORT_ASC,
+                '[[physicalPath]]' => SORT_ASC,
+            ]);
 
-        $where = '(' . implode(', ', array_fill(0, count($tags), '?')) . ')';
-
-        $query = <<<END
-            SELECT f.*
-            FROM file_tag t
-                INNER JOIN file f ON f.logicalPath = t.logicalPath AND f.ext = t.ext
-            WHERE f.folder = ?
-                AND t.tag IN $where
-            ORDER BY "order", title, physicalPath
-        END;
-
-        $stmt = $this->conn->prepare($query);
-
-        $stmt->execute([$folderPath, ...$tags]);
-        return array_map($this->instantiateFile(...), $stmt->fetchAll(PDO::FETCH_ASSOC));
+        return array_map($this->instantiateFile(...), $query->all());
     }
 
     /**
@@ -363,29 +378,26 @@ class PageCacheDB
      * @param array<string> $tags
      * @return array<ParsedFile>
      */
-    public function readPagesAnyTag(array $tags): array
+    public function readPagesAnyTag(array $tags, int $limit = 10, int $offset = 0): array
     {
         if (!count($tags)) {
             return [];
         }
 
-        // SQLite doesn't support variable-count WHERE IN clauses the way Postgres does,
-        // so storing a prepared statement once won't work.
+        $query = new Query($this->yiiConn)
+            ->select('f.*')
+            ->from('{{file}} f')
+            ->innerJoin('{{file_tag}} t', 'f.logicalPath = t.logicalPath AND f.ext = t.ext')
+            ->where(['in', 't.tag', $tags])
+            ->orderBy([
+                '[[order]]' => SORT_ASC,
+                '[[title]]' => SORT_ASC,
+                '[[physicalPath]]' => SORT_ASC,
+            ])
+            ->limit($limit)
+            ->offset($offset);
 
-        $where = '(' . implode(', ', array_fill(0, count($tags), '?')) . ')';
-
-        $query = <<<END
-            SELECT f.*
-            FROM file_tag t
-                INNER JOIN file f ON f.logicalPath = t.logicalPath AND f.ext = t.ext
-            WHERE  t.tag IN $where
-            ORDER BY "order", title, physicalPath
-        END;
-
-        $stmt = $this->conn->prepare($query);
-
-        $stmt->execute($tags);
-        return array_map($this->instantiateFile(...), $stmt->fetchAll(PDO::FETCH_ASSOC));
+        return array_map($this->instantiateFile(...), $query->all());
     }
 
     /**
@@ -399,11 +411,42 @@ class PageCacheDB
             return [];
         }
 
-        // SQLite doesn't support variable-count WHERE IN clauses the way Postgres does,
-        // so storing a prepared statement once won't work.
-
         // @todo This is probably slow at scale.  But unless you're searching for
         //   many tags at the same time, perhaps it doesn't matter.
+
+        /*
+        // @TODO I can't figure out how to get Yii to allow
+        //   an IN on a subselect, where the value to look for
+        //   is user-provided, not a field name. So we have to do this one
+        //   the manual way.
+
+        $query = new Query($this->yiiConn)
+            ->select('f.*')
+            ->from('file f')
+            ->where(['f.folder' => $folderPath])
+            ->orderBy([
+                '[[order]]' => SORT_ASC,
+                '[[title]]' => SORT_ASC,
+                '[[physicalPath]]' => SORT_ASC,
+            ]);
+
+        foreach (array_values($tags) as $idx => $tag) {
+            $innerQuery = new Query($this->yiiConn)
+                ->select('tag')
+                ->from('file_tag t')
+                ->where('f.logicalPath = t.logicalPath')
+                ->andWhere('f.ext = t.ext');
+
+            //var_dump((string)$innerQuery);
+
+            $query->andWhere("'$tag' IN (:tags$idx)")->addParams([":tags$idx" => $innerQuery]);
+        }
+
+        return array_map($this->instantiateFile(...), $query->all());
+        */
+
+        // SQLite doesn't support variable-count WHERE IN clauses the way Postgres does,
+        // so storing a prepared statement once won't work.
 
         $args = [$folderPath];
 

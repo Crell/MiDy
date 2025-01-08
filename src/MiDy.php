@@ -92,8 +92,17 @@ use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Psr\SimpleCache\CacheInterface;
 use Spatie\CommonMarkHighlighter\FencedCodeRenderer;
 use Spatie\CommonMarkHighlighter\IndentedCodeRenderer;
+use PDO;
+
+use Yiisoft\Cache\File\FileCache;
+use Yiisoft\Db\Cache\SchemaCache;
+use Yiisoft\Db\Driver\Pdo\PdoDriverInterface;
+use Yiisoft\Db\Sqlite\Connection;
+use Yiisoft\Db\Sqlite\Driver;
+use Yiisoft\Db\Sqlite\Dsn;
 
 use function DI\autowire;
 use function DI\create;
@@ -183,7 +192,9 @@ class MiDy implements RequestHandlerInterface
             'paths.cache.routes' => value(ensure_dir($this->cachePath . '/routes')),
             'paths.cache.config' => value(ensure_dir($this->cachePath . '/config')),
             'paths.cache.latte' => value(ensure_dir($this->cachePath . '/latte')),
+            'paths.cache.yii' => value(ensure_dir($this->cachePath . '/yii')),
             'path.cache.routes.dsn' => value('sqlite:' . $this->cachePath . '/routes/routes.sq3'),
+            'path.cache.routes.dbname' => value($this->cachePath . '/routes/routes.sq3'),
         ]);
 
         // General utilities
@@ -264,9 +275,16 @@ class MiDy implements RequestHandlerInterface
             ),
 
             // PageTreeDB2 version
-            \PDO::class => autowire()
-                ->constructor(get('path.cache.routes.dsn'))
+            CacheInterface::class => autowire(FileCache::class)
+                ->constructor(get('paths.cache.yii'))
             ,
+            SchemaCache::class => autowire(),
+            PdoDriverInterface::class => autowire(Driver::class)
+                ->constructorParameter('dsn', get('path.cache.routes.dsn'))
+                ->constructorParameter('attributes', [PDO::ATTR_STRINGIFY_FETCHES => false])
+            ,
+            Connection::class => autowire(),
+
             Parser::class => autowire()
                 ->constructorParameter('fileParser', get(MultiplexedFileParser::class))
             ,

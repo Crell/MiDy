@@ -16,12 +16,13 @@ use Crell\MiDy\PageTreeDB2\Parser\Parser;
 use Crell\MiDy\PageTreeDB2\Parser\PhpFileParser;
 use Crell\MiDy\PageTreeDB2\Parser\StaticFileParser;
 use Crell\MiDy\PageTreeDB2\SetupCache;
+use Crell\MiDy\PageTreeDB2\SetupDB;
 use Crell\MiDy\Router\PageTreeRouter\PageHandler;
 use Crell\MiDy\Router\PageTreeRouter\PageTreeRouter;
 use Crell\MiDy\Router\PageTreeRouter\SupportsTrailingPath;
+use Crell\MiDy\SetupFilesystem;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
-use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -31,6 +32,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class PageTreeRouterTest extends TestCase
 {
+    use SetupFilesystem;
+    use SetupDB;
     use SetupCache;
 
     private Midy $app;
@@ -44,19 +47,6 @@ class PageTreeRouterTest extends TestCase
     }
 
     #[Before(priority: 10)]
-    public function initFilesystem(): vfsStreamDirectory
-    {
-        // This mess is because vfsstream doesn't let you create multiple streams
-        // at the same time.  Which is dumb.
-        $structure = [
-            'cache' => [],
-            'routes' => [],
-        ];
-
-        return $this->vfs = vfsStream::setup('root', null, $structure);
-    }
-
-    #[Before(priority: 10)]
     public function setupParser(): void
     {
         $fileParser = new MultiplexedFileParser();
@@ -65,7 +55,7 @@ class PageTreeRouterTest extends TestCase
         $fileParser->addParser(new LatteFileParser());
         $fileParser->addParser(new MarkdownLatteFileParser(new MarkdownPageLoader()));
 
-        $this->parser = new Parser($this->setupCache(), $fileParser);
+        $this->parser = new Parser($this->cache, $fileParser);
     }
 
     protected function makeRequest(string $path, string $method = 'GET'): ServerRequestInterface
@@ -87,17 +77,14 @@ class PageTreeRouterTest extends TestCase
     #[Before(priority: 5)]
     protected function makePageTree(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-        $this->pageTree = new PageTree($this->cache, $this->parser, $routesPath);
+        $this->pageTree = new PageTree($this->cache, $this->parser, $this->routesPath);
     }
 
     #[Test, RunInSeparateProcess]
     public function basic(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
-        mkdir($routesPath . '/foo');
-        file_put_contents($routesPath . '/foo/bar.md', '# Title here');
+        mkdir($this->routesPath . '/foo');
+        file_put_contents($this->routesPath . '/foo/bar.md', '# Title here');
 
         $router = new PageTreeRouter($this->pageTree);
 
@@ -125,13 +112,11 @@ class PageTreeRouterTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function trailing_path_skips_non_trailing_handlers(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
-        mkdir($routesPath . '/afolder');
-        mkdir($routesPath . '/afolder/sub1');
-        mkdir($routesPath . '/afolder/sub1/sub2');
-        mkdir($routesPath . '/afolder/sub1/sub2/sub3');
-        file_put_contents($routesPath . '/afolder/sub1/test.md', '# Will not use');
+        mkdir($this->routesPath . '/afolder');
+        mkdir($this->routesPath . '/afolder/sub1');
+        mkdir($this->routesPath . '/afolder/sub1/sub2');
+        mkdir($this->routesPath . '/afolder/sub1/sub2/sub3');
+        file_put_contents($this->routesPath . '/afolder/sub1/test.md', '# Will not use');
 
         $router = new PageTreeRouter($this->pageTree);
 
@@ -157,11 +142,9 @@ class PageTreeRouterTest extends TestCase
     #[Test, RunInSeparateProcess]
     public function trailing_path_works_on_trailing_handler(): void
     {
-        $routesPath = $this->vfs->getChild('routes')?->url();
-
-        mkdir($routesPath . '/afolder2');
-        mkdir($routesPath . '/afolder2/sub1');
-        file_put_contents($routesPath . '/afolder2/sub1/test.md', '# Will not use');
+        mkdir($this->routesPath . '/afolder2');
+        mkdir($this->routesPath . '/afolder2/sub1');
+        file_put_contents($this->routesPath . '/afolder2/sub1/test.md', '# Will not use');
 
         $router = new PageTreeRouter($this->pageTree);
 
