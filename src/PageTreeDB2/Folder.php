@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-use Traversable;
-
 class Folder implements \IteratorAggregate, PageSet, Page
 {
     use FolderIndexPage;
@@ -64,9 +62,9 @@ class Folder implements \IteratorAggregate, PageSet, Page
         return new BasicPageSet($this->pageTree->pagesAnyTag($this->logicalPath, $tags));
     }
 
-    public function filterAllTags(string ...$tags): PageSet
+    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return new BasicPageSet($this->pageTree->pagesAllTags($this->logicalPath, $tags));
+        return $this->pageTree->pagesAllTags($this->logicalPath, $tags, $pageSize, $pageNum);
     }
 
 

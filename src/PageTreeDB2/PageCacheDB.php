@@ -15,6 +15,8 @@ use Yiisoft\Db\Sqlite\Connection;
 
 class PageCacheDB
 {
+    public const int DefaultPageSize = 10;
+
     private const string FolderTableDdl = <<<END
         create table folder (
             logicalPath  text               not null
@@ -321,7 +323,7 @@ class PageCacheDB
     /**
      * @return array<ParsedFile>
      */
-    public function readFilesForFolder(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): array
+    public function readFilesForFolder(string $folderPath, int $limit = self::DefaultPageSize, int $offset = 0): array
     {
         $this->readFilesForFolderStmt->execute([$folderPath, $limit, $offset]);
         return array_map($this->instantiateFile(...), $this->readFilesForFolderStmt->fetchAll(PDO::FETCH_ASSOC));
@@ -352,7 +354,7 @@ class PageCacheDB
      * @param array<string> $tags
      * @return array<ParsedFile>
      */
-    public function readPagesInFolderAnyTag(string $folderPath, array $tags): array
+    public function readPagesInFolderAnyTag(string $folderPath, array $tags, int $limit = self::DefaultPageSize, int $offset = 0): array
     {
         if (!count($tags)) {
             return [];
@@ -368,7 +370,9 @@ class PageCacheDB
                 '[[order]]' => SORT_ASC,
                 '[[title]]' => SORT_ASC,
                 '[[physicalPath]]' => SORT_ASC,
-            ]);
+            ])
+            ->limit($limit)
+            ->offset($offset);
 
         return array_map($this->instantiateFile(...), $query->all());
     }
@@ -405,7 +409,7 @@ class PageCacheDB
      * @param array<string> $tags
      * @return array<ParsedFile>
      */
-    public function readPagesInFolderAllTags(string $folderPath, array $tags): array
+    public function readPagesInFolderAllTags(string $folderPath, array $tags, int $limit = self::DefaultPageSize, int $offset = 0): array
     {
         if (!count($tags)) {
             return [];
@@ -456,6 +460,9 @@ class PageCacheDB
             $args[] = $tag;
         }
 
+        $args[] = $limit;
+        $args[] = $offset;
+
         $where = implode(' ', $where);
         $query = <<<END
             SELECT f.*
@@ -463,6 +470,7 @@ class PageCacheDB
             WHERE f.folder = ?
                 $where
             ORDER BY "order", title, physicalPath
+            LIMIT ? OFFSET ?
         END;
 
         $stmt = $this->conn->prepare($query);

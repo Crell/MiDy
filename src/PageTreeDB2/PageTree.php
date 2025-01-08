@@ -49,42 +49,44 @@ class PageTree
         return $this->instantiatePages($files);
     }
 
-    public function pagesAnyTag(string $folderPath, array $tags): array
+    public function pagesAnyTag(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): array
     {
         $files = $this->cache->readPagesInFolderAnyTag($folderPath, $tags);
         return $this->instantiatePages($files);
     }
 
-    public function pagesAllTags(string $folderPath, array $tags): array
+    public function pagesAllTags(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
-        $files = $this->cache->readPagesInFolderAllTags($folderPath, $tags);
-        return $this->instantiatePages($files);
+        $total = $this->cache->countPagesInFolder($folderPath);
+        $data = $this->cache->readPagesInFolderAllTags($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
+
+        return $this->paginate($pageSize, $pageNum, $total, $data);
     }
 
     public function anyTag(array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
         $total = $this->cache->countPages();
+        $data = $this->cache->readPagesAnyTag($tags, $pageSize, $pageSize * ($pageNum - 1));
 
-        $numPages = (int)ceil($total / $pageSize);
-
-        $files = $this->cache->readPagesAnyTag($tags, $pageSize, $pageSize * ($pageNum - 1));
-
-        return new Pagination(
-            total: $total,
-            pageSize: $pageSize,
-            pageCount: $numPages,
-            pageNum: $pageNum,
-            items: new BasicPageSet($this->instantiatePages($files)),
-        );
+        return $this->paginate($pageSize, $pageNum, $total, $data);
     }
 
     public function paginateFolder(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
     {
         $total = $this->cache->countPagesInFolder($folderPath);
+        $data = $this->cache->readFilesForFolder($folderPath, $pageSize, $pageSize * ($pageNum - 1));
 
+        return $this->paginate($pageSize, $pageNum, $total, $data);
+    }
+
+    /**
+     * @param iterable<ParsedFile> $data
+     */
+    private function paginate(int $pageSize, int $pageNum, int $total, iterable $data): Pagination
+    {
         $numPages = (int)ceil($total / $pageSize);
 
-        $items = new BasicPageSet($this->pages($folderPath, $pageSize, $pageSize * ($pageNum - 1)));
+        $items = new BasicPageSet($this->instantiatePages($data));
 
         return new Pagination(
             total: $total,
