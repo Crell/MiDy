@@ -23,7 +23,6 @@ use Crell\MiDy\Router\PageTreeRouter\SupportsTrailingPath;
 use Crell\MiDy\SetupFilesystem;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
-use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
@@ -38,7 +37,6 @@ class PageTreeRouterTest extends TestCase
 
     private Midy $app;
     private Parser $parser;
-    protected vfsStreamDirectory $vfs;
     protected PageTree $pageTree;
 
     public function setUp(): void
