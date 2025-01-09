@@ -12,6 +12,8 @@ class Folder implements \IteratorAggregate, PageSet, Page
         get => $this->logicalPath ??= $this->parsedFolder->logicalPath;
     }
 
+    // @todo This probably should go away, in favor of always getting data by
+    //   pagination.  Unclear if that means iteration goes away.
     private PageSet $children {
         get => $this->children ??= new BasicPageSet($this->pageTree->pages($this->logicalPath));
     }
@@ -49,6 +51,7 @@ class Folder implements \IteratorAggregate, PageSet, Page
 
     public function get(string $name): ?Page
     {
+        // @todo Replace this with a dedicated query, probably, for performance.
         return $this->children->get($name);
     }
 

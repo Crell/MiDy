@@ -23,6 +23,9 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
 
     /**
      * Iterates just the visible (non-hidden) children.
+     *
+     * @todo The iterator layering here is disgusting, thanks PHP.
+     *   It's likely it will have to change, including getting rid of all().
      */
     public function getIterator(): \CallbackFilterIterator
     {

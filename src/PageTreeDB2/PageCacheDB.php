@@ -13,6 +13,10 @@ use Psr\Log\LoggerInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Sqlite\Connection;
 
+/**
+ * @todo I'm not fully sold on using Yii yet.  If we do commit to that,
+ *   this class should get largely rewritten to use Yii consistently.
+ */
 class PageCacheDB
 {
     public const int DefaultPageSize = 10;
