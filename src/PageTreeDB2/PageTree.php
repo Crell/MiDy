@@ -43,7 +43,7 @@ class PageTree
      *
      * @return array<string, Page>
      */
-    public function folderAllPages(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): array
+    public function folderAllPages(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): iterable
     {
         $files = $this->cache->readFilesForFolder($folderPath, $limit, $offset);
         return $this->instantiatePages($files);
@@ -177,9 +177,9 @@ class PageTree
 
     /**
      * @param array<ParsedFile> $files
-     * @return array<Page>
+     * @return iterable<Page>
      */
-    private function instantiatePages(array $files): array
+    private function instantiatePages(array $files): iterable
     {
         $grouped = [];
         foreach ($files as $file) {
@@ -191,12 +191,9 @@ class PageTree
             $grouped[$file->logicalPath][] = $file;
         }
 
-        $pages = [];
         foreach ($grouped as $logicalPath => $set) {
-            $pages[$logicalPath] = $this->makePage($logicalPath, $set);
+            yield $logicalPath => $this->makePage($logicalPath, $set);
         }
-
-        return $pages;
     }
 
     /**

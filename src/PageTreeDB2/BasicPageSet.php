@@ -7,18 +7,25 @@ namespace Crell\MiDy\PageTreeDB2;
 /**
  * Possibly the only type of page set, but we need it separate from the interface for flexibility.
  */
-readonly class BasicPageSet implements PageSet, \IteratorAggregate
+class BasicPageSet implements PageSet, \IteratorAggregate
 {
+    /**
+     * @var array<Page>
+     */
+    private array $materializedPages {
+        get => $this->materializedPages ??= iterator_to_array($this->pages);
+    }
+
     /**
      * @param array<string, Page> $pages
      */
     public function __construct(
-        private iterable $pages,
+        private readonly iterable $pages,
     ) {}
 
     public function count(): int
     {
-        return count($this->pages);
+        return count($this->materializedPages);
     }
 
     /**
@@ -29,7 +36,7 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
      */
     public function getIterator(): \CallbackFilterIterator
     {
-        return new \CallbackFilterIterator(new \IteratorIterator($this->all()), $this->visibilityFilter(...));
+        return new \CallbackFilterIterator(new \ArrayIterator($this->materializedPages), $this->visibilityFilter(...));
     }
 
     private function visibilityFilter(Hidable $page): bool
@@ -52,14 +59,14 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
             return $this;
         }
 
-        $limitedChildren = array_chunk(iterator_to_array($this->pages), $limit, preserve_keys: true);
+        $limitedChildren = array_chunk($this->materializedPages, $limit, preserve_keys: true);
 
         return new BasicPageSet($limitedChildren);
     }
 
     public function paginate(int $pageSize, int $pageNum = 1): Pagination
     {
-        return $this->paginateBuilder(iterator_to_array($this->pages), $pageSize, $pageNum);
+        return $this->paginateBuilder($this->materializedPages, $pageSize, $pageNum);
     }
 
     private function paginateBuilder(array $pages, int $pageSize, int $pageNum = 1): Pagination
@@ -98,12 +105,9 @@ readonly class BasicPageSet implements PageSet, \IteratorAggregate
     {
         $info = pathinfo($name);
 
-        /** @var array<Page> $children */
-        $children = iterator_to_array($this->pages);
-
         // @todo This is probably stupidly slow.
-        $key = array_find_key($children, static fn(Page $p) => $p->name === $name);
-        $page = $children[$key] ?? null;
+        $key = array_find_key($this->materializedPages, static fn(Page $p) => $p->name === $name);
+        $page = $this->materializedPages[$key] ?? null;
 
         if ($info['extension'] ?? false) {
             return $page?->variant($info['extension']);
