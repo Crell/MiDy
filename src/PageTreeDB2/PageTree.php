@@ -43,13 +43,13 @@ class PageTree
      *
      * @return array<string, Page>
      */
-    public function pages(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): array
+    public function folderAllPages(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): array
     {
         $files = $this->cache->readFilesForFolder($folderPath, $limit, $offset);
         return $this->instantiatePages($files);
     }
 
-    public function pagesAnyTag(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
+    public function folderAnyTag(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
         $total = $this->cache->countPagesInFolder($folderPath);
         $data = $this->cache->readPagesInFolderAnyTag($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
@@ -57,7 +57,7 @@ class PageTree
         return $this->paginate($pageSize, $pageNum, $total, $data);
     }
 
-    public function pagesAllTags(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
+    public function folderAllTags(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
         $total = $this->cache->countPagesInFolder($folderPath);
         $data = $this->cache->readPagesInFolderAllTags($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
@@ -73,7 +73,7 @@ class PageTree
         return $this->paginate($pageSize, $pageNum, $total, $data);
     }
 
-    public function paginateFolder(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
+    public function folderAllPagesPaginated(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
     {
         $total = $this->cache->countPagesInFolder($folderPath);
         $data = $this->cache->readFilesForFolder($folderPath, $pageSize, $pageSize * ($pageNum - 1));

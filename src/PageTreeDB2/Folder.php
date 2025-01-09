@@ -15,7 +15,7 @@ class Folder implements \IteratorAggregate, PageSet, Page
     // @todo This probably should go away, in favor of always getting data by
     //   pagination.  Unclear if that means iteration goes away.
     private PageSet $children {
-        get => $this->children ??= new BasicPageSet($this->pageTree->pages($this->logicalPath));
+        get => $this->children ??= new BasicPageSet($this->pageTree->folderAllPages($this->logicalPath));
     }
 
     public function __construct(
@@ -41,7 +41,7 @@ class Folder implements \IteratorAggregate, PageSet, Page
 
     public function paginate(int $pageSize, int $pageNum = 1): Pagination
     {
-        return $this->pageTree->paginateFolder($this->logicalPath, $pageSize, $pageNum);
+        return $this->pageTree->folderAllPagesPaginated($this->logicalPath, $pageSize, $pageNum);
     }
 
     public function all(): PageSet
@@ -62,12 +62,12 @@ class Folder implements \IteratorAggregate, PageSet, Page
 
     public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return $this->pageTree->pagesAnyTag($this->logicalPath, $tags, $pageSize, $pageNum);
+        return $this->pageTree->folderAnyTag($this->logicalPath, $tags, $pageSize, $pageNum);
     }
 
     public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return $this->pageTree->pagesAllTags($this->logicalPath, $tags, $pageSize, $pageNum);
+        return $this->pageTree->folderAllTags($this->logicalPath, $tags, $pageSize, $pageNum);
     }
 
     public function __debugInfo(): ?array
