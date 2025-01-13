@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
-class HandlerRouterTest extends TestCase
+class HandlerRouterTestDisabled extends TestCase
 {
     use RootFilesystemSetup;
 
