@@ -67,6 +67,7 @@ use Crell\Tukio\Dispatcher;
 use Crell\Tukio\OrderedListenerProvider;
 use DI\ContainerBuilder;
 use HttpSoft\Emitter\SapiEmitter;
+use Latte\Bridges\Tracy\TracyExtension;
 use Latte\Engine;
 use League\CommonMark\ConverterInterface;
 use League\CommonMark\Environment\Environment;
@@ -151,6 +152,10 @@ class MiDy implements RequestHandlerInterface
 
         $this->container = $this->buildContainer();
         $this->setupListeners();
+
+        if (class_exists(\Tracy\Debugger::class)) {
+            \Tracy\Debugger::enable();
+        }
     }
 
     protected function ensurePath(?string $override, string $default): string
@@ -395,7 +400,9 @@ class MiDy implements RequestHandlerInterface
         $containerBuilder->addDefinitions([
             Engine::class => autowire()
                 ->method('addExtension', get(CommonMarkExtension::class))
-                ->method('setTempDirectory', get('paths.cache.latte')),
+                ->method('addExtension', get(TracyExtension::class))
+                ->method('setTempDirectory', get('paths.cache.latte'))
+            ,
         ]);
 
         $configPaths = [
