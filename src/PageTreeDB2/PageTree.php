@@ -45,7 +45,7 @@ class PageTree
      */
     public function folderAllPages(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): iterable
     {
-        $files = $this->cache->readFilesForFolder($folderPath, $limit, $offset);
+        $files = $this->cache->readFilesInFolder($folderPath, $limit, $offset);
         return $this->instantiatePages($files);
     }
 
@@ -67,7 +67,7 @@ class PageTree
 
     public function anyTag(array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
-        $total = $this->cache->countPages();
+        $total = $this->cache->countPagesAnyTag($tags);
         $data = $this->cache->readPagesAnyTag($tags, $pageSize, $pageSize * ($pageNum - 1));
 
         return $this->paginate($pageSize, $pageNum, $total, $data);
@@ -76,7 +76,7 @@ class PageTree
     public function folderAllPagesPaginated(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
     {
         $total = $this->cache->countPagesInFolder($folderPath);
-        $data = $this->cache->readFilesForFolder($folderPath, $pageSize, $pageSize * ($pageNum - 1));
+        $data = $this->cache->readFilesInFolder($folderPath, $pageSize, $pageSize * ($pageNum - 1));
 
         return $this->paginate($pageSize, $pageNum, $total, $data);
     }

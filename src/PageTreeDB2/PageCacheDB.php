@@ -71,6 +71,14 @@ class PageCacheDB
         );
     END;
 
+    // @todo This may need to be a materialized table for performance.
+    //   We can switch to that later if needed.
+    private const string PageViewDdl = <<<END
+        CREATE VIEW page AS
+        SELECT DISTINCT logicalPath, folder
+                FROM file
+                WHERE NOT logicalPath=folder -- To exclude the index file
+    END;
 
     private const string WriteFolderSql = <<<END
         INSERT INTO
@@ -146,13 +154,10 @@ class PageCacheDB
     private const string DeleteFileSql = 'DELETE FROM file WHERE logicalPath=? AND ext=?';
     private const string ReadFileSql = 'SELECT * FROM file WHERE logicalPath=? AND ext=?';
     private const string ReadFilesForFolderSql = <<<END
+        WITH pages AS (SELECT * FROM page WHERE folder=? LIMIT ? OFFSET ?)
         SELECT *
         FROM file
-            INNER JOIN (SELECT DISTINCT logicalPath
-                FROM file
-                WHERE folder=? AND NOT logicalPath=folder -- To exclude the index file
-                LIMIT ? OFFSET ?
-            ) AS paths ON paths.logicalPath=file.logicalPath
+            INNER JOIN pages ON pages.logicalPath=file.logicalPath
         ORDER BY "order", title
     END;
     private const string ReadPageSql = 'SELECT * FROM file WHERE logicalPath=?';
@@ -161,25 +166,18 @@ class PageCacheDB
         INSERT INTO file_tag (logicalPath, ext, tag) VALUES (:logicalPath, :ext, :tag)
         ON CONFLICT (logicalPath, ext, tag) DO NOTHING
     END;
-    private const string AllFilesSql = 'SELECT * from file';
+    private const string AllFilesSql = 'SELECT * from file ORDER BY logicalPath';
     private const string AllPathsSql = 'SELECT DISTINCT logicalPath from file ORDER BY logicalPath';
 
     private const string CountPagesInFolderSql = <<<END
       SELECT COUNT(*)
-        FROM file
-            INNER JOIN (SELECT DISTINCT logicalPath
-                FROM file
-                WHERE folder=? AND NOT logicalPath=folder -- To exclude the index file
-            ) AS paths ON paths.logicalPath=file.logicalPath
+        FROM page
+        WHERE folder=?
     END;
 
     private const string CountPagesSql = <<<END
       SELECT COUNT(*)
-        FROM file
-            INNER JOIN (SELECT DISTINCT logicalPath
-                FROM file
-                WHERE NOT logicalPath=folder -- To exclude the index file
-            ) AS paths ON paths.logicalPath=file.logicalPath
+        FROM page
     END;
 
     private PDOStatement $writeFolderStmt { get => $this->writeFolderStmt ??= $this->conn->prepare(self::WriteFolderSql); }
@@ -228,6 +226,7 @@ class PageCacheDB
     public function reinitialize(): void
     {
         $this->inTransaction(function (PDO $conn) {
+            $conn->exec('DROP VIEW IF EXISTS page');
             $conn->exec('DROP TABLE IF EXISTS file');
             $conn->exec('DROP TABLE IF EXISTS folder');
             $conn->exec('DROP TABLE IF EXISTS file_tag');
@@ -235,6 +234,8 @@ class PageCacheDB
             $conn->exec(self::FolderTableDdl);
             $conn->exec(self::FileTableDdl);
             $conn->exec(self::FileTagTableDdl);
+
+            $conn->exec(self::PageViewDdl);
         });
     }
 
@@ -327,30 +328,74 @@ class PageCacheDB
     /**
      * @return array<ParsedFile>
      */
-    public function readFilesForFolder(string $folderPath, int $limit = self::DefaultPageSize, int $offset = 0): array
-    {
-        $this->readFilesForFolderStmt->execute([$folderPath, $limit, $offset]);
-        return array_map($this->instantiateFile(...), $this->readFilesForFolderStmt->fetchAll(PDO::FETCH_ASSOC));
-    }
-
-    /**
-     * @return array<ParsedFile>
-     */
     public function readPage(string $logicalPath): array
     {
         $this->readPageStmt->execute([$logicalPath]);
         return array_map($this->instantiateFile(...), $this->readPageStmt->fetchAll(PDO::FETCH_ASSOC));
     }
-
     public function countPagesInFolder(string $folderPath): int
     {
         $this->countPagesInFolderStmt->execute([$folderPath]);
         return $this->countPagesInFolderStmt->fetchColumn();
     }
 
+    /**
+     * @return array<ParsedFile>
+     */
+    public function readFilesInFolder(string $folderPath, int $limit = self::DefaultPageSize, int $offset = 0): array
+    {
+        $this->readFilesForFolderStmt->execute([$folderPath, $limit, $offset]);
+        return array_map($this->instantiateFile(...), $this->readFilesForFolderStmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
     public function countPages(): int
     {
         return $this->yiiConn->createCommand(self::CountPagesSql)->queryScalar();
+    }
+
+    public function countPagesAnyTag(array $tags): int
+    {
+        if (!count($tags)) {
+            return 0;
+        }
+
+        // If a tag shows up in multiple variants of a page, we still
+        // only want it once.  That means we need to get just the
+        // logical paths that match the tag, distinct those, and then
+        // count the result.
+        $innerQuery = new Query($this->yiiConn)
+            ->select('f.logicalPath')->distinct()
+            ->from('{{file}} f')
+            ->innerJoin('{{file_tag}} t', 'f.logicalPath = t.logicalPath')
+            ->where(['in', 't.tag', $tags])
+            ;
+        $query = new Query($this->yiiConn)
+            ->select('COUNT(*)')->from($innerQuery);
+
+        return $query->scalar();
+    }
+
+    public function countPagesInFolderAnyTag(string $folderPath, array $tags): int
+    {
+        if (!count($tags)) {
+            return 0;
+        }
+
+        // If a tag shows up in multiple variants of a page, we still
+        // only want it once.  That means we need to get just the
+        // logical paths that match the tag, distinct those, and then
+        // count the result.
+        $innerQuery = new Query($this->yiiConn)
+            ->select('f.logicalPath')->distinct()
+            ->from('{{file}} f')
+            ->innerJoin('{{file_tag}} t', 'f.logicalPath = t.logicalPath')
+            ->where(['in', 't.tag', $tags])
+            ->andWhere(['=', 'folder', $folderPath])
+        ;
+        $query = new Query($this->yiiConn)
+            ->select('COUNT(*)')->from($innerQuery);
+
+        return $query->scalar();
     }
 
     /**
@@ -364,27 +409,44 @@ class PageCacheDB
             return [];
         }
 
-        $query = new Query($this->yiiConn)
+        $pagesInWindow = new Query($this->yiiConn)
+            ->select('p.logicalPath')->distinct()
+            ->from('{{page}} p')
+            ->innerJoin('{{file_tag}} t', 'p.logicalPath = t.logicalPath')
+            ->where(['=', 'folder', $folderPath])
+            ->andWhere(['in', 't.tag', $tags])
+            ->limit($limit)
+            ->offset($offset)
+        ;
+
+        $filesWithTag = new Query($this->yiiConn)
             ->select('f.*')
             ->from('{{file}} f')
             ->innerJoin('{{file_tag}} t', 'f.logicalPath = t.logicalPath AND f.ext = t.ext')
-            ->where(['in', 't.tag', $tags])
-            ->andWhere(['f.folder' => $folderPath])
+            ->where(['f.folder' => $folderPath])
             ->orderBy([
                 '[[order]]' => SORT_ASC,
                 '[[title]]' => SORT_ASC,
                 '[[physicalPath]]' => SORT_ASC,
             ])
-            ->limit($limit)
-            ->offset($offset);
+        ;
+
+        $query = new Query($this->yiiConn)
+            ->withQuery($pagesInWindow, 'pages')
+            ->withQuery($filesWithTag, 'tagged_files')
+            ->select('f.*')
+            ->from('{{tagged_files}} f')
+            ->innerJoin('{{pages}} p', 'f.logicalPath = p.logicalPath')
+        ;
 
         return array_map($this->instantiateFile(...), $query->all());
     }
 
     /**
-     * @param string $folderPath
      * @param array<string> $tags
      * @return array<ParsedFile>
+     *
+     * @todo The ordering on this is all wonky, because order info is folder-specific in the DB.
      */
     public function readPagesAnyTag(array $tags, int $limit = 10, int $offset = 0): array
     {
@@ -392,18 +454,33 @@ class PageCacheDB
             return [];
         }
 
-        $query = new Query($this->yiiConn)
+        $pagesInWindow = new Query($this->yiiConn)
+            ->select('p.logicalPath')->distinct()
+            ->from('{{page}} p')
+            ->innerJoin('{{file_tag}} t', 'p.logicalPath = t.logicalPath')
+            ->where(['in', 't.tag', $tags])
+            ->limit($limit)
+            ->offset($offset)
+        ;
+
+        $filesWithTag = new Query($this->yiiConn)
             ->select('f.*')
             ->from('{{file}} f')
             ->innerJoin('{{file_tag}} t', 'f.logicalPath = t.logicalPath AND f.ext = t.ext')
-            ->where(['in', 't.tag', $tags])
             ->orderBy([
                 '[[order]]' => SORT_ASC,
                 '[[title]]' => SORT_ASC,
                 '[[physicalPath]]' => SORT_ASC,
             ])
-            ->limit($limit)
-            ->offset($offset);
+        ;
+
+        $query = new Query($this->yiiConn)
+            ->withQuery($pagesInWindow, 'pages')
+            ->withQuery($filesWithTag, 'tagged_files')
+            ->select('f.*')
+            ->from('{{tagged_files}} f')
+            ->innerJoin('{{pages}} p', 'f.logicalPath = p.logicalPath')
+        ;
 
         return array_map($this->instantiateFile(...), $query->all());
     }
@@ -412,6 +489,8 @@ class PageCacheDB
      * @param string $folderPath
      * @param array<string> $tags
      * @return array<ParsedFile>
+     *
+     * @todo I'm not even convinced this is a good idea, so this is untested for now.
      */
     public function readPagesInFolderAllTags(string $folderPath, array $tags, int $limit = self::DefaultPageSize, int $offset = 0): array
     {

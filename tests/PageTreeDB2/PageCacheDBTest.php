@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTreeDB2;
 
 use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\PageTreeDB2\Parser\Parser;
 use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -282,5 +284,442 @@ class PageCacheDBTest extends TestCase
         $record = $stmt->fetchObject();
 
         self::assertFalse($record);
+    }
+
+    public static function pagination_with_duplicates(): iterable
+    {
+        $folder = new ParsedFolder(
+            '/foo',
+            '/foo',
+            0,
+            false,
+            'Foo',
+        );
+
+        yield 'basic' => [
+            'folder' => $folder,
+            'files' => [
+                self::makeParsedFile(physicalPath: '/foo/bar.md'),
+                self::makeParsedFile(physicalPath: '/foo/bar.latte'),
+                self::makeParsedFile(physicalPath: '/foo/baz.latte'),
+            ],
+            'expectedCount' => 2,
+            'limit' => 2,
+            'offsets' => [
+                // Offset => num expected items on that page.
+                0 => 2,
+                2 => 0,
+            ],
+        ];
+
+        yield 'long, no dupes' => [
+            'folder' => $folder,
+            'files' => [
+                self::makeParsedFile(physicalPath: '/foo/a.md'),
+                self::makeParsedFile(physicalPath: '/foo/b.latte'),
+                self::makeParsedFile(physicalPath: '/foo/c.latte'),
+                self::makeParsedFile(physicalPath: '/foo/d.latte'),
+                self::makeParsedFile(physicalPath: '/foo/e.md'),
+                self::makeParsedFile(physicalPath: '/foo/f.md'),
+                self::makeParsedFile(physicalPath: '/foo/g.md'),
+            ],
+            'expectedCount' => 7,
+            'limit' => 2,
+            'offsets' => [
+                // Offset => num expected items on that page.
+                0 => 2,
+                2 => 2,
+                4 => 2,
+                6 => 1,
+                8 => 0,
+            ],
+        ];
+
+        yield 'long, with dupes' => [
+            'folder' => $folder,
+            'files' => [
+                self::makeParsedFile(physicalPath: '/foo/a.md'),
+                self::makeParsedFile(physicalPath: '/foo/a.latte'),
+                self::makeParsedFile(physicalPath: '/foo/b.latte'),
+                self::makeParsedFile(physicalPath: '/foo/c.latte'),
+                self::makeParsedFile(physicalPath: '/foo/c.md'),
+                self::makeParsedFile(physicalPath: '/foo/d.md'),
+                self::makeParsedFile(physicalPath: '/foo/e.md'),
+            ],
+            'expectedCount' => 5,
+            'limit' => 2,
+            'offsets' => [
+                // Offset => num expected items on that page.
+                0 => 2,
+                2 => 2,
+                4 => 1,
+                6 => 0,
+            ],
+        ];
+    }
+
+    /**
+     * @param array<ParsedFile> $files
+     */
+    #[Test, DataProvider('pagination_with_duplicates')]
+    public function pagination_readFilesInFolder(ParsedFolder $folder, array $files, int $expectedCount, int $limit, array $offsets, array $tags = []): void
+    {
+        $cache = new PageCacheDB($this->yiiConn);
+        $cache->reinitialize();
+
+        $cache->writeFolder($folder);
+        foreach ($files as $f) {
+            $cache->writeFile($f);
+        }
+
+        // Confirm the overall number of "pages" is what we expect.
+        $pageCount = $this->db->query("SELECT COUNT(*) FROM page")->fetchColumn();
+        self::assertSame($expectedCount, $pageCount);
+
+        // Paginate through the list and make sure there are the right number of "pages".
+        // Because we're not loading the parsed files into Page objects here, we have to
+        // duplicate some of that logic.
+        foreach ($offsets as $offset => $expectedPageCount) {
+            $files = $cache->readFilesInFolder($folder->logicalPath, $limit, $offset);
+            $grouped = [];
+            foreach ($files as $file) {
+                $grouped[$file->logicalPath][] = $file;
+            }
+            self::assertCount($expectedPageCount, $grouped);
+        }
+    }
+
+    public static function pagination_with_duplicates_and_tags(): iterable
+    {
+        $folder = self::makeParsedFolder(physicalPath: '/foo');
+
+        $extraFolder = self::makeParsedFolder(physicalPath: '/bar');
+
+        yield 'basic' => [
+            'folder' => $folder,
+            'extraFolders' => [$extraFolder],
+            'files' => [
+                self::makeParsedFile(physicalPath: '/foo/a.md', frontmatter: ['tags' => ['tag1']]),
+                self::makeParsedFile(physicalPath: '/foo/a.latte', frontmatter: ['tags' => ['tag1', 'tag2']]),
+                self::makeParsedFile(physicalPath: '/foo/b.latte', frontmatter: ['tags' => ['tag1', 'tag2']]),
+                self::makeParsedFile(physicalPath: '/foo/c.latte'),
+                self::makeParsedFile(physicalPath: '/foo/d.md', frontmatter: ['tags' => ['tag1']]),
+
+                self::makeParsedFile(physicalPath: '/bar/e.md', frontmatter: ['tags' => ['tag1']]),
+            ],
+            'tags' => ['tag1'],
+            'limit' => 2,
+            'offsets' => [
+                // Offset => num expected items on that page.
+                0 => 2,
+                2 => 1,
+                4 => 0,
+            ],
+        ];
+
+        yield 'long, no dupes' => [
+            'folder' => $folder,
+            'extraFolders' => [$extraFolder],
+            'files' => [
+                self::makeParsedFile(physicalPath: '/foo/a.md', frontmatter: ['tags' => ['tag1']]),
+                self::makeParsedFile(physicalPath: '/foo/b.latte'),
+                self::makeParsedFile(physicalPath: '/foo/c.latte', frontmatter: ['tags' => ['tag1', 'tag2']]),
+                self::makeParsedFile(physicalPath: '/foo/d.latte', frontmatter: ['tags' => ['tag2']]),
+                self::makeParsedFile(physicalPath: '/foo/e.md'),
+                self::makeParsedFile(physicalPath: '/foo/f.md', frontmatter: ['tags' => ['tag1']]),
+                self::makeParsedFile(physicalPath: '/foo/g.md'),
+
+                self::makeParsedFile(physicalPath: '/bar/h.md', frontmatter: ['tags' => ['tag1']]),
+            ],
+            'tags' => ['tag1'],
+            'limit' => 2,
+            'offsets' => [
+                // Offset => num expected items on that page.
+                0 => 2,
+                2 => 1,
+                4 => 0,
+            ],
+        ];
+
+        yield 'long, with dupes' => [
+            'folder' => $folder,
+            'extraFolders' => [$extraFolder],
+            'files' => [
+                self::makeParsedFile(physicalPath: '/foo/a.md', frontmatter: ['tags' => ['tag1']]),
+                self::makeParsedFile(physicalPath: '/foo/a.latte'),
+                self::makeParsedFile(physicalPath: '/foo/b.latte', frontmatter: ['tags' => ['tag2']]),
+                self::makeParsedFile(physicalPath: '/foo/c.latte', frontmatter: ['tags' => ['tag1']]),
+                self::makeParsedFile(physicalPath: '/foo/c.md', frontmatter: ['tags' => ['tag1', 'tag2']]),
+                self::makeParsedFile(physicalPath: '/foo/d.md'),
+                self::makeParsedFile(physicalPath: '/foo/e.md', frontmatter: ['tags' => ['tag1']]),
+
+                self::makeParsedFile(physicalPath: '/bar/f.md', frontmatter: ['tags' => ['tag1']]),
+            ],
+            'tags' => ['tag1'],
+            'limit' => 2,
+            'offsets' => [
+                // Offset => num expected items on that page.
+                0 => 2,
+                2 => 1,
+                4 => 0,
+            ],
+        ];
+    }
+
+    /**
+     * @param array<ParsedFile> $files
+     * @param array<ParsedFolder> $extraFolders
+     */
+    #[Test, DataProvider('pagination_with_duplicates_and_tags')]
+    public function pagination_readFilesInFolderAnyTag(ParsedFolder $folder, array $extraFolders, array $files, int $limit, array $offsets, array $tags): void
+    {
+        $cache = new PageCacheDB($this->yiiConn);
+        $cache->reinitialize();
+
+        $cache->writeFolder($folder);
+        foreach ($extraFolders as $f) {
+            $cache->writeFolder($f);
+        }
+        foreach ($files as $f) {
+            $cache->writeFile($f);
+        }
+
+        // Paginate through the list and make sure there are the right number of "pages".
+        // Because we're not loading the parsed files into Page objects here, we have to
+        // duplicate some of that logic.
+        foreach ($offsets as $offset => $expectedPageCount) {
+            $files = $cache->readPagesInFolderAnyTag($folder->logicalPath, $tags, $limit, $offset);
+            $grouped = [];
+            foreach ($files as $file) {
+                $grouped[$file->logicalPath][] = $file;
+            }
+            self::assertCount($expectedPageCount, $grouped);
+        }
+    }
+
+    /**
+     * I do not like this approach, but I like duplicating the provider even less.
+     */
+    public static function pagination_with_duplicates_and_tags_all_folders(): iterable
+    {
+        $cases = iterator_to_array(self::pagination_with_duplicates_and_tags());
+
+        $cases['basic']['offsets'] = [
+            // Offset => num expected items on that page.
+            0 => 2,
+            2 => 2,
+            4 => 0,
+        ];
+
+        $cases['long, no dupes']['offsets'] = [
+            // Offset => num expected items on that page.
+            0 => 2,
+            2 => 2,
+            4 => 0,
+        ];
+        $cases['long, with dupes']['offsets'] = [
+            // Offset => num expected items on that page.
+            0 => 2,
+            2 => 2,
+            4 => 0,
+        ];
+
+        return $cases;
+    }
+
+    /**
+     * @param array<ParsedFile> $files
+     * @param array<ParsedFolder> $extraFolders
+     */
+    #[Test, DataProvider('pagination_with_duplicates_and_tags_all_folders')]
+    public function pagination_readFilesAnyTag(ParsedFolder $folder, array $extraFolders, array $files, int $limit, array $offsets, array $tags): void
+    {
+        $cache = new PageCacheDB($this->yiiConn);
+        $cache->reinitialize();
+
+        $cache->writeFolder($folder);
+        foreach ($extraFolders as $f) {
+            $cache->writeFolder($f);
+        }
+        foreach ($files as $f) {
+            $cache->writeFile($f);
+        }
+
+        // Paginate through the list and make sure there are the right number of "pages".
+        // Because we're not loading the parsed files into Page objects here, we have to
+        // duplicate some of that logic.
+        foreach ($offsets as $offset => $expectedPageCount) {
+            $files = $cache->readPagesAnyTag($tags, $limit, $offset);
+            $grouped = [];
+            foreach ($files as $file) {
+                $grouped[$file->logicalPath][] = $file;
+            }
+            self::assertCount($expectedPageCount, $grouped);
+        }
+    }
+
+    #[Test]
+    public function page_count_countPagesInFolder(): void
+    {
+        $cache = new PageCacheDB($this->yiiConn);
+        $cache->reinitialize();
+
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/bar'));
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/baz'));
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/baz/beep'));
+
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/a.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/b.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/b.latte'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/c.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/bar/d.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/bar/e.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/baz/f.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/baz/beep/g.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/baz/beep/index.md'));
+
+        self::assertSame(3, $cache->countPagesInFolder('/foo'));
+        self::assertSame(2, $cache->countPagesInFolder('/bar'));
+
+        // The index file in /baz/beep counts toward the pages in /baz, not /baz/beep
+        self::assertSame(2, $cache->countPagesInFolder('/baz'));
+        self::assertSame(1, $cache->countPagesInFolder('/baz/beep'));
+    }
+
+    #[Test]
+    public function page_count_countPages(): void
+    {
+        $cache = new PageCacheDB($this->yiiConn);
+        $cache->reinitialize();
+
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/bar'));
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/baz'));
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/baz/beep'));
+
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/a.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/b.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/b.latte'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/c.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/bar/d.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/bar/e.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/baz/f.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/baz/beep/g.md'));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/baz/beep/index.md'));
+
+        self::assertSame(8, $cache->countPages());
+    }
+
+    #[Test]
+    public function page_count_countPagesAnyTag(): void
+    {
+        $cache = new PageCacheDB($this->yiiConn);
+        $cache->reinitialize();
+
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/bar'));
+
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/a.md', frontmatter: ['tags' => ['tag1', 'tag2']]));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/b.md', frontmatter: ['tags' => ['tag2']]));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/b.latte', frontmatter: ['tags' => ['tag2']]));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/c.md', frontmatter: ['tags' => ['tag1']]));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/bar/d.md', frontmatter: ['tags' => ['tag2']]));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/bar/e.md'));
+
+        self::assertSame(2, $cache->countPagesAnyTag(['tag1']));
+        self::assertSame(3, $cache->countPagesAnyTag(['tag2']));
+    }
+
+    #[Test]
+    public function page_count_countPagesInFolderAnyTag(): void
+    {
+        $cache = new PageCacheDB($this->yiiConn);
+        $cache->reinitialize();
+
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/bar'));
+
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/a.md', frontmatter: ['tags' => ['tag1', 'tag2']]));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/b.md', frontmatter: ['tags' => ['tag2']]));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/b.latte', frontmatter: ['tags' => ['tag2']]));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/foo/c.md', frontmatter: ['tags' => ['tag1']]));
+
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/bar/d.md', frontmatter: ['tags' => ['tag2']]));
+        $cache->writeFile(self::makeParsedFile(physicalPath: '/bar/e.md'));
+
+        self::assertSame(2, $cache->countPagesInFolderAnyTag('/foo', ['tag1']));
+        self::assertSame(2, $cache->countPagesInFolderAnyTag('/foo', ['tag2']));
+        self::assertSame(0, $cache->countPagesInFolderAnyTag('/bar', ['tag1']));
+        self::assertSame(1, $cache->countPagesInFolderAnyTag('/bar', ['tag2']));
+    }
+
+    private function dumpFilesTable(): void
+    {
+        var_dump($this->db->query("SELECT logicalPath, physicalPath, folder FROM file")->fetchAll(\PDO::FETCH_ASSOC));
+    }
+
+    private function dumpPageView(): void
+    {
+        var_dump($this->db->query("SELECT * FROM page")->fetchAll(\PDO::FETCH_ASSOC));
+    }
+
+    private static function makeParsedFolder(...$args): ParsedFolder
+    {
+        $parts = pathinfo($args['physicalPath']);
+
+        $defaults = [
+            'physicalPath' => $args['physicalPath'],
+            'logicalPath' => $args['physicalPath'],
+            'mtime' => 0,
+            'flatten' => false,
+            'title' => $parts['basename'],
+        ];
+
+        $args += $defaults;
+
+        return new ParsedFolder(...$args);
+    }
+
+    private static function makeParsedFile(...$args): ParsedFile
+    {
+        $parts = pathinfo($args['physicalPath']);
+
+        $defaults = [
+            'logicalPath' => $parts['dirname'] . '/' . $parts['filename'],
+            'ext' =>  $parts['extension'],
+            'physicalPath' =>  '/foo/bar.md',
+            'mtime' =>  123456,
+            'title' =>  $parts['filename'],
+            'folder' =>  $parts['dirname'],
+            'order' =>  0,
+            'hidden' =>  false,
+            'routable' =>  true,
+            'publishDate' =>  new \DateTimeImmutable('2024-10-31'),
+            'lastModifiedDate' =>  new \DateTimeImmutable('2024-10-31'),
+            'frontmatter' =>  [],
+            'summary' =>  '',
+            'pathName' =>  $parts['filename'],
+        ];
+
+        $args += $defaults;
+
+        $args['frontmatter'] = new BasicPageInformation(...$args['frontmatter']);
+
+        // Cloned from Parser::parseFile();
+        if ($parts['filename'] === Parser::IndexPageName) {
+            // The logical path of the index page is its parent folder's path.
+            $args['logicalPath'] = dirname($args['logicalPath']);
+            // The folder it should appear under is its folder's parent,
+            // so that it "is" a child of that parent.
+            $args['folder'] = dirname($args['folder']);
+            // The pathName of the index page should be its folder's basename.
+            $folderParts = \explode('/', $parts['dirname']);
+            $args['pathName'] = array_pop($folderParts);
+            // And flag it as a file representing a folder.
+            $args['isFolder'] = true;
+        }
+
+        return new ParsedFile(...$args);
     }
 }

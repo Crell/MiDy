@@ -9,12 +9,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Cache\File\FileCache;
-use Yiisoft\Db\Cache\SchemaCache;
-use Yiisoft\Db\Sqlite\Connection;
-use Yiisoft\Db\Sqlite\Driver;
-use Yiisoft\Db\Sqlite\Dsn;
-use Yiisoft\Db\Tests\Support\Stub\PdoDriver;
 
 /**
  * Tests that use the VFS need to run in their own separate processes.
@@ -448,10 +442,13 @@ class PageTreeTest extends TestCase
         $tree->reindexAll();
 
         $result = $tree->anyTag(['c', 'b']);
-        self::assertPagesMatch(['First', 'Sub A', 'Second', 'Sub B'], $result->items);
+        self::assertPagesMatch(['First', 'Second', 'Sub A', 'Sub B'], $result->items);
 
         $result = $tree->anyTag(['c', 'b'], 2);
-        self::assertPagesMatch(['First', 'Sub A'], $result->items);
+        self::assertPagesMatch(['First', 'Second'], $result->items);
+
+        $result = $tree->anyTag(['c', 'b'], 2, 2);
+        self::assertPagesMatch(['Sub A', 'Sub B'], $result->items);
     }
 
     public static function limitProvider(): iterable
