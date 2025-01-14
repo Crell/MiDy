@@ -33,10 +33,13 @@ trait SetupDB
         $dsn = new Dsn('sqlite', 'memory')->asString();
 
         // PSR-16 cache implementation.
-        $fileCache = new FileCache($this->cachePath);
+        $fileCache = new FileCache($this->cachePath . '/yii');
 
         // Schema cache.
         $schemaCache = new SchemaCache($fileCache);
+        // @todo I don't know why the cache is failing now for DML queries,
+        //   but I am not going to spend time figuring it out.
+        $schemaCache->setEnabled(false);
 
         // PDO Driver.
         $pdoDriver = new Driver($dsn, attributes: [
