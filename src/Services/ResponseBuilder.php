@@ -17,6 +17,7 @@ readonly class ResponseBuilder
     public function __construct(
         private ResponseFactoryInterface $responseFactory,
         private StreamFactoryInterface $streamFactory,
+        private bool $enableCache = true,
     ) {}
 
     public function createResponse(int $code, string|StreamInterface $body, ?string $contentType = null): ResponseInterface
@@ -114,6 +115,10 @@ readonly class ResponseBuilder
      */
     public function handleCacheableFileRequest(ServerRequestInterface $request, string $filePath, \Closure $generator): ResponseInterface
     {
+        if (!$this->enableCache) {
+            return $generator();
+        }
+
         $mtime = filemtime($filePath);
         $etag = hash_file(self::ETAG_HASH_ALGORITHM, $filePath);
 

@@ -58,6 +58,7 @@ use Crell\MiDy\Router\HandlerRouter\HandlerRouter;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
+use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Services\RuntimeActionInvoker;
 use Crell\MiDy\TimedCache\FilesystemTimedCache;
 use Crell\Serde\Serde;
@@ -107,6 +108,7 @@ use Yiisoft\Db\Sqlite\Dsn;
 
 use function DI\autowire;
 use function DI\create;
+use function DI\env;
 use function DI\factory;
 use function DI\get;
 use function DI\value;
@@ -152,6 +154,11 @@ class MiDy implements RequestHandlerInterface
 
         $this->container = $this->buildContainer();
         $this->setupListeners();
+
+        // @todo Hacky.
+        if (isset($_ENV['ENABLE_CACHE'])) {
+            $_ENV['ENABLE_CACHE'] = in_array($_ENV['ENABLE_CACHE'], ['1', 'true', 'on'], false);
+        }
 
         if (class_exists(\Tracy\Debugger::class)) {
             \Tracy\Debugger::enable();
@@ -362,7 +369,10 @@ class MiDy implements RequestHandlerInterface
                     uriFactory: get(Psr17Factory::class),
                     uploadedFileFactory: get(Psr17Factory::class),
                     streamFactory: get(StreamFactoryInterface::class),
-                )
+                ),
+            ResponseBuilder::class => autowire()
+                ->constructorParameter('enableCache', env('ENABLE_CACHE', true))
+            ,
         ]);
 
         // Commonmark
