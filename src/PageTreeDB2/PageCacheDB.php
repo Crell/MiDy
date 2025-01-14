@@ -420,7 +420,7 @@ class PageCacheDB
         ;
 
         $filesWithTag = new Query($this->yiiConn)
-            ->select('f.*')
+            ->select('f.*')->distinct()
             ->from('{{file}} f')
             ->innerJoin('{{file_tag}} t', 'f.logicalPath = t.logicalPath AND f.ext = t.ext')
             ->where(['f.folder' => $folderPath])
@@ -431,13 +431,23 @@ class PageCacheDB
             ])
         ;
 
+        $debug = clone($filesWithTag);
+        var_dump($debug->select('physicalPath')->all());
+
         $query = new Query($this->yiiConn)
             ->withQuery($pagesInWindow, 'pages')
             ->withQuery($filesWithTag, 'tagged_files')
             ->select('f.*')
             ->from('{{tagged_files}} f')
             ->innerJoin('{{pages}} p', 'f.logicalPath = p.logicalPath')
+            ->orderBy([
+                '[[order]]' => SORT_ASC,
+                '[[title]]' => SORT_ASC,
+                '[[physicalPath]]' => SORT_ASC,
+            ])
         ;
+
+        var_dump($query->all());
 
         return array_map($this->instantiateFile(...), $query->all());
     }

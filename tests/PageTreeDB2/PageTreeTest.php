@@ -357,6 +357,59 @@ class PageTreeTest extends TestCase
         self::assertPagesMatch(['First', 'Second'], $result->items);
     }
 
+    #[Test, ]
+    public function can_query_for_any_tag_in_folder_paged(): void
+    {
+        file_put_contents($this->routesPath . '/01_first.md', <<<END
+        ---
+        title: First
+        tags: [tag1, page]
+        ---
+        First page
+        END);
+        file_put_contents($this->routesPath . '/02_second.md', <<<END
+        ---
+        title: Second
+        tags: [tag2, page]
+        ---
+        Second page
+        END);
+        file_put_contents($this->routesPath . '/03_third.md', <<<END
+        ---
+        title: Third
+        tags: [tag1]
+        ---
+        Third page
+        END);
+        file_put_contents($this->routesPath . '/04_fourth.md', <<<END
+        ---
+        title: Fourth
+        tags: [tag1]
+        ---
+        Fourth page
+        END);
+        file_put_contents($this->routesPath . '/05_fifth.md', <<<END
+        ---
+        title: Fifth
+        tags: [tag3]
+        ---
+        Fifth page
+        END);
+
+        $tree = new PageTree($this->cache, $this->parser, $this->routesPath);
+
+        $folder = $tree->folder('/');
+
+//        $this->dumpPageView();
+//        $this->dumpFilesTable();
+
+        $result = $folder->filterAnyTag(['tag1'], 2, 1);
+        self::assertPagesMatch(['First', 'Fourth'], $result->items);
+
+        $result = $folder->filterAnyTag(['tag1'], 2, 2);
+        self::assertPagesMatch(['Fourth'], $result->items);
+    }
+
     #[Test, RunInSeparateProcess]
     public function can_query_for_all_tags_in_folder(): void
     {

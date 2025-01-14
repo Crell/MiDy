@@ -51,7 +51,7 @@ class PageTree
 
     public function folderAnyTag(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
-        $total = $this->cache->countPagesInFolder($folderPath);
+        $total = $this->cache->countPagesInFolderAnyTag($folderPath, $tags);
         $data = $this->cache->readPagesInFolderAnyTag($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
 
         return $this->paginate($pageSize, $pageNum, $total, $data);
@@ -59,6 +59,7 @@ class PageTree
 
     public function folderAllTags(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
+        // @todo This is the wrong method call, but all-tags queries are still a PITA.
         $total = $this->cache->countPagesInFolder($folderPath);
         $data = $this->cache->readPagesInFolderAllTags($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
 
