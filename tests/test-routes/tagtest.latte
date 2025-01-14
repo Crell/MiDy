@@ -1,19 +1,27 @@
 {layout $templateRoot . '/layout.latte'}
 
-{varType \Crell\MiDy\PageTree\Folder $root}
 {varType \Crell\MiDy\PageTreeDB2\PageTree $pageTree}
+{varType array $query}
 
 {define title}Tag Test{/define}
 
 {block content}
 
-{*    Need to figure out how to select all pages by tag. *}
+    Find all pages across the site by tag.
 
-{*    {foreach $root->find('/blog')->filterAnyTag('summary') as $page}*}
-{*        <article>*}
-{*            <h3><a href="{$page->path}">{$page->title}</a></h3>*}
-{*            <div>{$page->summary}</div>*}
-{*        </article>*}
-{*    {/foreach}*}
+    {var $pagination = $pageTree->anyTag(['sqlite'], 2, $query['page'] ?? 1)}
+
+    {dump $pagination}
+
+    <article n:foreach="$pagination->items as $page">
+        <h3><a href="{$page->path}">{$page->title}</a></h3>
+        <div>{$page->summary}</div>
+    </article>
+
+    <div>Showing page {$pagination->pageNum} of {$pagination->pageCount}</div>
+
+    <ul class="paginator" n:foreach="range(1, $pagination->pageCount) as $i">
+        <li><a href="?page={$i}">{$i}</a></li>
+    </ul>
 
 {/block}

@@ -1,5 +1,4 @@
 {varType string $templateRoot}
-{varType \Crell\MiDy\PageTree\Folder $root}
 {varType \Crell\MiDy\PageTreeDB2\PageTree $pageTree}
 {varType array $query}
 
@@ -8,14 +7,12 @@
 {define title}Test Page{/define}
 
 {block content}
-    {var $pagination = $root->find('/blog')->paginate(2, $query['page'] ?? 1)}
+    {var $pagination = $pageTree->folder('/blog')->filterAnyTag(['sqlite'], 2, $query['page'] ?? 1)}
 
-    {foreach $pagination->items as $page}
-        <article>
-            <h3><a href="{$page->path}">{$page->title}</a></h3>
-            <div>{$page->summary}</div>
-        </article>
-    {/foreach}
+    <article n:foreach="$pagination->items as $page">
+        <h3><a href="{$page->path}">{$page->title}</a></h3>
+        <div>{$page->summary}</div>
+    </article>
 
     <div>Showing page {$pagination->pageNum} of {$pagination->pageCount}</div>
 
