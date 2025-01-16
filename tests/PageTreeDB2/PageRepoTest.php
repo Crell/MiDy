@@ -222,7 +222,7 @@ class PageRepoTest extends TestCase
 
         $dbValidation($this);
 
-        $record = $cache->readPageFiles($pagePath);
+        $record = $cache->readPage($pagePath);
 
         self::assertEquals('/foo/test', $page->logicalPath);
         self::assertEquals('/foo', $page->folder);

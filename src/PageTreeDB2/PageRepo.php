@@ -142,10 +142,7 @@ class PageRepo
         ])->execute();
     }
 
-    /**
-     * @return array<ParsedFile>
-     */
-    public function readPageFiles(string $path): ?PageRecord
+    public function readPage(string $path): ?PageRecord
     {
         $result = $this->conn
             ->createCommand("SELECT files FROM page WHERE logicalPath=:logicalPath")
@@ -165,7 +162,6 @@ class PageRepo
             folder: $loadedFiles[0]->folder,
             files: $loadedFiles,
         );
-
     }
 
     private function instantiateFolder(array $record): ParsedFolder
