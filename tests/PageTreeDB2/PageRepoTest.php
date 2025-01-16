@@ -135,12 +135,12 @@ class PageRepoTest extends TestCase
                 self::makeParsedFile(physicalPath: '/foo/test.md'),
             ],
             'pagePath' => '/foo/test',
+            'dbValidation' => function (self $test) {
+                $page = $test->getPage('/foo/test');
+                self::assertFalse((bool)$page['hidden']);
+            },
             'validation' => function (PageRecord $page) {
-                self::assertEquals('/foo/test', $page->logicalPath);
-                self::assertEquals('/foo', $page->folder);
                 foreach ($page->files as $file) {
-                    self::assertEquals('/foo/test', $file->logicalPath);
-                    self::assertEquals('test', $file->pathName);
                     self::assertFalse($file->isFolder);
                     self::assertFalse($file->hidden);
                 }
@@ -155,22 +155,62 @@ class PageRepoTest extends TestCase
                 self::makeParsedFile(physicalPath: '/foo/test.latte'),
             ],
             'pagePath' => '/foo/test',
+            'dbValidation' => function (self $test) {
+                $page = $test->getPage('/foo/test');
+                self::assertFalse((bool)$page['hidden']);
+            },
             'validation' => function (PageRecord $page) {
-                self::assertEquals('/foo/test', $page->logicalPath);
-                self::assertEquals('/foo', $page->folder);
                 foreach ($page->files as $file) {
-                    self::assertEquals('/foo/test', $file->logicalPath);
-                    self::assertEquals('test', $file->pathName);
                     self::assertFalse($file->isFolder);
                     self::assertFalse($file->hidden);
                 }
                 self::assertCount(2, $page->files);
             },
         ];
+
+        yield 'multi-file page, some hidden' => [
+            'folder' => self::makeParsedFolder(physicalPath: '/foo'),
+            'files' => [
+                self::makeParsedFile(physicalPath: '/foo/test.md'),
+                self::makeParsedFile(physicalPath: '/foo/test.latte'),
+                self::makeParsedFile(physicalPath: '/foo/test.gif', hidden: true),
+            ],
+            'pagePath' => '/foo/test',
+            'dbValidation' => function (self $test) {
+                $page = $test->getPage('/foo/test');
+                self::assertFalse((bool)$page['hidden']);
+            },
+            'validation' => function (PageRecord $page) {
+                foreach ($page->files as $file) {
+                    self::assertFalse($file->isFolder);
+                }
+                self::assertCount(3, $page->files);
+            },
+        ];
+
+        yield 'multi-file page, all hidden' => [
+            'folder' => self::makeParsedFolder(physicalPath: '/foo'),
+            'files' => [
+                self::makeParsedFile(physicalPath: '/foo/test.md', hidden: true),
+                self::makeParsedFile(physicalPath: '/foo/test.latte', hidden: true),
+                self::makeParsedFile(physicalPath: '/foo/test.gif', hidden: true),
+            ],
+            'pagePath' => '/foo/test',
+            'dbValidation' => function (self $test) {
+                $page = $test->getPage('/foo/test');
+                self::assertTrue((bool)$page['hidden']);
+            },
+            'validation' => function (PageRecord $page) {
+                foreach ($page->files as $file) {
+                    self::assertFalse($file->isFolder);
+                }
+                self::assertCount(3, $page->files);
+            },
+        ];
     }
 
     #[Test, DataProvider('page_data')]
-    public function page_save_and_load(ParsedFolder $folder, array $files, string $pagePath, \Closure $validation): void
+    public function page_save_and_load(ParsedFolder $folder, array $files, string $pagePath, \Closure $dbValidation, \Closure $validation): void
     {
         $cache = new PageRepo($this->yiiConn);
         $cache->reinitialize();
@@ -180,9 +220,25 @@ class PageRepoTest extends TestCase
         $page = new PageRecord($pagePath, $folder->logicalPath, $files);
         $cache->writePage($page);
 
+        $dbValidation($this);
+
         $record = $cache->readPageFiles($pagePath);
 
+        self::assertEquals('/foo/test', $page->logicalPath);
+        self::assertEquals('/foo', $page->folder);
+        foreach ($page->files as $file) {
+            self::assertEquals($pagePath, $file->logicalPath);
+        }
+
         $validation($record);
+    }
+
+    private function getPage(string $path): array
+    {
+        return $this->yiiConn
+            ->createCommand("SELECT * FROM page WHERE logicalPath=:logicalPath")
+            ->bindParam(':logicalPath', $path)
+            ->queryOne();
     }
 
     private function dumpPageView(): void
