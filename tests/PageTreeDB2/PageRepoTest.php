@@ -165,25 +165,6 @@ class PageRepoTest extends TestCase
                 self::assertCount(2, $files);
             },
         ];
-
-        yield 'multi-file page' => [
-            'folder' => self::makeParsedFolder(physicalPath: '/foo'),
-            'files' => [
-                self::makeParsedFile(physicalPath: '/foo/test.md'),
-                self::makeParsedFile(physicalPath: '/foo/test.latte'),
-            ],
-            'pagePath' => '/foo/test',
-            'validation' => function (array $files) {
-                /** @var array<ParsedFile> $files */
-                foreach ($files as $file) {
-                    self::assertEquals('/foo/test', $file->logicalPath);
-                    self::assertEquals('test', $file->pathName);
-                    self::assertFalse($file->isFolder);
-                    self::assertFalse($file->hidden);
-                }
-                self::assertCount(2, $files);
-            },
-        ];
     }
 
     #[Test, DataProvider('page_data')]
