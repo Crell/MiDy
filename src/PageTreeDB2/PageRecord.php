@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
+/**
+ * @todo For now this is being used for both read and write. That may or may not be ideal.
+ */
 class PageRecord
 {
     // @todo More robust than this.

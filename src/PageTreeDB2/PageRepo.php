@@ -145,7 +145,7 @@ class PageRepo
     /**
      * @return array<ParsedFile>
      */
-    public function readPageFiles(string $path): array
+    public function readPageFiles(string $path): ?PageRecord
     {
         $result = $this->conn
             ->createCommand("SELECT files FROM page WHERE logicalPath=:logicalPath")
@@ -154,7 +154,18 @@ class PageRepo
 
         $files = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
 
-        return array_map($this->instantiateFile(...), $files);
+        $loadedFiles = array_map($this->instantiateFile(...), $files);
+
+        if (empty($loadedFiles)) {
+            return null;
+        }
+
+        return new PageRecord(
+            logicalPath: $path,
+            folder: $loadedFiles[0]->folder,
+            files: $loadedFiles,
+        );
+
     }
 
     private function instantiateFolder(array $record): ParsedFolder

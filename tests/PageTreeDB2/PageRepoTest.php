@@ -135,15 +135,16 @@ class PageRepoTest extends TestCase
                 self::makeParsedFile(physicalPath: '/foo/test.md'),
             ],
             'pagePath' => '/foo/test',
-            'validation' => function (array $files) {
-                /** @var array<ParsedFile> $files */
-                foreach ($files as $file) {
+            'validation' => function (PageRecord $page) {
+                self::assertEquals('/foo/test', $page->logicalPath);
+                self::assertEquals('/foo', $page->folder);
+                foreach ($page->files as $file) {
                     self::assertEquals('/foo/test', $file->logicalPath);
                     self::assertEquals('test', $file->pathName);
                     self::assertFalse($file->isFolder);
                     self::assertFalse($file->hidden);
                 }
-                self::assertCount(1, $files);
+                self::assertCount(1, $page->files);
             },
         ];
 
@@ -154,15 +155,16 @@ class PageRepoTest extends TestCase
                 self::makeParsedFile(physicalPath: '/foo/test.latte'),
             ],
             'pagePath' => '/foo/test',
-            'validation' => function (array $files) {
-                /** @var array<ParsedFile> $files */
-                foreach ($files as $file) {
+            'validation' => function (PageRecord $page) {
+                self::assertEquals('/foo/test', $page->logicalPath);
+                self::assertEquals('/foo', $page->folder);
+                foreach ($page->files as $file) {
                     self::assertEquals('/foo/test', $file->logicalPath);
                     self::assertEquals('test', $file->pathName);
                     self::assertFalse($file->isFolder);
                     self::assertFalse($file->hidden);
                 }
-                self::assertCount(2, $files);
+                self::assertCount(2, $page->files);
             },
         ];
     }
@@ -178,9 +180,9 @@ class PageRepoTest extends TestCase
         $page = new PageRecord($pagePath, $folder->logicalPath, $files);
         $cache->writePage($page);
 
-        $files = $cache->readPageFiles($pagePath);
+        $record = $cache->readPageFiles($pagePath);
 
-        $validation($files);
+        $validation($record);
     }
 
     private function dumpPageView(): void
