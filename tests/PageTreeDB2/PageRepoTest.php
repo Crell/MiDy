@@ -207,6 +207,27 @@ class PageRepoTest extends TestCase
                 self::assertCount(3, $page->files);
             },
         ];
+
+        yield 'multi-file page, tagged' => [
+            'folder' => self::makeParsedFolder(physicalPath: '/foo'),
+            'files' => [
+                self::makeParsedFile(physicalPath: '/foo/test.md', tags: ['a', 'b']),
+                self::makeParsedFile(physicalPath: '/foo/test.latte', tags: ['b', 'c']),
+                self::makeParsedFile(physicalPath: '/foo/test.gif', hidden: true),
+            ],
+            'pagePath' => '/foo/test',
+            'dbValidation' => function (self $test) {
+                $page = $test->getPage('/foo/test');
+                $tags = json_decode($page['tags'], true, 512, JSON_THROW_ON_ERROR);
+                self::assertEquals(['a', 'b', 'c'], $tags);
+            },
+            'validation' => function (PageRecord $page) {
+                foreach ($page->files as $file) {
+                    self::assertFalse($file->isFolder);
+                }
+                self::assertCount(3, $page->files);
+            },
+        ];
     }
 
     #[Test, DataProvider('page_data')]

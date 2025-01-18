@@ -42,6 +42,10 @@ class PageRecord
         get => substr($this->logicalPath, strrpos($this->logicalPath, '/') + 1);
     }
 
+    public array $tags {
+        get => array_values(array_unique(array_merge(...$this->values(__PROPERTY__))));
+    }
+
     /**
      * @param string $logicalPath
      * @param string $folder

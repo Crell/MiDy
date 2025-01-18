@@ -24,6 +24,7 @@ class ParsedFile
         public string $summary,
         public string $pathName,
         public bool $isFolder = false,
+        public array $tags = [],
     ) {}
 
     public function __debugInfo(): ?array

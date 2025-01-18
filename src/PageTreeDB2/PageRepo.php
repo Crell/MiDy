@@ -41,6 +41,7 @@ class PageRepo
             publishDate  string             not null,
             lastModifiedDate  string        not null,
             pathName     TEXT               not null,
+            tags         JSONB default '' not null,
             constraint page_pk
                 primary key (logicalPath),
             foreign key (folder) references folder(logicalPath)
@@ -140,6 +141,7 @@ class PageRepo
             'publishDate' => $page->publishDate->format('c'),
             'lastModifiedDate' => $page->lastModifiedDate->format('c'),
             'pathName' => $page->pathName,
+            'tags' => json_encode($page->tags, JSON_THROW_ON_ERROR),
         ])->execute();
     }
 
