@@ -8,6 +8,7 @@ use Crell\MiDy\PageTree\BasicPageInformation;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\QueryBuilder\Condition\OrCondition;
 use Yiisoft\Db\Sqlite\Connection;
 
 class PageRepo
@@ -41,7 +42,7 @@ class PageRepo
             publishDate  string             not null,
             lastModifiedDate  string        not null,
             pathName     TEXT               not null,
-            tags         JSONB default '' not null,
+            tags         JSONB default '[]' not null,
             constraint page_pk
                 primary key (logicalPath),
             foreign key (folder) references folder(logicalPath)
@@ -173,7 +174,7 @@ class PageRepo
      * @param int $limit
      * @param int $offset
      *
-     * @todo anyTag, publishedBefore, publishedAfter,
+     * @todo publishedBefore, publishedAfter,
      *      titleContains
      *
      * @todo Ordering
@@ -183,6 +184,7 @@ class PageRepo
         bool $deep = false,
         bool $includeHidden = false,
         bool $routableOnly = true,
+        array $anyTag = [],
         int $limit = self::DefaultPageSize,
         int $offset = 0,
     ): QueryResult {
@@ -198,6 +200,14 @@ class PageRepo
         }
         if ($routableOnly) {
             $query->andWhere(['routable' => 1]);
+        }
+
+        if ($anyTag) {
+            $query->from([...$query->getFrom(), 'json_each(tags)']);
+            $query->andWhere(['in', "json_each.value", $anyTag]);
+            // The json_each() call results in a row-per-tag, so we need to
+            // filter that out in case we match on more than one tag.
+            $query->distinct();
         }
 
         if ($folder) {

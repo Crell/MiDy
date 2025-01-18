@@ -439,13 +439,69 @@ class PageRepoTest extends TestCase
             },
         ];
 
+        $taggedCases = [
+            'just A' => [
+                'tagsToFind' => ['A'],
+                'expectedCount' => 2,
+            ],
+            'A or B' => [
+                'tagsToFind' => ['A', 'B'],
+                'expectedCount' => 3,
+            ],
+            'Just D' => [
+                'tagsToFind' => ['D'],
+                'expectedCount' => 1,
+            ],
+        ];
+        foreach ($taggedCases as $name => $settings) {
+            yield "any-tag search for $name" => [
+                'folders' => [
+                    self::makeParsedFolder(physicalPath: '/foo'),
+                    self::makeParsedFolder(physicalPath: '/foo/sub'),
+                    self::makeParsedFolder(physicalPath: '/bar'),
+                ],
+                'pages' => [
+                    new PageRecord('/foo/a', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/a.md', tags: ['A', 'B']),
+                        self::makeParsedFile(physicalPath: '/foo/a.txt', tags: ['B', 'C']),
+                    ]),
+                    new PageRecord('/foo/b', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/b.md', tags: ['D']),
+                    ]),
+                    new PageRecord('/foo/c', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/c.md'),
+                    ]),
+                    new PageRecord('/foo/d', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/d.md', tags: ['A', 'C']),
+                    ]),
+                    new PageRecord('/foo/e', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/e.md'),
+                    ]),
+                    new PageRecord('/bar/x', '/bar', [
+                        self::makeParsedFile(physicalPath: '/bar/x.md', tags: ['B']),
+                    ]),
+                    new PageRecord('/foo/sub/y', '/foo/sub', [
+                        self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+                    ]),
+                ],
+                'query' => [
+                    'anyTag' => $settings['tagsToFind'],
+                ],
+                'expectedCount' => $settings['expectedCount'],
+                'totalPages' => $settings['expectedCount'],
+                'validator' => function (QueryResult $queryResult) {
+                    $paths = array_column($queryResult->pages, 'logicalPath');
+
+                },
+            ];
+        }
+
         $paginationCases = [
             0 => 2,
             2 => 2,
             4 => 1,
             6 => 0
         ];
-
         foreach ($paginationCases as $offset => $expectedCount) {
             yield "paginated with offset $offset" => [
                 'folders' => [
