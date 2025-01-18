@@ -171,7 +171,7 @@ class PageRepo
      * @param int $limit
      * @param int $offset
      *
-     * @todo anyTag, routable=true, publishedBefore, publishedAfter,
+     * @todo anyTag, publishedBefore, publishedAfter,
      *      titleContains
      *
      * @todo Ordering
@@ -180,6 +180,7 @@ class PageRepo
         ?string $folder = null,
         bool $deep = false,
         bool $includeHidden = false,
+        bool $routableOnly = true,
         int $limit = self::DefaultPageSize,
         int $offset = 0,
     ): QueryResult {
@@ -191,7 +192,10 @@ class PageRepo
         ;
 
         if (!$includeHidden) {
-            $query->andWhere(['hidden' => false]);
+            $query->andWhere(['hidden' => 0]);
+        }
+        if ($routableOnly) {
+            $query->andWhere(['routable' => 1]);
         }
 
         if ($folder) {

@@ -372,6 +372,65 @@ class PageRepoTest extends TestCase
             },
         ];
 
+        $routablePages = [
+            new PageRecord('/foo/a', '/foo', [
+                self::makeParsedFile(physicalPath: '/foo/a.md', routable: false),
+                self::makeParsedFile(physicalPath: '/foo/a.txt', routable: false),
+            ]),
+            new PageRecord('/foo/b', '/foo', [
+                self::makeParsedFile(physicalPath: '/foo/b.md'),
+                self::makeParsedFile(physicalPath: '/foo/b.txt', routable: false),
+            ]),
+            new PageRecord('/bar/c', '/bar', [
+                self::makeParsedFile(physicalPath: '/bar/c.md', routable: false),
+            ]),
+            new PageRecord('/foo/sub/y', '/foo/sub', [
+                self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+            ]),
+        ];
+
+        yield 'exclude non-routable by default' => [
+            'folders' => [
+                self::makeParsedFolder(physicalPath: '/foo'),
+                self::makeParsedFolder(physicalPath: '/foo/sub'),
+                self::makeParsedFolder(physicalPath: '/bar'),
+            ],
+            'pages' => $routablePages,
+            'query' => [
+                'routableOnly' => true,
+            ],
+            'expectedCount' => 2,
+            'totalPages' => 2,
+            'validator' => function (QueryResult $queryResult) {
+                $paths = array_column($queryResult->pages, 'logicalPath');
+                self::assertNotContains('/foo/a', $paths);
+                self::assertContains('/foo/b', $paths);
+                self::assertNotContains('/foo/c', $paths);
+                self::assertContains('/foo/sub/y', $paths);
+            },
+        ];
+
+        yield 'include non-routable' => [
+            'folders' => [
+                self::makeParsedFolder(physicalPath: '/foo'),
+                self::makeParsedFolder(physicalPath: '/foo/sub'),
+                self::makeParsedFolder(physicalPath: '/bar'),
+            ],
+            'pages' => $routablePages,
+            'query' => [
+                'routableOnly' => false,
+            ],
+            'expectedCount' => 4,
+            'totalPages' => 4,
+            'validator' => function (QueryResult $queryResult) {
+                $paths = array_column($queryResult->pages, 'logicalPath');
+                self::assertContains('/foo/a', $paths);
+                self::assertContains('/foo/b', $paths);
+                self::assertContains('/bar/c', $paths);
+                self::assertContains('/foo/sub/y', $paths);
+            },
+        ];
+
         $paginationCases = [
             0 => 2,
             2 => 2,
