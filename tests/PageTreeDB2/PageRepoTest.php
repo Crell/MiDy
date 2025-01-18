@@ -300,6 +300,78 @@ class PageRepoTest extends TestCase
             },
         ];
 
+        yield 'exclude hidden by default' => [
+            'folders' => [
+                self::makeParsedFolder(physicalPath: '/foo'),
+                self::makeParsedFolder(physicalPath: '/foo/sub'),
+                self::makeParsedFolder(physicalPath: '/bar'),
+            ],
+            'pages' => [
+                new PageRecord('/foo/a', '/foo', [
+                    self::makeParsedFile(physicalPath: '/foo/a.md', hidden: true),
+                    self::makeParsedFile(physicalPath: '/foo/a.txt', hidden: true),
+                ]),
+                new PageRecord('/foo/b', '/foo', [
+                    self::makeParsedFile(physicalPath: '/foo/b.md'),
+                    self::makeParsedFile(physicalPath: '/foo/b.txt', hidden: true),
+                ]),
+                new PageRecord('/bar/c', '/bar', [
+                    self::makeParsedFile(physicalPath: '/bar/c.md', hidden: true),
+                ]),
+                new PageRecord('/foo/sub/y', '/foo/sub', [
+                    self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+                ]),
+            ],
+            'query' => [
+                'includeHidden' => false,
+            ],
+            'expectedCount' => 2,
+            'totalPages' => 2,
+            'validator' => function (QueryResult $queryResult) {
+                $paths = array_column($queryResult->pages, 'logicalPath');
+                self::assertNotContains('/foo/a', $paths);
+                self::assertContains('/foo/b', $paths);
+                self::assertNotContains('/foo/c', $paths);
+                self::assertContains('/foo/sub/y', $paths);
+            },
+        ];
+
+        yield 'include hidden' => [
+            'folders' => [
+                self::makeParsedFolder(physicalPath: '/foo'),
+                self::makeParsedFolder(physicalPath: '/foo/sub'),
+                self::makeParsedFolder(physicalPath: '/bar'),
+            ],
+            'pages' => [
+                new PageRecord('/foo/a', '/foo', [
+                    self::makeParsedFile(physicalPath: '/foo/a.md', hidden: true),
+                    self::makeParsedFile(physicalPath: '/foo/a.txt', hidden: true),
+                ]),
+                new PageRecord('/foo/b', '/foo', [
+                    self::makeParsedFile(physicalPath: '/foo/b.md'),
+                    self::makeParsedFile(physicalPath: '/foo/b.txt', hidden: true),
+                ]),
+                new PageRecord('/bar/c', '/bar', [
+                    self::makeParsedFile(physicalPath: '/bar/c.md', hidden: true),
+                ]),
+                new PageRecord('/foo/sub/y', '/foo/sub', [
+                    self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+                ]),
+            ],
+            'query' => [
+                'includeHidden' => true,
+            ],
+            'expectedCount' => 4,
+            'totalPages' => 4,
+            'validator' => function (QueryResult $queryResult) {
+                $paths = array_column($queryResult->pages, 'logicalPath');
+                self::assertContains('/foo/a', $paths);
+                self::assertContains('/foo/b', $paths);
+                self::assertContains('/bar/c', $paths);
+                self::assertContains('/foo/sub/y', $paths);
+            },
+        ];
+
         $paginationCases = [
             0 => 2,
             2 => 2,
@@ -383,7 +455,7 @@ class PageRepoTest extends TestCase
             ->queryOne();
     }
 
-    private function dumpPageView(): void
+    private function dumpPageTable(): void
     {
         var_dump($this->yiiConn->createCommand("SELECT * FROM page")->queryAll());
     }

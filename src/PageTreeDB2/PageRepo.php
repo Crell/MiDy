@@ -172,13 +172,14 @@ class PageRepo
      * @param int $offset
      *
      * @todo anyTag, routable=true, publishedBefore, publishedAfter,
-     *      includeHidden=false, titleContains
+     *      titleContains
      *
      * @todo Ordering
      */
     public function queryPages(
         ?string $folder = null,
         bool $deep = false,
+        bool $includeHidden = false,
         int $limit = self::DefaultPageSize,
         int $offset = 0,
     ): QueryResult {
@@ -189,14 +190,18 @@ class PageRepo
             ->offset($offset)
         ;
 
+        if (!$includeHidden) {
+            $query->andWhere(['hidden' => false]);
+        }
+
         if ($folder) {
             if (!$deep) {
-                $query->where(['folder' => $folder]);
+                $query->andWhere(['folder' => $folder]);
             } else {
                 // @todo This isn't quite right, as Yii by default
                 //   sticks a % both before and after the value. But it's not clear how
                 //   to make it do just a prefix search (% only at the end)
-                $query->where(['like', 'folder', $folder ]);
+                $query->andWhere(['like', 'folder', $folder]);
             }
         }
 
