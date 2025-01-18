@@ -496,6 +496,65 @@ class PageRepoTest extends TestCase
             ];
         }
 
+        $publishedCases = [
+            'should find none' => [
+                'query' => ['publishedBefore' => new \DateTimeImmutable('2024-01-15')],
+                'expectedCount' => 0,
+            ],
+            'should find one' => [
+                'query' => ['publishedBefore' => new \DateTimeImmutable('2024-02-15')],
+                'expectedCount' => 1,
+            ],
+            'should find lots' => [
+                'query' => ['publishedBefore' => new \DateTimeImmutable('2024-05-15')],
+                'expectedCount' => 4,
+            ],
+            'should find on same date' => [
+                'query' => ['publishedBefore' => new \DateTimeImmutable('2024-03-01')],
+                'expectedCount' => 2,
+            ],
+        ];
+        foreach ($publishedCases as $name => $settings) {
+            yield "publication date search for $name" => [
+                'folders' => [
+                    self::makeParsedFolder(physicalPath: '/foo'),
+                    self::makeParsedFolder(physicalPath: '/foo/sub'),
+                    self::makeParsedFolder(physicalPath: '/bar'),
+                ],
+                'pages' => [
+                    new PageRecord('/foo/a', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/a.md', publishDate: new \DateTimeImmutable('2024-01-01')),
+                        self::makeParsedFile(physicalPath: '/foo/a.txt', publishDate: new \DateTimeImmutable('2024-02-01')),
+                    ]),
+                    new PageRecord('/foo/b', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/b.md'),
+                    ]),
+                    new PageRecord('/foo/c', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/c.md', publishDate: new \DateTimeImmutable('2024-03-01')),
+                    ]),
+                    new PageRecord('/foo/d', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/d.md', publishDate: new \DateTimeImmutable('2024-04-01')),
+                    ]),
+                    new PageRecord('/foo/e', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/e.md', publishDate: new \DateTimeImmutable('2024-05-01')),
+                    ]),
+                    new PageRecord('/bar/x', '/bar', [
+                        self::makeParsedFile(physicalPath: '/bar/x.md', publishDate: new \DateTimeImmutable('2024-06-01')),
+                    ]),
+                    new PageRecord('/foo/sub/y', '/foo/sub', [
+                        self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+                    ]),
+                ],
+                'query' => $settings['query'],
+                'expectedCount' => $settings['expectedCount'],
+                'totalPages' => $settings['expectedCount'],
+                'validator' => function (QueryResult $queryResult) {
+                    $paths = array_column($queryResult->pages, 'logicalPath');
+
+                },
+            ];
+        }
+
         $paginationCases = [
             0 => 2,
             2 => 2,

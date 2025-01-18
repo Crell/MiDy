@@ -174,7 +174,7 @@ class PageRepo
      * @param int $limit
      * @param int $offset
      *
-     * @todo publishedBefore, publishedAfter,
+     * @todo publishedAfter,
      *      titleContains
      *
      * @todo Ordering
@@ -185,6 +185,7 @@ class PageRepo
         bool $includeHidden = false,
         bool $routableOnly = true,
         array $anyTag = [],
+        ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
         int $limit = self::DefaultPageSize,
         int $offset = 0,
     ): QueryResult {
@@ -208,6 +209,10 @@ class PageRepo
             // The json_each() call results in a row-per-tag, so we need to
             // filter that out in case we match on more than one tag.
             $query->distinct();
+        }
+
+        if ($publishedBefore) {
+            $query->andWhere(['<=', 'publishDate', $publishedBefore->format('c')]);
         }
 
         if ($folder) {
