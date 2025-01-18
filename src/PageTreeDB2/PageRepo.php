@@ -7,6 +7,7 @@ namespace Crell\MiDy\PageTreeDB2;
 use Crell\MiDy\PageTree\BasicPageInformation;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
+use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Sqlite\Connection;
 
 class PageRepo
@@ -160,6 +161,61 @@ class PageRepo
         return new PageRecord(
             logicalPath: $path,
             folder: $loadedFiles[0]->folder,
+            files: $loadedFiles,
+        );
+    }
+
+    /**
+     * @param string|null $folder
+     * @param bool $deep
+     * @param int $limit
+     * @param int $offset
+     * @return array<PageRecord>
+     *
+     * @todo anyTag, routable=true, publishedBefore, publishedAfter,
+     *      includeHidden=false, titleContains
+     *
+     * @todo Ordering
+     *
+     * @todo Have this use $query->count() to get the count,
+     *   and have a single return object with that and the data.
+     */
+    public function queryPages(
+        ?string $folder = null,
+        bool $deep = false,
+        int $limit = self::DefaultPageSize,
+        int $offset = 0,
+    ): array {
+        $query = new Query($this->conn)
+            ->select(['logicalPath', 'folder', 'files'])
+            ->from('page')
+            ->limit($limit)
+            ->offset($offset)
+        ;
+
+        if ($folder) {
+            if (!$deep) {
+                $query->where(['folder' => $folder]);
+            } else {
+                // @todo This isn't quite right, as Yii by default
+                //   sticks a % both before and after the value. But it's not clear how
+                //   to make it do just a prefix search (% only at the end)
+                $query->where(['like', 'folder', $folder ]);
+            }
+        }
+
+        return array_map($this->instantiatePage(...), $query->all());
+    }
+
+    private function instantiatePage(array $record): PageRecord
+    {
+        $files = json_decode($record['files'], true, 512, JSON_THROW_ON_ERROR);
+
+        $loadedFiles = array_map($this->instantiateFile(...), $files);
+
+        return new PageRecord(
+            logicalPath: $record['logicalPath'],
+            folder: $record['folder'],
             files: $loadedFiles,
         );
     }

@@ -233,6 +233,147 @@ class PageRepoTest extends TestCase
         $validation($record);
     }
 
+    public static function query_pages_data(): iterable
+    {
+        yield 'search by folder, shallow' => [
+            'folders' => [
+                self::makeParsedFolder(physicalPath: '/foo'),
+                self::makeParsedFolder(physicalPath: '/foo/sub'),
+                self::makeParsedFolder(physicalPath: '/bar'),
+            ],
+            'pages' => [
+                new PageRecord('/foo/a', '/foo', [
+                    self::makeParsedFile(physicalPath: '/foo/a.md'),
+                    self::makeParsedFile(physicalPath: '/foo/a.txt'),
+                ]),
+                new PageRecord('/foo/b', '/foo', [
+                    self::makeParsedFile(physicalPath: '/foo/b.md'),
+                ]),
+                new PageRecord('/bar/c', '/bar', [
+                    self::makeParsedFile(physicalPath: '/bar/c.md'),
+                ]),
+            ],
+            'query' => [
+                'folder' => '/foo'
+            ],
+            'expectedCount' => 2,
+            'validator' => function (array $pages) {
+                /** @var array<PageRecord> $pages */
+                $paths = array_column($pages, 'logicalPath');
+                self::assertContains('/foo/a', $paths);
+                self::assertContains('/foo/b', $paths);
+            },
+        ];
+
+        yield 'search by folder, deep' => [
+            'folders' => [
+                self::makeParsedFolder(physicalPath: '/foo'),
+                self::makeParsedFolder(physicalPath: '/foo/sub'),
+                self::makeParsedFolder(physicalPath: '/bar'),
+            ],
+            'pages' => [
+                new PageRecord('/foo/a', '/foo', [
+                    self::makeParsedFile(physicalPath: '/foo/a.md'),
+                    self::makeParsedFile(physicalPath: '/foo/a.txt'),
+                ]),
+                new PageRecord('/foo/b', '/foo', [
+                    self::makeParsedFile(physicalPath: '/foo/b.md'),
+                ]),
+                new PageRecord('/bar/c', '/bar', [
+                    self::makeParsedFile(physicalPath: '/bar/c.md'),
+                ]),
+                new PageRecord('/foo/sub/y', '/foo/sub', [
+                    self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+                ]),
+            ],
+            'query' => [
+                'folder' => '/foo',
+                'deep' => true,
+            ],
+            'expectedCount' => 3,
+            'validator' => function (array $pages) {
+                /** @var array<PageRecord> $pages */
+                $paths = array_column($pages, 'logicalPath');
+                self::assertContains('/foo/a', $paths);
+                self::assertContains('/foo/b', $paths);
+                self::assertContains('/foo/sub/y', $paths);
+            },
+        ];
+
+        $paginationCases = [
+            0 => 2,
+            2 => 2,
+            4 => 1,
+            6 => 0
+        ];
+
+        foreach ($paginationCases as $offset => $expectedCount) {
+            yield "paginated with offset $offset" => [
+                'folders' => [
+                    self::makeParsedFolder(physicalPath: '/foo'),
+                    self::makeParsedFolder(physicalPath: '/foo/sub'),
+                    self::makeParsedFolder(physicalPath: '/bar'),
+                ],
+                'pages' => [
+                    new PageRecord('/foo/a', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/a.md'),
+                        self::makeParsedFile(physicalPath: '/foo/a.txt'),
+                    ]),
+                    new PageRecord('/foo/b', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/b.md'),
+                    ]),
+                    new PageRecord('/foo/c', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/c.md'),
+                    ]),
+                    new PageRecord('/foo/d', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/d.md'),
+                    ]),
+                    new PageRecord('/foo/e', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/e.md'),
+                    ]),
+                    new PageRecord('/bar/x', '/bar', [
+                        self::makeParsedFile(physicalPath: '/bar/x.md'),
+                    ]),
+                    new PageRecord('/foo/sub/y', '/foo/sub', [
+                        self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+                    ]),
+                ],
+                'query' => [
+                    'folder' => '/foo',
+                    'limit' => 2,
+                    'offset' => $offset
+                ],
+                'expectedCount' => $expectedCount,
+                'validator' => function (array $pages) {
+                    /** @var array<PageRecord> $pages */
+                    $paths = array_column($pages, 'logicalPath');
+                    foreach ($paths as $p) {
+                        self::assertEquals('/foo', substr($p, 0, 4));
+                    }
+                },
+            ];
+        }
+    }
+
+    #[Test, DataProvider('query_pages_data')]
+    public function query_pages(array $folders, array $pages, array $query, int $expectedCount, \Closure $validator): void
+    {
+        $cache = new PageRepo($this->yiiConn);
+        $cache->reinitialize();
+
+        array_map($cache->writeFolder(...), $folders);
+        array_map($cache->writePage(...), $pages);
+
+        $resultPages = $cache->queryPages(...$query);
+
+        self::assertCount($expectedCount, $resultPages);
+
+        $validator($resultPages);
+    }
+
+    /**
+     * For introspecting the DB as part of test validation.
+     */
     private function getPage(string $path): array
     {
         return $this->yiiConn
