@@ -321,28 +321,30 @@ class PageRepoTest extends TestCase
             },
         ];
 
+        $hiddenPages = [
+            new PageRecord('/foo/a', '/foo', [
+                self::makeParsedFile(physicalPath: '/foo/a.md', hidden: true),
+                self::makeParsedFile(physicalPath: '/foo/a.txt', hidden: true),
+            ]),
+            new PageRecord('/foo/b', '/foo', [
+                self::makeParsedFile(physicalPath: '/foo/b.md'),
+                self::makeParsedFile(physicalPath: '/foo/b.txt', hidden: true),
+            ]),
+            new PageRecord('/bar/c', '/bar', [
+                self::makeParsedFile(physicalPath: '/bar/c.md', hidden: true),
+            ]),
+            new PageRecord('/foo/sub/y', '/foo/sub', [
+                self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+            ]),
+        ];
+
         yield 'exclude hidden by default' => [
             'folders' => [
                 self::makeParsedFolder(physicalPath: '/foo'),
                 self::makeParsedFolder(physicalPath: '/foo/sub'),
                 self::makeParsedFolder(physicalPath: '/bar'),
             ],
-            'pages' => [
-                new PageRecord('/foo/a', '/foo', [
-                    self::makeParsedFile(physicalPath: '/foo/a.md', hidden: true),
-                    self::makeParsedFile(physicalPath: '/foo/a.txt', hidden: true),
-                ]),
-                new PageRecord('/foo/b', '/foo', [
-                    self::makeParsedFile(physicalPath: '/foo/b.md'),
-                    self::makeParsedFile(physicalPath: '/foo/b.txt', hidden: true),
-                ]),
-                new PageRecord('/bar/c', '/bar', [
-                    self::makeParsedFile(physicalPath: '/bar/c.md', hidden: true),
-                ]),
-                new PageRecord('/foo/sub/y', '/foo/sub', [
-                    self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
-                ]),
-            ],
+            'pages' => $hiddenPages,
             'query' => [
                 'includeHidden' => false,
             ],
@@ -363,22 +365,7 @@ class PageRepoTest extends TestCase
                 self::makeParsedFolder(physicalPath: '/foo/sub'),
                 self::makeParsedFolder(physicalPath: '/bar'),
             ],
-            'pages' => [
-                new PageRecord('/foo/a', '/foo', [
-                    self::makeParsedFile(physicalPath: '/foo/a.md', hidden: true),
-                    self::makeParsedFile(physicalPath: '/foo/a.txt', hidden: true),
-                ]),
-                new PageRecord('/foo/b', '/foo', [
-                    self::makeParsedFile(physicalPath: '/foo/b.md'),
-                    self::makeParsedFile(physicalPath: '/foo/b.txt', hidden: true),
-                ]),
-                new PageRecord('/bar/c', '/bar', [
-                    self::makeParsedFile(physicalPath: '/bar/c.md', hidden: true),
-                ]),
-                new PageRecord('/foo/sub/y', '/foo/sub', [
-                    self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
-                ]),
-            ],
+            'pages' => $hiddenPages,
             'query' => [
                 'includeHidden' => true,
             ],
