@@ -170,22 +170,18 @@ class PageRepo
      * @param bool $deep
      * @param int $limit
      * @param int $offset
-     * @return array<PageRecord>
      *
      * @todo anyTag, routable=true, publishedBefore, publishedAfter,
      *      includeHidden=false, titleContains
      *
      * @todo Ordering
-     *
-     * @todo Have this use $query->count() to get the count,
-     *   and have a single return object with that and the data.
      */
     public function queryPages(
         ?string $folder = null,
         bool $deep = false,
         int $limit = self::DefaultPageSize,
         int $offset = 0,
-    ): array {
+    ): QueryResult {
         $query = new Query($this->conn)
             ->select(['logicalPath', 'folder', 'files'])
             ->from('page')
@@ -204,7 +200,13 @@ class PageRepo
             }
         }
 
-        return array_map($this->instantiatePage(...), $query->all());
+        $total = $query->count();
+        $pages = array_map($this->instantiatePage(...), $query->all());
+
+        return new QueryResult(
+            total: $total,
+            pages: $pages
+        );
     }
 
     private function instantiatePage(array $record): PageRecord
@@ -241,3 +243,4 @@ class PageRepo
         return new ParsedFile(...$record);
     }
 }
+

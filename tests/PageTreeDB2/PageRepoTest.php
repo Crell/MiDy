@@ -257,9 +257,9 @@ class PageRepoTest extends TestCase
                 'folder' => '/foo'
             ],
             'expectedCount' => 2,
-            'validator' => function (array $pages) {
-                /** @var array<PageRecord> $pages */
-                $paths = array_column($pages, 'logicalPath');
+            'totalPages' => 2,
+            'validator' => function (QueryResult $queryResult) {
+                $paths = array_column($queryResult->pages, 'logicalPath');
                 self::assertContains('/foo/a', $paths);
                 self::assertContains('/foo/b', $paths);
             },
@@ -291,9 +291,9 @@ class PageRepoTest extends TestCase
                 'deep' => true,
             ],
             'expectedCount' => 3,
-            'validator' => function (array $pages) {
-                /** @var array<PageRecord> $pages */
-                $paths = array_column($pages, 'logicalPath');
+            'totalPages' => 3,
+            'validator' => function (QueryResult $queryResult) {
+                $paths = array_column($queryResult->pages, 'logicalPath');
                 self::assertContains('/foo/a', $paths);
                 self::assertContains('/foo/b', $paths);
                 self::assertContains('/foo/sub/y', $paths);
@@ -344,9 +344,9 @@ class PageRepoTest extends TestCase
                     'offset' => $offset
                 ],
                 'expectedCount' => $expectedCount,
-                'validator' => function (array $pages) {
-                    /** @var array<PageRecord> $pages */
-                    $paths = array_column($pages, 'logicalPath');
+                'totalPages' => 5,
+                'validator' => function (QueryResult $queryResult) {
+                    $paths = array_column($queryResult->pages, 'logicalPath');
                     foreach ($paths as $p) {
                         self::assertEquals('/foo', substr($p, 0, 4));
                     }
@@ -356,7 +356,7 @@ class PageRepoTest extends TestCase
     }
 
     #[Test, DataProvider('query_pages_data')]
-    public function query_pages(array $folders, array $pages, array $query, int $expectedCount, \Closure $validator): void
+    public function query_pages(array $folders, array $pages, array $query, int $expectedCount, int $totalPages, \Closure $validator): void
     {
         $cache = new PageRepo($this->yiiConn);
         $cache->reinitialize();
@@ -364,11 +364,12 @@ class PageRepoTest extends TestCase
         array_map($cache->writeFolder(...), $folders);
         array_map($cache->writePage(...), $pages);
 
-        $resultPages = $cache->queryPages(...$query);
+        $queryResult = $cache->queryPages(...$query);
 
-        self::assertCount($expectedCount, $resultPages);
+        self::assertCount($expectedCount, $queryResult);
+        self::assertEquals($totalPages, $queryResult->total);
 
-        $validator($resultPages);
+        $validator($queryResult);
     }
 
     /**
