@@ -173,11 +173,14 @@ class PageRepo
      * @param bool $deep
      * @param int $limit
      * @param int $offset
+     * @param array $orderBy
+     *   An associative array of properties to sort by. The key is the field name,
+     *   the value is either SORT_ASC or SORT_DESC, as desired. Regardless of what
+     *   is provided, the sort list will be appended with: order, title, path, to
+     *   ensure queries are always deterministic.
      *
      * @todo publishedAfter,
      *      titleContains
-     *
-     * @todo Ordering
      */
     public function queryPages(
         ?string $folder = null,
@@ -186,6 +189,7 @@ class PageRepo
         bool $routableOnly = true,
         array $anyTag = [],
         ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
+        array $orderBy = [],
         int $limit = self::DefaultPageSize,
         int $offset = 0,
     ): QueryResult {
@@ -195,6 +199,19 @@ class PageRepo
             ->limit($limit)
             ->offset($offset)
         ;
+
+        // @todo Validate the $orderBy format with a nice error message.
+
+        // Order by these after whatever the user provides.
+        $orderBy += [
+            'order' => SORT_ASC,
+            'title' => SORT_ASC,
+            'logicalPath' => SORT_ASC,
+        ];
+
+        foreach ($orderBy as $field => $sortOrder) {
+            $query->addOrderBy(["[[$field]]" => $sortOrder]);
+        }
 
         if (!$includeHidden) {
             $query->andWhere(['hidden' => 0]);

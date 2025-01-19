@@ -552,10 +552,7 @@ class PageRepoTest extends TestCase
                 'query' => $settings['query'],
                 'expectedCount' => $settings['expectedCount'],
                 'totalPages' => $settings['expectedCount'],
-                'validator' => function (QueryResult $queryResult) {
-                    $paths = array_column($queryResult->pages, 'logicalPath');
-
-                },
+                'validator' => function (QueryResult $queryResult) {},
             ];
         }
 
@@ -608,6 +605,67 @@ class PageRepoTest extends TestCase
                     foreach ($paths as $p) {
                         self::assertEquals('/foo', substr($p, 0, 4));
                     }
+                },
+            ];
+        }
+
+
+        $orderCases = [
+            'no custom order' => [
+                'orderBy' => [],
+                'expectedCount' => 7,
+                'expectedOrder' => ['/bar/x', '/foo/c', '/foo/b', '/foo/sub/y', '/foo/d', '/foo/e', '/foo/a'],
+            ],
+            'by publishDate' => [
+                'orderBy' => ['publishDate' => SORT_ASC],
+                'expectedCount' => 7,
+                'expectedOrder' => ['/foo/b', '/bar/x', '/foo/a', '/foo/sub/y', '/foo/c', '/foo/e', '/foo/d'],
+            ],
+            'by publishDate, descending' => [
+                'orderBy' => ['publishDate' => SORT_DESC],
+                'expectedCount' => 7,
+                'expectedOrder' => ['/foo/d', '/foo/e', '/foo/c', '/foo/sub/y', '/bar/x', '/foo/a', '/foo/b'],
+            ],
+        ];
+        foreach ($orderCases as $name => $settings) {
+            yield "ordering for $name" => [
+                'folders' => [
+                    self::makeParsedFolder(physicalPath: '/foo'),
+                    self::makeParsedFolder(physicalPath: '/foo/sub'),
+                    self::makeParsedFolder(physicalPath: '/bar'),
+                ],
+                'pages' => [
+                    new PageRecord('/foo/a', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/a.md', order: 3, publishDate: new \DateTimeImmutable('2024-02-01')),
+                        self::makeParsedFile(physicalPath: '/foo/a.txt', order: 7, publishDate: new \DateTimeImmutable('2024-02-01')),
+                    ]),
+                    new PageRecord('/foo/b', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/b.md', order: 2, publishDate: new \DateTimeImmutable('2024-01-01')),
+                    ]),
+                    new PageRecord('/foo/c', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/c.md', publishDate: new \DateTimeImmutable('2024-04-01')),
+                    ]),
+                    new PageRecord('/foo/d', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/d.md', order: 6, publishDate: new \DateTimeImmutable('2024-08-01')),
+                    ]),
+                    new PageRecord('/foo/e', '/foo', [
+                        self::makeParsedFile(physicalPath: '/foo/e.md', order: 6, publishDate: new \DateTimeImmutable('2024-07-01')),
+                    ]),
+                    new PageRecord('/bar/x', '/bar', [
+                        self::makeParsedFile(physicalPath: '/bar/x.md', publishDate: new \DateTimeImmutable('2024-02-01')),
+                    ]),
+                    new PageRecord('/foo/sub/y', '/foo/sub', [
+                        self::makeParsedFile(physicalPath: '/foo/sub/y.md', order: 5, publishDate: new \DateTimeImmutable('2024-03-01')),
+                    ]),
+                ],
+                'query' => [
+                    'orderBy' => $settings['orderBy'],
+                ],
+                'expectedCount' => $settings['expectedCount'],
+                'totalPages' => $settings['expectedCount'],
+                'validator' => function (QueryResult $queryResult) use ($settings) {
+                    $paths = array_column($queryResult->pages, 'logicalPath');
+                    self::assertEquals($settings['expectedOrder'], $paths);
                 },
             ];
         }
