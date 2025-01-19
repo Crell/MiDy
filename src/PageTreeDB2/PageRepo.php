@@ -285,5 +285,10 @@ class PageRepo
 
         return new ParsedFile(...$record);
     }
+
+    public function inTransaction(\Closure $closure): mixed
+    {
+        return $this->conn->transaction($closure);
+    }
 }
 

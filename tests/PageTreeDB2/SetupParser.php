@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\Before;
 
 trait SetupParser
 {
-    use SetupCache;
+    use SetupRepo;
 
     private Parser $parser;
 
@@ -29,6 +29,6 @@ trait SetupParser
         $fileParser->addParser(new LatteFileParser());
         $fileParser->addParser(new MarkdownLatteFileParser(new MarkdownPageLoader()));
 
-        $this->parser = new Parser($this->cache, $fileParser);
+        $this->parser = new Parser($this->repo, $fileParser);
     }
 }

@@ -6,6 +6,7 @@ namespace Crell\MiDy\PageTreeDB2\Parser;
 
 use Crell\MiDy\PageTree\FolderDef;
 use Crell\MiDy\PageTreeDB2\PageCacheDB;
+use Crell\MiDy\PageTreeDB2\PageRepo;
 use Crell\MiDy\PageTreeDB2\ParsedFile;
 use Crell\MiDy\PageTreeDB2\ParsedFolder;
 use Crell\Serde\Serde;
@@ -21,9 +22,9 @@ class Parser
     public const string IndexPageName = 'index';
 
     public function __construct(
-        private PageCacheDB $cache,
-        private FileParser $fileParser,
-        private Serde $serde = new SerdeCommon(),
+        private readonly PageRepo $cache,
+        private readonly FileParser $fileParser,
+        private readonly Serde $serde = new SerdeCommon(),
     ) {}
 
     public function parseFolder(string $physicalPath, string $logicalPath, array $mounts): bool
@@ -47,7 +48,7 @@ class Parser
             );
             $this->cache->writeFolder($folder);
 
-            $children = new ParserFileList($controlData->order);
+            $children = new ParserFileList($controlData->order, $logicalPath);
 
             // Now reindex every file in the folder.
             /** @var \SplFileInfo $file */
@@ -89,9 +90,8 @@ class Parser
                 }
             }
 
-            // Now write out all the children.  The file list object
-            // will handle sorting them on the fly.
-            pipe($children, amap($this->cache->writeFile(...)));
+            // Now write out all the children.
+            pipe($children, amap($this->cache->writePage(...)));
 
             // The folder was parsed successfully.
             return true;
