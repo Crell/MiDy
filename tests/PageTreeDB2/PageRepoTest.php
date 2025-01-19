@@ -513,6 +513,10 @@ class PageRepoTest extends TestCase
                 'query' => ['publishedBefore' => new \DateTimeImmutable('2024-03-01')],
                 'expectedCount' => 2,
             ],
+            'do not filter by publication date' => [
+                'query' => ['publishedBefore' => null],
+                'expectedCount' => 7,
+            ],
         ];
         foreach ($publishedCases as $name => $settings) {
             yield "publication date search for $name" => [
