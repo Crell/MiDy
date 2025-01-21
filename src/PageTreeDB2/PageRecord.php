@@ -43,7 +43,7 @@ class PageRecord
     }
 
     public array $tags {
-        get => array_values(array_unique(array_merge(...$this->values(__PROPERTY__))));
+        get => array_values(array_unique(array_merge(...array_column(array_column($this->files, 'frontmatter'), 'tags'))));
     }
 
     /**
@@ -55,8 +55,7 @@ class PageRecord
         public string $logicalPath,
         public string $folder,
         public array $files,
-    ) {
-    }
+    ) {}
 
     private function values(string $property): array
     {
