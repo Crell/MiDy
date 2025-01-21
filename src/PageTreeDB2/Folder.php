@@ -12,26 +12,38 @@ class Folder implements \IteratorAggregate, Page
         get => $this->logicalPath ??= $this->parsedFolder->logicalPath;
     }
 
-    // @todo This probably should go away, in favor of always getting data by
-    //   pagination.  Unclear if that means iteration goes away.
-    private PageSet $children {
-        get => $this->children ??= new BasicPageSet($this->pageTree->folderAllPages($this->logicalPath));
-    }
-
     public function __construct(
         private readonly ParsedFolder $parsedFolder,
         private readonly PageTree $pageTree,
         private readonly ?Page $indexPage = null,
     ) {}
 
-    public function count(): int
-    {
-        return count($this->children);
+    public function children(
+        bool $deep = false,
+        bool $includeHidden = false,
+        bool $routableOnly = true,
+        array $anyTag = [],
+        ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
+        array $orderBy = [],
+        int $pageSize = PageRepo::DefaultPageSize,
+        int $pageNum = 1
+    ): Pagination {
+        return $this->pageTree->queryPages(
+            folder: $this->logicalPath,
+            deep: $deep,
+            includeHidden: $includeHidden,
+            routableOnly: $routableOnly,
+            anyTag: $anyTag,
+            publishedBefore: $publishedBefore,
+            orderBy: $orderBy,
+            pageSize: $pageSize,
+            pageNum: $pageNum,
+        );
     }
 
-    public function getIterator(): PageSet
+    public function getIterator(): Pagination
     {
-        return $this->children;
+        return $this->children();
     }
 
     public function limit(int $limit): PageSet
@@ -41,18 +53,20 @@ class Folder implements \IteratorAggregate, Page
 
     public function get(string $name): ?Page
     {
-        // @todo Replace this with a dedicated query, probably, for performance.
-        return $this->children->get($name);
+        return $this->pageTree->page(rtrim($this->logicalPath, '/') . '/' . $name);
     }
 
     public function filter(\Closure $filter, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return $this->children->filter($filter, $pageSize, $pageNum);
+        return $this
+            ->children(pageSize: $pageSize, pageNum: $pageNum)
+            ->items
+            ->filter($filter, $pageSize, $pageNum);
     }
 
     public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        return $this->pageTree->folderAnyTag($this->logicalPath, $tags, $pageSize, $pageNum);
+        return $this->children(anyTag: $tags, pageSize: $pageSize, pageNum: $pageNum);
     }
 
     public function __debugInfo(): ?array

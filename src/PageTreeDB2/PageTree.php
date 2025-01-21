@@ -48,6 +48,16 @@ class PageTree
 
         $page = $this->cache->readPage($path);
 
+        if (!$page) {
+            return null;
+        }
+
+        $needsReindex = array_any($page->files, fn (ParsedFile $file): bool => $file->mtime < filemtime($file->physicalPath));
+        if ($needsReindex) {
+            $this->reindexFolder($page->folder);
+            $page = $this->cache->readPage($path);
+        }
+
         return $this->makePage($path, $page?->files ?? []);
     }
 
@@ -104,23 +114,9 @@ class PageTree
         return $this->queryPages(folder: $folderPath, anyTag: $tags, pageSize: $pageSize, pageNum: $pageNum);
     }
 
-//    public function folderAllTags(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
-//    {
-//        // @todo This is the wrong method call, but all-tags queries are still a PITA.
-//        $total = $this->cache->countPagesInFolder($folderPath);
-//        $data = $this->cache->readPagesInFolderAllTags($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
-//
-//        return $this->paginate($pageSize, $pageNum, $total, $data);
-//    }
-
     public function anyTag(array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
     {
         return $this->queryPages(anyTag: $tags, pageSize: $pageSize, pageNum: $pageNum);
-    }
-
-    public function folderAllPagesPaginated(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
-    {
-        return $this->queryPages(folder: $folderPath, pageSize: $pageSize, pageNum: $pageNum);
     }
 
     public function reindexAll(string $logicalRoot = '/'): void
