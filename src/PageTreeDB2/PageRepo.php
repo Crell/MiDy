@@ -206,6 +206,7 @@ class PageRepo
         $query = new Query($this->conn)
             ->select(['logicalPath', 'folder', 'files'])
             ->from('page')
+            ->andWhere('NOT logicalPath = folder')  // To exclude index pages as children.
             ->limit($limit)
             ->offset($offset)
         ;

@@ -688,6 +688,36 @@ class PageRepoTest extends TestCase
         $validator($queryResult);
     }
 
+    #[Test]
+    public function index_files_are_not_considered_children(): void
+    {
+        $cache = new PageRepo($this->yiiConn);
+        $cache->reinitialize();
+
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo/bar'));
+
+        $cache->writePage(new PageRecord('/foo/a', '/foo', [
+            self::makeParsedFile(physicalPath: '/foo/a.md'),
+            self::makeParsedFile(physicalPath: '/foo/a.txt'),
+        ]));
+        $cache->writePage(new PageRecord('/foo/b', '/foo', [
+            self::makeParsedFile(physicalPath: '/foo/b.txt'),
+        ]));
+        $cache->writePage(new PageRecord('/foo/bar/c.md', '/foo/bar', [
+            self::makeParsedFile(physicalPath: '/foo/bar/c.md'),
+        ]));
+        $cache->writePage(new PageRecord('/foo/bar/index', '/foo', [
+            self::makeParsedFile(physicalPath: '/foo/bar/index.latte'),
+        ]));
+
+        $queryResult = $cache->queryPages(folder: '/foo');
+        self::assertCount(3, $queryResult);
+
+        $queryResult = $cache->queryPages(folder: '/foo/bar');
+        self::assertCount(1, $queryResult);
+    }
+
     /**
      * For introspecting the DB as part of test validation.
      */
@@ -703,5 +733,4 @@ class PageRepoTest extends TestCase
     {
         var_dump($this->yiiConn->createCommand("SELECT * FROM page")->queryAll());
     }
-
 }
