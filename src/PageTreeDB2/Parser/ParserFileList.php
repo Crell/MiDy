@@ -39,7 +39,7 @@ class ParserFileList implements \IteratorAggregate
         foreach ($this->files as $path => $files) {
             // We only need to sort the files within the Page, as we cannot query on that order later.
             usort($files, $this->comparator);
-            yield new PageRecord($path, $this->folderPath, $files);
+            yield new PageRecord($path, $files[0]->folder, $files);
         }
     }
 
