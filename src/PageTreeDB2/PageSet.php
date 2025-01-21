@@ -18,23 +18,6 @@ interface PageSet extends \Countable, \Traversable
     public function limit(int $limit): PageSet;
 
     /**
-     * Returns a Pagination definition for this page set.
-     *
-     * @param int $pageSize
-     *   The number of items per page.
-     * @param int $pageNum
-     *   Which page's data to show.  1-based, so page 1 is the first page.
-     */
-    public function paginate(int $pageSize, int $pageNum = 1): Pagination;
-
-    /**
-     * Returns all pages in this set, without any filtering at all.  Use with caution.
-     *
-     * @return iterable<string, Page>
-     */
-    public function all(): iterable;
-
-    /**
      * Retrieves a single item from the set, or null if it doesn't exist.
      *
      * The name MAY include an extension. If it does, it will only return a value
@@ -47,7 +30,6 @@ interface PageSet extends \Countable, \Traversable
      * Filters the PageSet down to just those items that match the filter callback.
      *
      * @param callable(Page $p): bool $filter
-     * @return PageSet
      */
     public function filter(\Closure $filter, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination;
 
@@ -55,9 +37,4 @@ interface PageSet extends \Countable, \Traversable
      * Filters this page set to just those items that have at least one specified tag.
      */
     public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination;
-
-    /**
-     * Filters this page set to just those items that have all the specified tags.
-     */
-//    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination;
 }

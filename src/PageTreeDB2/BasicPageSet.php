@@ -30,18 +30,10 @@ class BasicPageSet implements PageSet, \IteratorAggregate
 
     /**
      * Iterates just the visible (non-hidden) children.
-     *
-     * @todo The iterator layering here is disgusting, thanks PHP.
-     *   It's likely it will have to change, including getting rid of all().
      */
-    public function getIterator(): \CallbackFilterIterator
+    public function getIterator(): \Traversable
     {
-        return new \CallbackFilterIterator(new \ArrayIterator($this->materializedPages), $this->visibilityFilter(...));
-    }
-
-    private function visibilityFilter(Hidable $page): bool
-    {
-        return !$page->hidden;
+        return $this->pages instanceof \Traversable ? $this->pages : new \ArrayIterator($this->pages);
     }
 
     public function all(): \Traversable
@@ -62,11 +54,6 @@ class BasicPageSet implements PageSet, \IteratorAggregate
         $limitedChildren = array_chunk($this->materializedPages, $limit, preserve_keys: true);
 
         return new BasicPageSet($limitedChildren);
-    }
-
-    public function paginate(int $pageSize, int $pageNum = 1): Pagination
-    {
-        return $this->paginateBuilder($this->materializedPages, $pageSize, $pageNum);
     }
 
     private function paginateBuilder(array $pages, int $pageSize, int $pageNum = 1): Pagination
@@ -94,11 +81,6 @@ class BasicPageSet implements PageSet, \IteratorAggregate
     public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
     {
         return $this->filter(static fn (Page $p) => $p->hasAnyTag(...$tags), $pageSize, $pageNum);
-    }
-
-    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
-    {
-        return $this->filter(static fn (Page $p) => $p->hasAllTags(...$tags), $pageSize, $pageNum);
     }
 
     public function get(string $name): ?Page

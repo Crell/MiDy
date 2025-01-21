@@ -36,17 +36,7 @@ class Folder implements \IteratorAggregate, PageSet, Page
 
     public function limit(int $limit): PageSet
     {
-        return $this->paginate($limit)->items;
-    }
-
-    public function paginate(int $pageSize, int $pageNum = 1): Pagination
-    {
-        return $this->pageTree->folderAllPagesPaginated($this->logicalPath, $pageSize, $pageNum);
-    }
-
-    public function all(): PageSet
-    {
-        return $this->children;
+        return $this->children(pageSize: $limit)->items;
     }
 
     public function get(string $name): ?Page
@@ -65,18 +55,12 @@ class Folder implements \IteratorAggregate, PageSet, Page
         return $this->pageTree->folderAnyTag($this->logicalPath, $tags, $pageSize, $pageNum);
     }
 
-//    public function filterAllTags(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
-//    {
-//        return $this->pageTree->folderAllTags($this->logicalPath, $tags, $pageSize, $pageNum);
-//    }
-
     public function __debugInfo(): ?array
     {
         return [
             'logicalPath' => $this->logicalPath,
             'physicalPath' => $this->parsedFolder->physicalPath,
             'mtime' => $this->parsedFolder->mtime,
-            'children count' => count($this->children),
         ];
     }
 }
