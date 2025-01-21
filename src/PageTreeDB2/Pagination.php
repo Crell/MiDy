@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-readonly class Pagination
+use Traversable;
+
+readonly class Pagination implements \IteratorAggregate
 {
-    /**
-     * @param array<string, Page> $items
-     */
     public function __construct(
         public int $total,
         public int $pageSize,
@@ -16,4 +15,9 @@ readonly class Pagination
         public int $pageNum,
         public PageSet $items,
     ) {}
+
+    public function getIterator(): Traversable
+    {
+        return $this->items;
+    }
 }
