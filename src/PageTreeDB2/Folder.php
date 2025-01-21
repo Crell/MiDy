@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-class Folder implements \IteratorAggregate, PageSet, Page
+class Folder implements \IteratorAggregate, Page
 {
     use FolderIndexPage;
 
