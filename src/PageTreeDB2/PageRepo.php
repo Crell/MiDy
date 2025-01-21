@@ -8,7 +8,6 @@ use Crell\MiDy\PageTree\BasicPageInformation;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\QueryBuilder\Condition\OrCondition;
 use Yiisoft\Db\Sqlite\Connection;
 
 class PageRepo
@@ -122,6 +121,17 @@ class PageRepo
             ->delete('folder', 'logicalPath = :logicalPath')
             ->bindParam('logicalPath', $logicalPath)
             ->execute();
+    }
+
+    /**
+     * @return array<ParsedFolder>
+     */
+    public function childFolders(string $parentLogicalPath): array
+    {
+        $result = $this->conn->createCommand('SELECT * FROM folder WHERE parent=? AND NOT parent=logicalPath', [
+            ':logicalPath' => $parentLogicalPath,
+        ])->queryAll();
+        return array_map($this->instantiateFolder(...), $result);
     }
 
     public function writePage(PageRecord $page): void
