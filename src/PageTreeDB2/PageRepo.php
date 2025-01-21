@@ -128,7 +128,7 @@ class PageRepo
      */
     public function childFolders(string $parentLogicalPath): array
     {
-        $result = $this->conn->createCommand('SELECT * FROM folder WHERE parent=? AND NOT parent=logicalPath', [
+        $result = $this->conn->createCommand('SELECT * FROM folder WHERE parent=:logicalPath AND NOT parent=logicalPath', [
             ':logicalPath' => $parentLogicalPath,
         ])->queryAll();
         return array_map($this->instantiateFolder(...), $result);
