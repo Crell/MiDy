@@ -15,7 +15,7 @@ class PageTree
     private array $mountPoints = [];
 
     public function __construct(
-        private readonly PageCacheDB $cache,
+        private readonly PageRepo $cache,
         private readonly Parser $parser,
         string $rootPhysicalPath,
     ) {
@@ -37,70 +37,6 @@ class PageTree
     }
 
     /**
-     * Retrieves all visible pages under the specified path.
-     *
-     * @todo This should probably return lazily for better scalability.
-     *
-     * @return array<string, Page>
-     */
-    public function folderAllPages(string $folderPath, int $limit = PHP_INT_MAX, int $offset = 0): iterable
-    {
-        $files = $this->cache->readFilesInFolder($folderPath, $limit, $offset);
-        return $this->instantiatePages($files);
-    }
-
-    public function folderAnyTag(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
-    {
-        $total = $this->cache->countPagesInFolderAnyTag($folderPath, $tags);
-        $data = $this->cache->readPagesInFolderAnyTag($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
-
-        return $this->paginate($pageSize, $pageNum, $total, $data);
-    }
-
-    public function folderAllTags(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
-    {
-        // @todo This is the wrong method call, but all-tags queries are still a PITA.
-        $total = $this->cache->countPagesInFolder($folderPath);
-        $data = $this->cache->readPagesInFolderAllTags($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
-
-        return $this->paginate($pageSize, $pageNum, $total, $data);
-    }
-
-    public function anyTag(array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
-    {
-        $total = $this->cache->countPagesAnyTag($tags);
-        $data = $this->cache->readPagesAnyTag($tags, $pageSize, $pageSize * ($pageNum - 1));
-
-        return $this->paginate($pageSize, $pageNum, $total, $data);
-    }
-
-    public function folderAllPagesPaginated(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
-    {
-        $total = $this->cache->countPagesInFolder($folderPath);
-        $data = $this->cache->readFilesInFolder($folderPath, $pageSize, $pageSize * ($pageNum - 1));
-
-        return $this->paginate($pageSize, $pageNum, $total, $data);
-    }
-
-    /**
-     * @param iterable<ParsedFile> $data
-     */
-    private function paginate(int $pageSize, int $pageNum, int $total, iterable $data): Pagination
-    {
-        $numPages = (int)ceil($total / $pageSize);
-
-        $items = new BasicPageSet($this->instantiatePages($data));
-
-        return new Pagination(
-            total: $total,
-            pageSize: $pageSize,
-            pageCount: $numPages,
-            pageNum: $pageNum,
-            items: $items,
-        );
-    }
-
-    /**
      * Loads a single page by path.
      */
     public function page(string $path): ?Page
@@ -110,9 +46,81 @@ class PageTree
         // table is populated.
         $this->folder(dirname($path));
 
-        $files = $this->cache->readPage($path);
+        $page = $this->cache->readPage($path);
 
-        return $this->makePage($path, $files);
+        return $this->makePage($path, $page?->files ?? []);
+    }
+
+    public function queryPages(
+        ?string $folder = null,
+        bool $deep = false,
+        bool $includeHidden = false,
+        bool $routableOnly = true,
+        array $anyTag = [],
+        ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
+        array $orderBy = [],
+        int $pageSize = PageRepo::DefaultPageSize,
+        int $pageNum = 1
+    ): Pagination {
+        $result = $this->cache->queryPages(
+            folder: $folder,
+            deep: $deep,
+            includeHidden: $includeHidden,
+            routableOnly: $routableOnly,
+            anyTag: $anyTag,
+            publishedBefore: $publishedBefore,
+            orderBy: $orderBy,
+            limit: $pageSize,
+            offset: $pageSize * ($pageNum - 1)
+        );
+
+        $numPages = (int)ceil($result->total / $pageSize);
+
+        $items = new BasicPageSet($this->instantiatePages($result->pages));
+
+        return new Pagination(
+            total: $result->total,
+            pageSize: $pageSize,
+            pageCount: $numPages,
+            pageNum: $pageNum,
+            items: $items,
+        );
+    }
+
+    /**
+     * Retrieves all visible pages under the specified path.
+     *
+     * @todo This should probably return lazily for better scalability.
+     *
+     * @return iterable<string, Page>
+     */
+    public function folderAllPages(string $folderPath, int $pageSize = PHP_INT_MAX, int $pageNum = 1): iterable
+    {
+        return $this->queryPages(folder: $folderPath, pageSize: $pageSize, pageNum: $pageNum)->items;
+    }
+
+    public function folderAnyTag(string $folderPath, array $tags, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination
+    {
+        return $this->queryPages(folder: $folderPath, anyTag: $tags, pageSize: $pageSize, pageNum: $pageNum);
+    }
+
+//    public function folderAllTags(string $folderPath, array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
+//    {
+//        // @todo This is the wrong method call, but all-tags queries are still a PITA.
+//        $total = $this->cache->countPagesInFolder($folderPath);
+//        $data = $this->cache->readPagesInFolderAllTags($folderPath, $tags, $pageSize, $pageSize * ($pageNum - 1));
+//
+//        return $this->paginate($pageSize, $pageNum, $total, $data);
+//    }
+
+    public function anyTag(array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
+    {
+        return $this->queryPages(anyTag: $tags, pageSize: $pageSize, pageNum: $pageNum);
+    }
+
+    public function folderAllPagesPaginated(string $folderPath, int $pageSize, int $pageNum = 1): Pagination
+    {
+        return $this->queryPages(folder: $folderPath, pageSize: $pageSize, pageNum: $pageNum);
     }
 
     public function reindexAll(string $logicalRoot = '/'): void
@@ -175,25 +183,14 @@ class PageTree
         return $this->cache->readFolder($logicalPath);
     }
 
-
     /**
-     * @param array<ParsedFile> $files
+     * @param array<PageRecord> $pageRecords
      * @return iterable<Page>
      */
-    private function instantiatePages(array $files): iterable
+    private function instantiatePages(array $pageRecords): iterable
     {
-        $grouped = [];
-        foreach ($files as $file) {
-            if (filemtime($file->physicalPath) > $file->mtime) {
-                // Need to rescan this file.
-                $file = $this->parser->parseFile(new \SplFileInfo($file->physicalPath), $file->folder);
-                $this->cache->writeFile($file);
-            }
-            $grouped[$file->logicalPath][] = $file;
-        }
-
-        foreach ($grouped as $logicalPath => $set) {
-            yield $logicalPath => $this->makePage($logicalPath, $set);
+        foreach ($pageRecords as $record) {
+            yield $this->makePage($record->logicalPath, $record->files);
         }
     }
 
