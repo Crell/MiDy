@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-use Exception;
 use Traversable;
 
 readonly class QueryResult implements \Countable, \IteratorAggregate
