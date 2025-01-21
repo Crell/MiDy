@@ -91,7 +91,7 @@ class Parser
             }
 
             // Now write out all the children.
-            pipe($children, amap($this->cache->writePage(...)));
+            amap($this->cache->writePage(...))($children);
 
             // The folder was parsed successfully.
             return true;
