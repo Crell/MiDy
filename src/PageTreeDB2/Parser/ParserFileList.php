@@ -31,6 +31,10 @@ class ParserFileList implements \IteratorAggregate
 
     public function addParsedFile(ParsedFile $file): void
     {
+        // The easiest way to default the order to reversed is just this.
+        if ($this->sortOrder === SortOrder::Desc) {
+            $file->order *= -1;
+        }
         $this->files[$file->logicalPath][] = $file;
     }
 
