@@ -8,6 +8,8 @@ use Crell\MiDy\PageTree\BasicPageInformation;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
+use Yiisoft\Db\QueryBuilder\Condition\OrCondition;
 use Yiisoft\Db\Sqlite\Connection;
 
 class PageRepo
@@ -247,10 +249,11 @@ class PageRepo
             if (!$deep) {
                 $query->andWhere(['folder' => $folder]);
             } else {
-                // @todo This isn't quite right, as Yii by default
-                //   sticks a % both before and after the value. But it's not clear how
-                //   to make it do just a prefix search (% only at the end)
-                $query->andWhere(['like', 'folder', $folder]);
+                $cond = new OrCondition([
+                    ['folder' => $folder],
+                    'folder LIKE :folder',
+                ]);
+                $query->andWhere($cond)->addParams([':folder' => $folder . '/%']);
             }
         }
 

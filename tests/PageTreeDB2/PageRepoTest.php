@@ -289,8 +289,10 @@ class PageRepoTest extends TestCase
         yield 'search by folder, deep' => [
             'folders' => [
                 self::makeParsedFolder(physicalPath: '/foo'),
+                self::makeParsedFolder(physicalPath: '/foobar'),
                 self::makeParsedFolder(physicalPath: '/foo/sub'),
                 self::makeParsedFolder(physicalPath: '/bar'),
+                self::makeParsedFolder(physicalPath: '/bar/foo'),
             ],
             'pages' => [
                 new PageRecord('/foo/a', '/foo', [
@@ -305,6 +307,15 @@ class PageRepoTest extends TestCase
                 ]),
                 new PageRecord('/foo/sub/y', '/foo/sub', [
                     self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+                ]),
+                new PageRecord('/foobar', '/foobar', [
+                    self::makeParsedFile(physicalPath: '/foobar/fake.md'),
+                ]),
+                new PageRecord('/foobar/fake', '/foobar', [
+                    self::makeParsedFile(physicalPath: '/foobar/fake.md'),
+                ]),
+                new PageRecord('/bar/foo/nope', '/bar/foo', [
+                    self::makeParsedFile(physicalPath: '/bar/foo/nope.md'),
                 ]),
             ],
             'query' => [
