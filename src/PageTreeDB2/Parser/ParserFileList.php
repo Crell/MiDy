@@ -7,7 +7,6 @@ namespace Crell\MiDy\PageTreeDB2\Parser;
 use Crell\MiDy\PageTree\SortOrder;
 use Crell\MiDy\PageTreeDB2\PageRecord;
 use Crell\MiDy\PageTreeDB2\ParsedFile;
-use Traversable;
 
 /**
  * @internal
@@ -26,7 +25,6 @@ class ParserFileList implements \IteratorAggregate
 
     public function __construct(
         private readonly SortOrder $sortOrder,
-        private readonly string $folderPath,
     ) {}
 
     public function addParsedFile(ParsedFile $file): void
