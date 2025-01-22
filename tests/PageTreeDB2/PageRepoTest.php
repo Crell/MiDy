@@ -254,6 +254,19 @@ class PageRepoTest extends TestCase
         $validation($record);
     }
 
+    #[Test]
+    public function page_load_missing_page_returns_null(): void
+    {
+        $cache = new PageRepo($this->yiiConn);
+        $cache->reinitialize();
+
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
+
+        $record = $cache->readPage('/foo/bar');
+
+        self::assertNull($record);
+    }
+
     public static function query_pages_data(): iterable
     {
         yield 'search by folder, shallow' => [

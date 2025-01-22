@@ -165,6 +165,10 @@ class PageRepo
             ->bindParam(':logicalPath', $path)
             ->queryScalar();
 
+        if (!$result) {
+            return null;
+        }
+
         $files = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
 
         $loadedFiles = array_map($this->instantiateFile(...), $files);
