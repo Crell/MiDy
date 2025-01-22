@@ -6,7 +6,6 @@ namespace Crell\MiDy\Router\PageTreeRouter;
 
 use Crell\MiDy\PageTreeDB2\Page;
 use Crell\MiDy\PageTreeDB2\PageTree;
-use Crell\MiDy\PageTreeDB2\Parser\Parser;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
