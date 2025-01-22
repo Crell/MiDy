@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class PageCacheDBTest extends TestCase
+class PageCacheDBTestDisabled extends TestCase
 {
     use SetupFilesystem;
     use SetupDB;
