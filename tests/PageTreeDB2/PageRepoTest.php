@@ -449,7 +449,10 @@ class PageRepoTest extends TestCase
                 self::assertContains('/foo/sub/y', $paths);
             },
         ];
+    }
 
+    public static function query_pages_data_tags_any(): iterable
+    {
         $taggedCases = [
             'just A' => [
                 'tagsToFind' => ['A'],
@@ -506,7 +509,10 @@ class PageRepoTest extends TestCase
                 },
             ];
         }
+    }
 
+    public static function query_pages_data_publication_date(): iterable
+    {
         $publishedCases = [
             'should find none' => [
                 'query' => ['publishedBefore' => new \DateTimeImmutable('2024-01-15')],
@@ -566,7 +572,10 @@ class PageRepoTest extends TestCase
                 'validator' => function (QueryResult $queryResult) {},
             ];
         }
+    }
 
+    public static function query_pages_data_pagination(): iterable
+    {
         $paginationCases = [
             0 => 2,
             2 => 2,
@@ -619,8 +628,10 @@ class PageRepoTest extends TestCase
                 },
             ];
         }
+    }
 
-
+    public static function query_pages_data_ordering(): iterable
+    {
         $orderCases = [
             'no custom order' => [
                 'orderBy' => [],
@@ -682,7 +693,12 @@ class PageRepoTest extends TestCase
         }
     }
 
-    #[Test, DataProvider('query_pages_data')]
+    #[Test]
+    #[DataProvider('query_pages_data')]
+    #[DataProvider('query_pages_data_ordering')]
+    #[DataProvider('query_pages_data_pagination')]
+    #[DataProvider('query_pages_data_publication_date')]
+    #[DataProvider('query_pages_data_tags_any')]
     public function query_pages(array $folders, array $pages, array $query, int $expectedCount, int $totalPages, \Closure $validator): void
     {
         $cache = new PageRepo($this->yiiConn);
