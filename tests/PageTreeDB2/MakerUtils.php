@@ -30,6 +30,7 @@ trait MakerUtils
     {
         $parts = pathinfo($args['physicalPath']);
 
+
         $defaults = [
             'logicalPath' => $parts['dirname'] . '/' . $parts['filename'],
             'ext' =>  $parts['extension'],
@@ -48,6 +49,8 @@ trait MakerUtils
         ];
 
         $args += $defaults;
+
+        $args['frontmatter']['tags'] = [...$args['frontmatter'], ...($args['tags'] ?? [])];
 
         $args['frontmatter'] = new BasicPageInformation(...$args['frontmatter']);
 
