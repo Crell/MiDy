@@ -431,9 +431,6 @@ class PageCacheDB
             ])
         ;
 
-        $debug = clone($filesWithTag);
-        var_dump($debug->select('physicalPath')->all());
-
         $query = new Query($this->yiiConn)
             ->withQuery($pagesInWindow, 'pages')
             ->withQuery($filesWithTag, 'tagged_files')
@@ -446,8 +443,6 @@ class PageCacheDB
                 '[[physicalPath]]' => SORT_ASC,
             ])
         ;
-
-        var_dump($query->all());
 
         return array_map($this->instantiateFile(...), $query->all());
     }
