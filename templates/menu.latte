@@ -1,7 +1,7 @@
 {parameters \Crell\MiDy\PageTreeDB2\Folder $folder, int $depth = 2}
 {varType \Crell\MiDy\PageTreeDB2\PageTree $pageTree}
 
-<ul n:if="$depth > 0" n:inner-foreach="$folder as $page">
+<ul n:if="$depth > 0" n:inner-foreach="$folder->children(pageSize: 20) as $page">
     <li>
         <a href="{$page->path}">{$page->title}</a>
         {if $page instanceof \Crell\MiDy\PageTreeDB2\Folder}
