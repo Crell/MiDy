@@ -161,7 +161,7 @@ class MiDy implements RequestHandlerInterface
         }
 
         if (class_exists(\Tracy\Debugger::class)) {
-            \Tracy\Debugger::enable();
+//            \Tracy\Debugger::enable();
         }
     }
 
