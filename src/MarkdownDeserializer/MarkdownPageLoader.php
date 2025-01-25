@@ -59,26 +59,44 @@ class MarkdownPageLoader
 
     /**
      * @param string $source
-     * @return array{header: string, content: string}
+     * @return array{string, string}
+     *     A tuple of the frontmatter header and body (with frontmatter removed).
      */
     private function extractFrontMatter(string $source): array
     {
-        $frontmatter = str_extract_between($source, '---', '---');
+        $frontmatter = str_extract_between($source, '---', '---') ?? '';
 
         if ($frontmatter) {
             // Add 6 to account for the delimiters themselves.
             // Trim to get rid of leading whitespace.
-            return [trim($frontmatter), trim(substr($source, strlen($frontmatter) + 6))];
+            $content = trim(substr($source, strlen($frontmatter) + 6));
+        } else {
+            $content = $source;
         }
 
-        // If there's no front matter, but is an H1 markdown tag, assume that's the title.
+        if (!str_contains($frontmatter, 'title:')) {
+            [$title, $content] = $this->extractMarkdownTitle($content);
+            if ($title) {
+                $frontmatter .= "\ntitle: $title";
+            }
+        }
+
+        return [trim($frontmatter), trim($content)];
+    }
+
+    /**
+     * @param string $source
+     * @return array{string, string}
+     *     A tuple of the extracted title, if any, and the remaining content.
+     */
+    private function extractMarkdownTitle(string $source): array
+    {
         if (str_starts_with($source, '# ')) {
             $firstNewline = strpos($source, PHP_EOL) ?: strlen($source);
             $title = trim(substr($source, 2, $firstNewline - 2));
             $content = trim(substr($source, $firstNewline));
-            return ['title: ' . $title, $content];
+            return [$title, $content];
         }
-        // Otherwise it's just a raw markdown file, return as is.
         return ['', $source];
     }
 }

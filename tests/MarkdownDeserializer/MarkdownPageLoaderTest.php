@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class MarkdownDeserializerTest extends TestCase
+class MarkdownPageLoaderTest extends TestCase
 {
     protected vfsStreamDirectory $vfs;
 
@@ -78,6 +78,23 @@ class MarkdownDeserializerTest extends TestCase
                 content: "Here",
                 title: "Stuff",
                 slug: null,
+                summary: '',
+            ),
+        ];
+
+        yield 'header without title and an h1' => [
+            'filename' => 'header_h1.md',
+            'content' => <<<END
+            ---
+            slug: test
+            ---
+            # Stuff
+            Here
+            END,
+            'expected' => New MarkdownPage(
+                content: "Here",
+                title: "Stuff",
+                slug: 'test',
                 summary: '',
             ),
         ];
