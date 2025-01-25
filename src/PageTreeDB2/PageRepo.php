@@ -214,8 +214,6 @@ class PageRepo
             ->select(['logicalPath', 'folder', 'files'])
             ->from('page')
             ->andWhere('NOT logicalPath = folder')  // To exclude index pages as children.
-            ->limit($limit)
-            ->offset($offset)
         ;
 
         // @todo Validate the $orderBy format with a nice error message.
@@ -263,6 +261,10 @@ class PageRepo
         }
 
         $total = $query->count();
+
+        $query
+            ->limit($limit)
+            ->offset($offset);
         $pages = array_map($this->instantiatePage(...), $query->all());
 
         return new QueryResult(
