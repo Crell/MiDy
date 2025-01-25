@@ -53,6 +53,6 @@ class PhpFileParser implements FileParser
 
         $attribs = array_map(fn(\ReflectionAttribute $a) => $a->newInstance(),  (new \ReflectionClass($class))->getAttributes(PageRoute::class));
 
-        return $attribs[0] ?? new PageRoute();
+        return $attribs[0] ?? new PageRoute(title: $class);
     }
 }
