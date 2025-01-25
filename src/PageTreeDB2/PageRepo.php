@@ -147,6 +147,7 @@ class PageRepo
             'logicalPath' => $page->logicalPath,
             'folder' => $page->folder,
             'files' => json_encode($page->files, JSON_THROW_ON_ERROR),
+            'title' => $page->title,
             'order' => $page->order,
             'hidden' => $page->hidden,
             'routable' => $page->routable,

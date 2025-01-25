@@ -10,7 +10,7 @@ namespace Crell\MiDy\PageTreeDB2;
 class PageRecord
 {
     // @todo More robust than this.
-    public int $title {
+    public string $title {
         get => $this->values(__PROPERTY__)[0];
     }
 
