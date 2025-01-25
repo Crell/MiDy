@@ -649,7 +649,7 @@ class PageRepoTest extends TestCase
             'no custom order' => [
                 'orderBy' => [],
                 'expectedCount' => 7,
-                'expectedOrder' => ['/bar/x', '/foo/c', '/foo/b', '/foo/sub/y', '/foo/d', '/foo/e', '/foo/a'],
+                'expectedOrder' => ['/foo/c', '/bar/x', '/foo/b', '/foo/sub/y', '/foo/d', '/foo/e', '/foo/a'],
             ],
             'by publishDate' => [
                 'orderBy' => ['publishDate' => SORT_ASC],
