@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree;
+namespace Crell\MiDy\PageTreeDB2\Parser;
 
 use Crell\MiDy\PageTreeDB2\SortOrder;
 
