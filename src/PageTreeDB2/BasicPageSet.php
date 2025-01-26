@@ -72,13 +72,13 @@ class BasicPageSet implements PageSet, \IteratorAggregate
         );
     }
 
-    public function filter(\Closure $filter, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
+    public function filter(\Closure $filter, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination
     {
         $pages = new \CallbackFilterIterator(new \IteratorIterator($this), $filter);
         return $this->paginateBuilder(iterator_to_array($pages), $pageSize, $pageNum);
     }
 
-    public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
+    public function filterAnyTag(array $tags, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination
     {
         return $this->filter(static fn (Page $p) => $p->hasAnyTag(...$tags), $pageSize, $pageNum);
     }

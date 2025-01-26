@@ -271,6 +271,30 @@ class PageRepo
         );
     }
 
+    /**
+     * Returns a list of all paths that exist in the system.
+     *
+     * This is for the pre-generator logic.  Don't use it otherwise.
+     */
+    public function allPaths(): iterable
+    {
+        return $this->conn->createCommand("SELECT logicalPath from page")->queryColumn();
+    }
+
+    /**
+     * Returns a list of all files that exist in the system.
+     *
+     * This is for the pre-generator logic.  Don't use it otherwise.
+     */
+    public function allFiles(): iterable
+    {
+        $filesLines = $this->conn->createCommand("SELECT files from page")->queryColumn();
+        foreach ($filesLines as $result) {
+            $records = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
+            yield from array_map($this->instantiateFile(...), $records);
+        }
+    }
+
     private function instantiatePage(array $record): PageRecord
     {
         $files = json_decode($record['files'], true, 512, JSON_THROW_ON_ERROR);

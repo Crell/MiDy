@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTreeDB2\PageCacheDB;
 use Crell\MiDy\PageTreeDB2\PageFile;
+use Crell\MiDy\PageTreeDB2\PageRepo;
 use Crell\MiDy\PageTreeDB2\PageTree;
 use DI\Attribute\Inject;
 
@@ -18,7 +18,7 @@ readonly class StaticFilePregenerator
 {
     public function __construct(
         private PageTree $tree,
-        private PageCacheDB $cache,
+        private PageRepo $cache,
         private StaticRoutes $staticRoutes,
         #[Inject('paths.public')]
         private string $publicPath,

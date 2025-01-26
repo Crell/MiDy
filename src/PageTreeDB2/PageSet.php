@@ -31,10 +31,10 @@ interface PageSet extends \Countable, \Traversable
      *
      * @param callable(Page $p): bool $filter
      */
-    public function filter(\Closure $filter, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination;
+    public function filter(\Closure $filter, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination;
 
     /**
      * Filters this page set to just those items that have at least one specified tag.
      */
-    public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination;
+    public function filterAnyTag(array $tags, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination;
 }

@@ -56,7 +56,7 @@ class Folder implements \IteratorAggregate, Page
         return $this->pageTree->page(rtrim($this->logicalPath, '/') . '/' . $name);
     }
 
-    public function filter(\Closure $filter, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
+    public function filter(\Closure $filter, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination
     {
         return $this
             ->children(pageSize: $pageSize, pageNum: $pageNum)
@@ -64,7 +64,7 @@ class Folder implements \IteratorAggregate, Page
             ->filter($filter, $pageSize, $pageNum);
     }
 
-    public function filterAnyTag(array $tags, int $pageSize = PageCacheDB::DefaultPageSize, int $pageNum = 1): Pagination
+    public function filterAnyTag(array $tags, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination
     {
         return $this->children(anyTag: $tags, pageSize: $pageSize, pageNum: $pageNum);
     }

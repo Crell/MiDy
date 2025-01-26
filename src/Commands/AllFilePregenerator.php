@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTreeDB2\PageCacheDB;
+use Crell\MiDy\PageTreeDB2\PageRepo;
 use Crell\MiDy\StackMiddlewareKernel;
 use DI\Attribute\Inject;
 use Nyholm\Psr7Server\ServerRequestCreator;
@@ -18,7 +18,7 @@ readonly class AllFilePregenerator
     private array $extensionLookup;
 
     public function __construct(
-        private PageCacheDB $cache,
+        private PageRepo $cache,
         private StaticRoutes $staticRoutes,
         #[Inject('paths.public')]
         private string $publicPath,
