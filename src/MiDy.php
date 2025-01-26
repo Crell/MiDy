@@ -25,26 +25,6 @@ use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
 use Crell\MiDy\PageTreeDB2\PageTree;
-use Crell\MiDy\Router\PageTreeRouter\LatteHandler;
-use Crell\MiDy\Router\PageTreeRouter\MarkdownLatteHandler;
-use Crell\MiDy\Router\PageTreeRouter\PageTreeRouter;
-use Crell\MiDy\Router\PageTreeRouter\PhpHandler;
-use Crell\MiDy\Router\PageTreeRouter\StaticFileHandler;
-use Crell\MiDy\PageTree\AggregatePage;
-use Crell\MiDy\PageTree\Attributes\PageRoute;
-use Crell\MiDy\PageTree\BasicPageInformation;
-use Crell\MiDy\PageTree\FileInterpreter\LatteFileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\MarkdownLatteFileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\MultiplexedFileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\PhpFileInterpreter;
-use Crell\MiDy\PageTree\FileInterpreter\StaticFileInterpreter;
-use Crell\MiDy\PageTree\FolderData;
-use Crell\MiDy\PageTree\FolderParser\FolderParser;
-use Crell\MiDy\PageTree\FolderParser\LocalFolderParser;
-use Crell\MiDy\PageTree\FolderRef;
-use Crell\MiDy\PageTree\PageFile;
-use Crell\MiDy\PageTree\RootFolder;
-use Crell\MiDy\PageTreeDB2\PageCacheDB;
 use Crell\MiDy\PageTreeDB2\Parser\LatteFileParser;
 use Crell\MiDy\PageTreeDB2\Parser\MarkdownLatteFileParser;
 use Crell\MiDy\PageTreeDB2\Parser\MultiplexedFileParser;
@@ -52,15 +32,17 @@ use Crell\MiDy\PageTreeDB2\Parser\Parser;
 use Crell\MiDy\PageTreeDB2\Parser\PhpFileParser;
 use Crell\MiDy\PageTreeDB2\Parser\StaticFileParser;
 use Crell\MiDy\Router\DelegatingRouter;
-use Crell\MiDy\Router\EventRouter\EventRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
-use Crell\MiDy\Router\HandlerRouter\HandlerRouter;
+use Crell\MiDy\Router\PageTreeRouter\LatteHandler;
+use Crell\MiDy\Router\PageTreeRouter\MarkdownLatteHandler;
+use Crell\MiDy\Router\PageTreeRouter\PageTreeRouter;
+use Crell\MiDy\Router\PageTreeRouter\PhpHandler;
+use Crell\MiDy\Router\PageTreeRouter\StaticFileHandler;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\MiDy\Services\RuntimeActionInvoker;
-use Crell\MiDy\TimedCache\FilesystemTimedCache;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -81,6 +63,7 @@ use League\CommonMark\MarkdownConverter;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
+use PDO;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
@@ -97,17 +80,13 @@ use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
 use Spatie\CommonMarkHighlighter\FencedCodeRenderer;
 use Spatie\CommonMarkHighlighter\IndentedCodeRenderer;
-use PDO;
-
 use Yiisoft\Cache\File\FileCache;
 use Yiisoft\Db\Cache\SchemaCache;
 use Yiisoft\Db\Driver\Pdo\PdoDriverInterface;
 use Yiisoft\Db\Sqlite\Connection;
 use Yiisoft\Db\Sqlite\Driver;
-use Yiisoft\Db\Sqlite\Dsn;
 
 use function DI\autowire;
-use function DI\create;
 use function DI\env;
 use function DI\factory;
 use function DI\get;
@@ -251,40 +230,8 @@ class MiDy implements RequestHandlerInterface
         $containerBuilder->addDefinitions([
             DelegatingRouter::class => autowire()
                 ->constructorParameter('default', get(PageTreeRouter::class))
-//                ->constructorParameter('default', get(HandlerRouter::class))
-//                ->method('delegateTo', '/aggregateblog', get(MappedRouter::class))
-            ,
-//            EventRouter::class => autowire()->constructorParameter('routesPath', get('paths.routes')),
-            HandlerRouter::class => autowire()
-                ->constructorParameter('root', get(RootFolder::class))
-                ->method('addHandler', get(\Crell\MiDy\PageHandlers\StaticFileHandler::class))
-                ->method('addHandler', get(\Crell\MiDy\PageHandlers\LatteHandler::class))
-                ->method('addHandler', get(\Crell\MiDy\PageHandlers\MarkdownLatteHandler::class))
-                ->method('addHandler', get(\Crell\MiDy\PageHandlers\PhpHandler::class))
             ,
             Router::class => get(DelegatingRouter::class),
-            \Crell\MiDy\PageHandlers\MarkdownLatteHandler::class => autowire()
-                ->constructorParameter('templateRoot', get('paths.templates'))
-            ,
-             'path_cache' => autowire(FilesystemTimedCache::class)->constructor(
-                cachePath: get('paths.cache.routes'),
-                allowedClasses: [FolderData::class, FolderRef::class, AggregatePage::class, PageFile::class, BasicPageInformation::class, PageRoute::class],
-            ),
-            MultiplexedFileInterpreter::class => autowire()
-                ->method('addInterpreter', get(StaticFileInterpreter::class))
-                ->method('addInterpreter', get(LatteFileInterpreter::class))
-                ->method('addInterpreter', get(MarkdownLatteFileInterpreter::class))
-                ->method('addInterpreter', get(PhpFileInterpreter::class))
-            ,
-            LocalFolderParser::class => autowire()
-                ->constructorParameter('cache', get('path_cache'))
-                ->constructorParameter('interpreter', get(MultiplexedFileInterpreter::class))
-            ,
-            FolderParser::class => get(LocalFolderParser::class),
-            RootFolder::class => create(RootFolder::class)->constructor(
-                physicalPath: get('paths.routes'),
-                parser: get(LocalFolderParser::class),
-            ),
 
             // PageTreeDB2 version
             CacheInterface::class => autowire(FileCache::class)

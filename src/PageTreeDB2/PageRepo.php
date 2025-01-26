@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2;
 
-use Crell\MiDy\PageTree\BasicPageInformation;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
 use Yiisoft\Db\QueryBuilder\Condition\OrCondition;
 use Yiisoft\Db\Sqlite\Connection;
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2\Parser;
 
-use Crell\MiDy\PageTree\SortOrder;
 use Crell\MiDy\PageTreeDB2\PageRecord;
 use Crell\MiDy\PageTreeDB2\ParsedFile;
+use Crell\MiDy\PageTreeDB2\SortOrder;
 
 /**
  * @internal

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTreeDB2\Attributes;
 
-use Crell\MiDy\PageTree\PageInformation;
+use Crell\MiDy\PageTreeDB2\PageInformation;
 
 #[\Attribute]
 readonly class PageRoute implements PageInformation

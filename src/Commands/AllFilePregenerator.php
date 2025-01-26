@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTree\RootFolder;
 use Crell\MiDy\PageTreeDB2\PageCacheDB;
 use Crell\MiDy\StackMiddlewareKernel;
 use DI\Attribute\Inject;

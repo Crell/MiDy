@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTreeDB2\SortOrder;
+
 readonly class FolderDef
 {
     public function __construct(
