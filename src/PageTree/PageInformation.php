@@ -13,5 +13,4 @@ interface PageInformation
     public bool $hidden { get; }
 
     public function hasAnyTag(string ...$tags): bool;
-    public function hasAllTags(string ...$tags): bool;
 }

@@ -21,14 +21,4 @@ readonly class PageRoute implements PageInformation
     {
         return (bool)array_intersect($this->tags, $tags);
     }
-
-    public function hasAllTags(string ...$tags): bool
-    {
-        foreach ($tags as $tag) {
-            if (!isset($this->tags[$tag])) {
-                return false;
-            }
-        }
-        return true;
-    }
 }

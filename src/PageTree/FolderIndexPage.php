@@ -46,9 +46,4 @@ trait FolderIndexPage
     {
         return $this->indexPage?->hasAnyTag(...$tags) ?? false;
     }
-
-    public function hasAllTags(string ...$tags): bool
-    {
-        return $this->indexPage?->hasAllTags(...$tags) ?? false;
-    }
 }

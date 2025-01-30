@@ -55,11 +55,6 @@ class PageFile implements Page
         return $this->file->frontmatter->hasAnyTag(...$tags);
     }
 
-    public function hasAllTags(string ...$tags): bool
-    {
-        return $this->file->frontmatter->hasAllTags(...$tags);
-    }
-
     public function __debugInfo(): ?array
     {
         return [

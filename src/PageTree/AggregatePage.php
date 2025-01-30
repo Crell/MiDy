@@ -65,11 +65,6 @@ class AggregatePage implements Page
         return $this->activeFile->hasAnyTag(...$tags);
     }
 
-    public function hasAllTags(string ...$tags): bool
-    {
-        return $this->activeFile->hasAllTags(...$tags);
-    }
-
     public function __debugInfo(): ?array
     {
         return [
