@@ -16,37 +16,36 @@ class PageRepoTest extends TestCase
     use SetupDB;
     use MakerUtils;
 
-
     #[Test, DoesNotPerformAssertions]
     public function reinitialize_creates_tables_if_they_dont_exist(): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
 
         $cache->reinitialize();
 
         // These will throw an exception if the tables do not exist.
-        $this->yiiConn->createCommand("SELECT 1 FROM folder")->queryOne();
-        $this->yiiConn->createCommand("SELECT 1 FROM page")->queryOne();
+        $this->conn->createCommand("SELECT 1 FROM folder")->queryOne();
+        $this->conn->createCommand("SELECT 1 FROM page")->queryOne();
     }
 
     #[Test, DoesNotPerformAssertions]
     public function reinitialize_recreates_tables_if_they_do_exist(): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
 
-        $this->yiiConn->createCommand('CREATE TABLE IF NOT EXISTS folder(fake int)')->execute();
+        $this->conn->createCommand('CREATE TABLE IF NOT EXISTS folder(fake int)')->execute();
 
         $cache->reinitialize();
 
         // These will throw an exception if the tables do not exist.
-        $this->yiiConn->createCommand("SELECT 1 FROM folder")->execute();
-        $this->yiiConn->createCommand("SELECT 1 FROM page")->execute();
+        $this->conn->createCommand("SELECT 1 FROM folder")->execute();
+        $this->conn->createCommand("SELECT 1 FROM page")->execute();
     }
 
     #[Test]
     public function can_write_new_folder(): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
 
         $cache->reinitialize();
 
@@ -54,14 +53,14 @@ class PageRepoTest extends TestCase
 
         $cache->writeFolder($folder);
 
-        $record = $this->yiiConn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
+        $record = $this->conn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
         self::assertEquals($folder->physicalPath, $record['physicalPath']);
     }
 
     #[Test]
     public function can_write_updated_folder(): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
 
         $cache->reinitialize();
 
@@ -71,7 +70,7 @@ class PageRepoTest extends TestCase
         $newFolder = new ParsedFolder('/foo', '/foo', 123456, true, 'Foo2');
         $cache->writeFolder($newFolder);
 
-        $record = $this->yiiConn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
+        $record = $this->conn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
         self::assertEquals($newFolder->physicalPath, $record['physicalPath']);
         self::assertEquals($newFolder->mtime, $record['mtime']);
         self::assertEquals($newFolder->flatten, $record['flatten']);
@@ -81,7 +80,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function can_read_folder(): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
 
         $cache->reinitialize();
 
@@ -99,7 +98,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function returns_null_for_missing_folder(): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
 
         $cache->reinitialize();
 
@@ -111,7 +110,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function can_delete_folder(): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
         $cache->reinitialize();
 
         $folder = self::makeParsedFolder(physicalPath: '/foo');
@@ -119,7 +118,7 @@ class PageRepoTest extends TestCase
 
         $cache->deleteFolder('/foo');
 
-        $record = $this->yiiConn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
+        $record = $this->conn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
 
         self::assertNull($record);
     }
@@ -230,7 +229,7 @@ class PageRepoTest extends TestCase
     #[Test, DataProvider('page_data')]
     public function page_save_and_load(ParsedFolder $folder, array $files, string $pagePath, \Closure $dbValidation, \Closure $validation): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
         $cache->reinitialize();
 
         $cache->writeFolder($folder);
@@ -254,7 +253,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function page_load_missing_page_returns_null(): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
         $cache->reinitialize();
 
         $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
@@ -711,7 +710,7 @@ class PageRepoTest extends TestCase
     #[DataProvider('query_pages_data_tags_any')]
     public function query_pages(array $folders, array $pages, array $query, int $expectedCount, int $totalPages, \Closure $validator): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
         $cache->reinitialize();
 
         array_map($cache->writeFolder(...), $folders);
@@ -728,7 +727,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function index_files_are_not_considered_children(): void
     {
-        $cache = new PageRepo($this->yiiConn);
+        $cache = new PageRepo($this->conn);
         $cache->reinitialize();
 
         $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
@@ -760,7 +759,7 @@ class PageRepoTest extends TestCase
      */
     private function getPage(string $path): array
     {
-        return $this->yiiConn
+        return $this->conn
             ->createCommand("SELECT * FROM page WHERE logicalPath=:logicalPath")
             ->bindParam(':logicalPath', $path)
             ->queryOne();
@@ -768,6 +767,6 @@ class PageRepoTest extends TestCase
 
     private function dumpPageTable(): void
     {
-        var_dump($this->yiiConn->createCommand("SELECT * FROM page")->queryAll());
+        var_dump($this->conn->createCommand("SELECT * FROM page")->queryAll());
     }
 }

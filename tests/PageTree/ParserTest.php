@@ -26,13 +26,13 @@ class ParserTest extends TestCase
 
         $this->parser->parseFolder($this->routesPath . '/subdir', '/subdir', []);
 
-        $records = $this->yiiConn->createCommand("SELECT * FROM page WHERE logicalPath='/subdir/beep'")->queryAll();
+        $records = $this->conn->createCommand("SELECT * FROM page WHERE logicalPath='/subdir/beep'")->queryAll();
         self::assertCount(1, $records);
 
-        $allRecords = $this->yiiConn->createCommand("SELECT * FROM page")->queryAll();
+        $allRecords = $this->conn->createCommand("SELECT * FROM page")->queryAll();
         self::assertCount(2, $allRecords);
 
-        $records = $this->yiiConn->createCommand("SELECT * FROM folder WHERE logicalPath='/subdir'")->queryAll();
+        $records = $this->conn->createCommand("SELECT * FROM folder WHERE logicalPath='/subdir'")->queryAll();
         self::assertCount(1, $records);
 
     }

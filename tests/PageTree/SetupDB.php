@@ -17,7 +17,7 @@ trait SetupDB
 {
     use SetupFilesystem;
 
-    private Connection $yiiConn;
+    private Connection $conn;
 
     #[Before(priority: 20)]
     public function setupMockDb(): void
@@ -26,7 +26,7 @@ trait SetupDB
     }
 
     #[Before(priority: 20)]
-    public function setupYiiConnectionAndDB(): void
+    public function setupconnectionAndDB(): void
     {
         // Dsn.
         $dsn = new Dsn('sqlite', 'memory')->asString();
@@ -46,6 +46,6 @@ trait SetupDB
         ]);
 
         // Connection.
-        $this->yiiConn = new Connection($pdoDriver, $schemaCache);
+        $this->conn = new Connection($pdoDriver, $schemaCache);
     }
 }
