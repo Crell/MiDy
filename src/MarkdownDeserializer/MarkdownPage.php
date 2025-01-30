@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Crell\MiDy\MarkdownDeserializer;
 
 use Crell\MiDy\MarkdownDeserializer\Attributes\Content;
-use Crell\MiDy\PageTreeDB2\BasicPageInformation;
-use Crell\MiDy\PageTreeDB2\PageInformation;
+use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\PageTree\PageInformation;
 use Crell\Serde\Attributes\Field;
 
 use function Crell\MiDy\str_extract_between;

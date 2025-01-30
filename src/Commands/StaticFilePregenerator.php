@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTreeDB2\PageFile;
-use Crell\MiDy\PageTreeDB2\PageRepo;
-use Crell\MiDy\PageTreeDB2\PageTree;
+use Crell\MiDy\PageTree\PageFile;
+use Crell\MiDy\PageTree\PageRepo;
+use Crell\MiDy\PageTree\PageTree;
 use DI\Attribute\Inject;
 
 use function Crell\fp\itmap;

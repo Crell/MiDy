@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Commands;
 
-use Crell\MiDy\PageTreeDB2\PageTree;
+use Crell\MiDy\PageTree\PageTree;
 
 readonly class Reindex
 {

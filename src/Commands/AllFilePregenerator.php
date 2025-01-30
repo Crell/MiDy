@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTreeDB2\PageRepo;
+use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\StackMiddlewareKernel;
 use DI\Attribute\Inject;
 use Nyholm\Psr7Server\ServerRequestCreator;

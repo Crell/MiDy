@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Router\PageTreeRouter;
 
-use Crell\MiDy\PageTreeDB2\Page;
+use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;

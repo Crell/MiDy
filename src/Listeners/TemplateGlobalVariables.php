@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\Listeners;
 
 use Crell\MiDy\Config\TemplateVariables;
-use Crell\MiDy\PageTreeDB2\PageTree;
+use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\Services\TemplatePreRender;
 use Crell\Tukio\Listener;
 use DI\Attribute\Inject;

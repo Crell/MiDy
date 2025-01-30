@@ -6,7 +6,7 @@ namespace Crell\MiDy\Router\PageTreeRouter;
 
 use Crell\MiDy\Config\MarkdownLatteConfiguration;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
-use Crell\MiDy\PageTreeDB2\Page;
+use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;

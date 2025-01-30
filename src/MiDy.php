@@ -24,13 +24,13 @@ use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
-use Crell\MiDy\PageTreeDB2\PageTree;
-use Crell\MiDy\PageTreeDB2\Parser\LatteFileParser;
-use Crell\MiDy\PageTreeDB2\Parser\MarkdownLatteFileParser;
-use Crell\MiDy\PageTreeDB2\Parser\MultiplexedFileParser;
-use Crell\MiDy\PageTreeDB2\Parser\Parser;
-use Crell\MiDy\PageTreeDB2\Parser\PhpFileParser;
-use Crell\MiDy\PageTreeDB2\Parser\StaticFileParser;
+use Crell\MiDy\PageTree\PageTree;
+use Crell\MiDy\PageTree\Parser\LatteFileParser;
+use Crell\MiDy\PageTree\Parser\MarkdownLatteFileParser;
+use Crell\MiDy\PageTree\Parser\MultiplexedFileParser;
+use Crell\MiDy\PageTree\Parser\Parser;
+use Crell\MiDy\PageTree\Parser\PhpFileParser;
+use Crell\MiDy\PageTree\Parser\StaticFileParser;
 use Crell\MiDy\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
 use Crell\MiDy\Router\PageTreeRouter\LatteHandler;
@@ -233,7 +233,6 @@ class MiDy implements RequestHandlerInterface
             ,
             Router::class => get(DelegatingRouter::class),
 
-            // PageTreeDB2 version
             CacheInterface::class => autowire(FileCache::class)
                 ->constructor(get('paths.cache.yii'))
             ,
