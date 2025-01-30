@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\ConsoleLogger;
 use PHPUnit\Framework\Attributes\Before;
 
 trait SetupRepo
@@ -22,6 +21,6 @@ trait SetupRepo
 
     private function dumpPageTable(): void
     {
-        var_dump($this->db->query("SELECT * FROM page")->fetchAll(\PDO::FETCH_ASSOC));
+        var_dump($this->yiiConn->createCommand("SELECT * FROM page")->queryAll());
     }
 }

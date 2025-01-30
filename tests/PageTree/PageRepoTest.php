@@ -25,8 +25,8 @@ class PageRepoTest extends TestCase
         $cache->reinitialize();
 
         // These will throw an exception if the tables do not exist.
-        $this->db->query("SELECT 1 FROM folder")->execute();
-        $this->db->query("SELECT 1 FROM page")->execute();
+        $this->yiiConn->createCommand("SELECT 1 FROM folder")->queryOne();
+        $this->yiiConn->createCommand("SELECT 1 FROM page")->queryOne();
     }
 
     #[Test, DoesNotPerformAssertions]
@@ -34,13 +34,13 @@ class PageRepoTest extends TestCase
     {
         $cache = new PageRepo($this->yiiConn);
 
-        $this->db->exec('CREATE TABLE IF NOT EXISTS folder(fake int)');
+        $this->yiiConn->createCommand('CREATE TABLE IF NOT EXISTS folder(fake int)')->execute();
 
         $cache->reinitialize();
 
         // These will throw an exception if the tables do not exist.
-        $this->db->query("SELECT 1 FROM folder")->execute();
-        $this->db->query("SELECT 1 FROM page")->execute();
+        $this->yiiConn->createCommand("SELECT 1 FROM folder")->execute();
+        $this->yiiConn->createCommand("SELECT 1 FROM page")->execute();
     }
 
     #[Test]
@@ -54,9 +54,8 @@ class PageRepoTest extends TestCase
 
         $cache->writeFolder($folder);
 
-        $stmt = $this->db->query("SELECT * FROM folder WHERE logicalPath='/foo'");
-        $record = $stmt->fetchObject();
-        self::assertEquals($folder->physicalPath, $record->physicalPath);
+        $record = $this->yiiConn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
+        self::assertEquals($folder->physicalPath, $record['physicalPath']);
     }
 
     #[Test]
@@ -72,12 +71,11 @@ class PageRepoTest extends TestCase
         $newFolder = new ParsedFolder('/foo', '/foo', 123456, true, 'Foo2');
         $cache->writeFolder($newFolder);
 
-        $stmt = $this->db->query("SELECT * FROM folder WHERE logicalPath='/foo'");
-        $record = $stmt->fetchObject();
-        self::assertEquals($newFolder->physicalPath, $record->physicalPath);
-        self::assertEquals($newFolder->mtime, $record->mtime);
-        self::assertEquals($newFolder->flatten, $record->flatten);
-        self::assertEquals($newFolder->title, $record->title);
+        $record = $this->yiiConn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
+        self::assertEquals($newFolder->physicalPath, $record['physicalPath']);
+        self::assertEquals($newFolder->mtime, $record['mtime']);
+        self::assertEquals($newFolder->flatten, $record['flatten']);
+        self::assertEquals($newFolder->title, $record['title']);
     }
 
     #[Test]
@@ -121,10 +119,9 @@ class PageRepoTest extends TestCase
 
         $cache->deleteFolder('/foo');
 
-        $stmt = $this->db->query("SELECT * FROM folder WHERE logicalPath='/foo'");
-        $record = $stmt->fetchObject();
+        $record = $this->yiiConn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
 
-        self::assertFalse($record);
+        self::assertNull($record);
     }
 
     public static function page_data(): iterable

@@ -286,8 +286,7 @@ class PageTreeTest extends TestCase
         $tree->reindexAll();
 
         // Every file above should be found here as a page.
-        $stmt = $this->db->query("SELECT COUNT(*) FROM page");
-        $count = $stmt->fetchColumn();
+        $count = $this->yiiConn->createCommand("SELECT COUNT(*) FROM page")->queryScalar();
         self::assertEquals(10, $count);
     }
 

@@ -17,7 +17,6 @@ trait SetupDB
 {
     use SetupFilesystem;
 
-    private PDO $db;
     private Connection $yiiConn;
 
     #[Before(priority: 20)]
@@ -48,6 +47,5 @@ trait SetupDB
 
         // Connection.
         $this->yiiConn = new Connection($pdoDriver, $schemaCache);
-        $this->db = $this->yiiConn->getActivePDO();
     }
 }
