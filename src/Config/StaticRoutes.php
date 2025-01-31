@@ -12,6 +12,7 @@ readonly class StaticRoutes
     public function __construct(
         public array $allowedExtensions = [
             'html' => 'text/html',
+            'txt' => 'text/plain',
             'gif' => 'image/gif',
             'png' => 'image/png',
             'svg' => 'image/svg',
