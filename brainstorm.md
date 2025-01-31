@@ -293,3 +293,70 @@ How do variable paths work with this?  It means we cannot do a logical path matc
 
 --------------------
 
+So, problem.  A parsed file's frontmatter can be missing the publish date.  But the value stored to the DB must have a valid publish date.  That can be derived in the parser, but the data model is different.  So... I think this means we need to completely separate the read and write models.  Excrement.
+
+What happens to MarkdownPage, then?  That uses the write model, yes?
+
+But then since we're serializing the file to save it, we need to translate it first to the read model and save that.  Gross.
+
+Page... right now is a combined model, but could be separated.  So far it doesn't seem necessary, though.
+
+FileInfoParseSchema (aka, frontmatter)
+    title?
+    publish date?
+    last modified?
+    tags?
+    summary?
+    slug?
+    hidden?
+
+FileInfo (what gets saved)
+    logicalPath
+    ext
+    physicalPath
+    mtime
+    folder
+    order
+    routable
+    FileInfoParseSchema (really just for extra bits?)
+    pathName (bad name)
+    isFolder
+    title
+    publish date
+    last modified
+    tags
+    summary
+    slug
+    hidden
+
+PageWrite (aka PageRecord)
+    files
+    logicalPath
+    folder
+
+PageRead
+    logicalPath
+    files
+    folder
+
+Page
+    routable
+    path (aka logicalPath)
+    title
+    publish date
+    last modified
+    tags
+    summary
+    slug
+    hidden
+
+
+So what I really want is:
+
+* Parse metadata off of a file; allow everything to be null.
+* Translate metadata into ParsedFile: metadata combined with file system derived info.
+* Combine the ParsedFiles into a single PageWrite
+* Save PageWrite
+* Read the PageRead directly from the DB, all data precomputed.
+* PageRead includes just the file paths, really.  And the extended data for each file.  Everything else is already pre-computed.
+
