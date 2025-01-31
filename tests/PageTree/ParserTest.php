@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\SetupFilesystem;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -34,6 +35,88 @@ class ParserTest extends TestCase
 
         $records = $this->conn->createCommand("SELECT * FROM folder WHERE logicalPath='/subdir'")->queryAll();
         self::assertCount(1, $records);
+    }
 
+    public static function parser_data_examples(): iterable
+    {
+        $halloween = new \DateTimeImmutable('2024-10-31');
+        $halloweenStamp = $halloween->getTimestamp();
+
+        yield 'Basic static file' => [
+            'file' => '/foo.txt',
+            'content' => 'ABC 123',
+            'expected' => [
+                'logicalPath' => '/foo',
+                'ext' => 'txt',
+                'hidden' => true,
+            ],
+        ];
+
+        yield 'Markdown h1 is parsed as title' => [
+            'file' => '/foo.md',
+            'content' => <<<END
+            # Title here
+            END,
+            'expected' => [
+                'logicalPath' => '/foo',
+                'ext' => 'md',
+                'hidden' => false,
+                'title' => 'Title here',
+            ],
+        ];
+
+        yield 'Markdown header title is parsed' => [
+            'file' => '/foo.md',
+            'content' => <<<END
+            ---
+            title: A title
+            ---
+            Body here
+            END,
+            'expected' => [
+                'logicalPath' => '/foo',
+                'ext' => 'md',
+                'hidden' => false,
+                'title' => 'A title',
+            ],
+        ];
+
+        yield 'File mtime is used as published and last-modified dates' => [
+            'file' => '/foo.md',
+            'content' => <<<END
+            # A title
+            END,
+            'mtime' => $halloweenStamp,
+            'expected' => [
+                'logicalPath' => '/foo',
+                'ext' => 'md',
+                'hidden' => false,
+                'mtime' => $halloweenStamp,
+                'publishDate' => $halloween,
+                'lastModifiedDate' => $halloween,
+            ],
+        ];
+    }
+
+    #[Test, DataProvider('parser_data_examples')]
+    public function parser_data(string $file, string $content, array $expected, ?int $mtime = null): void
+    {
+        $filename = $this->routesPath . $file;
+
+        file_put_contents($filename, $content);
+        if ($mtime) {
+            touch($filename, $mtime);
+            clearstatcache(true, $filename);
+        }
+
+        $parsedFile = $this->parser->parseFile(new \SplFileInfo($filename), '/');
+
+        // We only want to check selected fields in each case, so rather than build
+        // a complete expected ParsedFile object with pointless data, we just test
+        // selected fields directly.
+        self::assertEquals($filename, $parsedFile->physicalPath);
+        foreach ($expected as $field => $value) {
+            self::assertEquals($value, $parsedFile->$field);
+        }
     }
 }
