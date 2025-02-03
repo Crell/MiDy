@@ -6,6 +6,8 @@ namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\MarkdownDeserializer\MarkdownError;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
+use Crell\MiDy\PageTree\Model\ParsedFileInformation;
+use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
 use Crell\MiDy\PageTree\ParsedFile;
 
 class MarkdownLatteFileParser implements FileParser
@@ -16,7 +18,7 @@ class MarkdownLatteFileParser implements FileParser
         private MarkdownPageLoader $loader,
     ) {}
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile|FileParserError
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
         $page = $this->loader->load($fileInfo->getPathname());
 
@@ -24,25 +26,6 @@ class MarkdownLatteFileParser implements FileParser
             return FileParserError::FileNotSupported;
         }
 
-        $frontmatter = $page->pageInformation();
-
-        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . ($frontmatter->slug ?? $basename);
-
-        return new ParsedFile(
-            logicalPath: $logicalPath,
-            ext: $fileInfo->getExtension(),
-            physicalPath: $fileInfo->getPathname(),
-            mtime: $fileInfo->getMTime(),
-            title: $frontmatter->title,
-            folder: $parentLogicalPath,
-            order: 0,
-            hidden: $page->hidden,
-            routable: true,
-            publishDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            lastModifiedDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            frontmatter: $frontmatter,
-            summary: '',
-            pathName: $basename,
-        );
+        return $page;
     }
 }

@@ -43,12 +43,48 @@ class ParserTest extends TestCase
         $halloweenStamp = $halloween->getTimestamp();
 
         yield 'Basic static file' => [
-            'file' => '/foo.txt',
+            'file' => '/foo.css',
             'content' => 'ABC 123',
             'expected' => [
                 'logicalPath' => '/foo',
-                'ext' => 'txt',
+                'ext' => 'css',
                 'hidden' => true,
+            ],
+        ];
+
+        yield 'Latte template header is parsed' => [
+            'file' => '/foo.latte',
+            'content' => <<<END
+            {*---
+            title: Title here
+            ---*}
+            Template bits here.
+            END,
+            'expected' => [
+                'logicalPath' => '/foo',
+                'ext' => 'latte',
+                'hidden' => false,
+                'title' => 'Title here',
+            ],
+        ];
+
+        yield 'PHP attribute is parsed' => [
+            'file' => '/foo.php',
+            'content' => <<<END
+            <?php
+
+            use Crell\MiDy\PageTree\Attributes\PageRoute;
+
+            #[PageRoute(title: 'Title here')]
+            class Dummy {
+                public function get() {}
+            }
+            END,
+            'expected' => [
+                'logicalPath' => '/foo',
+                'ext' => 'php',
+                'hidden' => false,
+                'title' => 'Title here',
             ],
         ];
 

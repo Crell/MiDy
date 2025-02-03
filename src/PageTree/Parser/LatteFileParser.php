@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\PageTree\Model\BasicParsedFrontmatter;
+use Crell\MiDy\PageTree\Model\ParsedFileInformation;
+use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
 use Crell\MiDy\PageTree\ParsedFile;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
@@ -22,30 +25,13 @@ class LatteFileParser implements FileParser
         protected readonly Serde $serde = new SerdeCommon(),
     ) {}
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile|FileParserError
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
-        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . $basename;
-
         $frontmatter = $this->extractFrontMatter(file_get_contents($fileInfo->getPathname()));
 
-        $frontmatter ??= new BasicPageInformation(title: ucfirst($basename));
+        $frontmatter ??= new BasicParsedFrontmatter(title: ucfirst($basename));
 
-        return new ParsedFile(
-            logicalPath: $logicalPath,
-            ext: $fileInfo->getExtension(),
-            physicalPath: $fileInfo->getPathname(),
-            mtime: $fileInfo->getMTime(),
-            title: $frontmatter->title,
-            folder: $parentLogicalPath,
-            order: 0,
-            hidden: $frontmatter->hidden,
-            routable: true,
-            publishDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            lastModifiedDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            frontmatter: $frontmatter,
-            summary: $frontmatter->summary,
-            pathName: $basename,
-        );
+        return $frontmatter;
     }
 
     /**
@@ -53,14 +39,13 @@ class LatteFileParser implements FileParser
      *
      * @todo This can probably be done in a less hacky way.
      */
-    private function extractFrontMatter(string $source): ?BasicPageInformation
+    private function extractFrontMatter(string $source): ?ParsedFrontmatter
     {
         $frontmatter = str_extract_between($source, self::FrontMatterStart,self::FrontMatterEnd);
         if ($frontmatter === null) {
             return null;
         }
 
-        return $this->serde->deserialize($frontmatter, from: 'yaml', to: BasicPageInformation::class);
+        return $this->serde->deserialize($frontmatter, from: 'yaml', to: BasicParsedFrontmatter::class);
     }
-
 }

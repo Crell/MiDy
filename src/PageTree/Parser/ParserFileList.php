@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Parser;
 
+use Crell\MiDy\PageTree\Model\PageWrite;
+use Crell\MiDy\PageTree\Model\ParsedFileInformation;
 use Crell\MiDy\PageTree\PageRecord;
 use Crell\MiDy\PageTree\ParsedFile;
 use Crell\MiDy\PageTree\SortOrder;
@@ -13,7 +15,7 @@ use Crell\MiDy\PageTree\SortOrder;
  */
 class ParserFileList implements \IteratorAggregate
 {
-    /** @var array<string, array<ParsedFile>>  */
+    /** @var array<string, array<ParsedFileInformation>>  */
     private array $files = [];
 
     private \Closure $comparator {
@@ -27,7 +29,7 @@ class ParserFileList implements \IteratorAggregate
         private readonly SortOrder $sortOrder,
     ) {}
 
-    public function addParsedFile(ParsedFile $file): void
+    public function addParsedFile(ParsedFileInformation $file): void
     {
         // The easiest way to default the order to reversed is just this.
         if ($this->sortOrder === SortOrder::Desc) {
@@ -41,7 +43,7 @@ class ParserFileList implements \IteratorAggregate
         foreach ($this->files as $path => $files) {
             // We only need to sort the files within the Page, as we cannot query on that order later.
             usort($files, $this->comparator);
-            yield new PageRecord($path, $files[0]->folder, $files);
+            yield new PageWrite($path, $files[0]->folder, $files);
         }
     }
 

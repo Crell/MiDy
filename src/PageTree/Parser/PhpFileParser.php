@@ -6,6 +6,8 @@ namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\ClassFinder;
 use Crell\MiDy\PageTree\Attributes\PageRoute;
+use Crell\MiDy\PageTree\Model\ParsedFileInformation;
+use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
 use Crell\MiDy\PageTree\ParsedFile;
 
 class PhpFileParser implements FileParser
@@ -16,30 +18,11 @@ class PhpFileParser implements FileParser
         private readonly ClassFinder $finder = new ClassFinder(),
     ) {}
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter
     {
         $physicalPath = $fileInfo->getPathname();
 
-        $frontmatter = $this->extractFrontMatter($physicalPath);
-
-        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . ($frontmatter->slug ?? $basename);
-
-        return new ParsedFile(
-            logicalPath: $logicalPath,
-            ext: $fileInfo->getExtension(),
-            physicalPath: $physicalPath,
-            mtime: $fileInfo->getMTime(),
-            title: $frontmatter->title,
-            folder: $parentLogicalPath,
-            order: 0,
-            hidden: $frontmatter->hidden,
-            routable: true,
-            publishDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            lastModifiedDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            frontmatter: $frontmatter,
-            summary: $frontmatter->summary,
-            pathName: $basename,
-        );
+        return $this->extractFrontMatter($physicalPath);
     }
 
     private function extractFrontMatter(string $physicalPath): PageRoute
