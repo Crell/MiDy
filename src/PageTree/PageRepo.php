@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTree\Model\FileInPage;
+use Crell\MiDy\PageTree\Model\PageRead;
+use Crell\MiDy\PageTree\Model\PageWrite;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Yiisoft\Db\Query\Query;
@@ -134,7 +137,7 @@ class PageRepo
         return array_map($this->instantiateFolder(...), $result);
     }
 
-    public function writePage(PageRecord $page): void
+    public function writePage(PageWrite $page): void
     {
         $this->conn->createCommand()
             ->delete('page', 'logicalPath = :logicalPath')
@@ -157,30 +160,18 @@ class PageRepo
         ])->execute();
     }
 
-    public function readPage(string $path): ?PageRecord
+    public function readPage(string $path): ?PageRead
     {
         $result = $this->conn
-            ->createCommand("SELECT files FROM page WHERE logicalPath=:logicalPath")
+            ->createCommand("SELECT logicalPath, folder, files, title, \"order\", hidden, routable, isFolder, publishDate, lastModifiedDate, tags FROM page WHERE logicalPath=:logicalPath")
             ->bindParam(':logicalPath', $path)
-            ->queryScalar();
+            ->queryOne();
 
         if (!$result) {
             return null;
         }
 
-        $files = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
-
-        $loadedFiles = array_map($this->instantiateFile(...), $files);
-
-        if (empty($loadedFiles)) {
-            return null;
-        }
-
-        return new PageRecord(
-            logicalPath: $path,
-            folder: $loadedFiles[0]->folder,
-            files: $loadedFiles,
-        );
+        return $this->instantiatePage($result);
     }
 
     /**
@@ -209,7 +200,7 @@ class PageRepo
         int $offset = 0,
     ): QueryResult {
         $query = new Query($this->conn)
-            ->select(['logicalPath', 'folder', 'files'])
+            ->select(['logicalPath', 'folder', 'files', 'title', 'order', 'hidden', 'routable', 'isFolder', 'publishDate', 'lastModifiedDate', 'tags'])
             ->from('page')
             ->andWhere('NOT logicalPath = folder')  // To exclude index pages as children.
         ;
@@ -295,17 +286,21 @@ class PageRepo
         }
     }
 
-    private function instantiatePage(array $record): PageRecord
+    private function instantiatePage(array $record): PageRead
     {
         $files = json_decode($record['files'], true, 512, JSON_THROW_ON_ERROR);
+        $record['files'] = array_map($this->instantiateFile(...), $files);
 
-        $loadedFiles = array_map($this->instantiateFile(...), $files);
+        // SQLite gives back badly typed data, so we have to clean it up a bit.
+        $record['hidden'] = (bool)$record['hidden'];
+        $record['routable'] = (bool)$record['routable'];
+        $record['isFolder'] = (bool)$record['isFolder'];
+        $record['publishDate'] = new \DateTimeImmutable($record['publishDate']);
+        $record['lastModifiedDate'] = new \DateTimeImmutable($record['lastModifiedDate']);
 
-        return new PageRecord(
-            logicalPath: $record['logicalPath'],
-            folder: $record['folder'],
-            files: $loadedFiles,
-        );
+        $record['tags'] = json_decode($record['tags'], true, 512, JSON_THROW_ON_ERROR);
+
+        return new PageRead(...$record);
     }
 
     private function instantiateFolder(array $record): ParsedFolder
@@ -319,14 +314,9 @@ class PageRepo
         return new ParsedFolder(...$record);
     }
 
-    private function instantiateFile(array $record): ParsedFile
+    private function instantiateFile(array $record): FileInPage
     {
-        // Upcast some fields back to PHP objects.
-        $record['publishDate'] = new \DateTimeImmutable($record['publishDate']['date'], new \DateTimeZone($record['publishDate']['timezone']));
-        $record['lastModifiedDate'] = new \DateTimeImmutable($record['lastModifiedDate']['date'], new \DateTimeZone($record['lastModifiedDate']['timezone']));
-        $record['frontmatter'] = $this->serde->deserialize($record['frontmatter'], from: 'array', to: BasicPageInformation::class);
-
-        return new ParsedFile(...$record);
+        return new FileInPage(...$record);
     }
 
     public function inTransaction(\Closure $closure): mixed
@@ -334,4 +324,3 @@ class PageRepo
         return $this->conn->transaction($closure);
     }
 }
-

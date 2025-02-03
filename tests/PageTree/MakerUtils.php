@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTree\Model\ParsedFileInformation;
 use Crell\MiDy\PageTree\Parser\Parser;
 
 trait MakerUtils
@@ -25,10 +26,9 @@ trait MakerUtils
         return new ParsedFolder(...$args);
     }
 
-    private static function makeParsedFile(...$args): ParsedFile
+    private static function makeParsedFile(...$args): ParsedFileInformation
     {
         $parts = pathinfo($args['physicalPath']);
-
 
         $defaults = [
             'logicalPath' => $parts['dirname'] . '/' . $parts['filename'],
@@ -42,16 +42,14 @@ trait MakerUtils
             'routable' =>  true,
             'publishDate' =>  new \DateTimeImmutable('2024-10-31'),
             'lastModifiedDate' =>  new \DateTimeImmutable('2024-10-31'),
-            'frontmatter' =>  [],
+            'other' =>  [],
+            'tags' => [],
             'summary' =>  '',
             'pathName' =>  $parts['filename'],
+            'isFolder' => false,
         ];
 
         $args += $defaults;
-
-        $args['frontmatter']['tags'] = [...$args['frontmatter'], ...($args['tags'] ?? [])];
-
-        $args['frontmatter'] = new BasicPageInformation(...$args['frontmatter']);
 
         // Cloned from Parser::parseFile();
         if ($parts['filename'] === Parser::IndexPageName) {
@@ -67,6 +65,6 @@ trait MakerUtils
             $args['isFolder'] = true;
         }
 
-        return new ParsedFile(...$args);
+        return new ParsedFileInformation(...$args);
     }
 }

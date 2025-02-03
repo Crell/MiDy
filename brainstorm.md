@@ -360,3 +360,13 @@ So what I really want is:
 * Read the PageRead directly from the DB, all data precomputed.
 * PageRead includes just the file paths, really.  And the extended data for each file.  Everything else is already pre-computed.
 
+
+---
+
+Oh FFS, now I am thinking of redoing the FileParsers *again*?  What is wrong with me?
+
+Right now, FileParsers are responsible for creating the full ParsedFile, which then gets rolled up into a PageRecord.  But that also means the handling of the file info is duplicated in each parser, leading to, well, long methods.  But I need to turn ParsedFile(Information) into a FileInPage (name pending), and it really makes sense to centralize that.
+
+Or does it?  Is there a good reason to let an individual parser do things differently?  Would it want to override the ext, or the physicalPath, or mtime?  It doesn't seem like it, but...
+
+
