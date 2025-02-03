@@ -6,6 +6,9 @@ namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\PageTree\Model\BasicParsedFrontmatter;
+use Crell\MiDy\PageTree\Model\ParsedFileInformation;
+use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
 use Crell\MiDy\PageTree\ParsedFile;
 
 class StaticFileParser implements FileParser
@@ -18,29 +21,13 @@ class StaticFileParser implements FileParser
         private readonly StaticRoutes $config,
     ) {}
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile|FileParserError
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
-        $logicalPath = rtrim($parentLogicalPath, '/') . '/' . $basename;
-
         // Static files have no frontmatter to parse.
         /// @todo Except HTML files, where maybe we can pull the title at least.
-        $frontmatter = new BasicPageInformation(title: ucfirst($basename));
-
-        return new ParsedFile(
-            logicalPath: $logicalPath,
-            ext: $fileInfo->getExtension(),
-            physicalPath: $fileInfo->getPathname(),
-            mtime: $fileInfo->getMTime(),
-            title: $basename,
-            folder: $parentLogicalPath,
-            order: 0,
+        return new BasicParsedFrontmatter(
+            title: ucfirst($basename),
             hidden: true,
-            routable: true,
-            publishDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            lastModifiedDate: new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            frontmatter: $frontmatter,
-            summary: '',
-            pathName: $basename,
         );
     }
 }

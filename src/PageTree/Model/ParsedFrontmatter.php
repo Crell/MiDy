@@ -7,17 +7,15 @@ namespace Crell\MiDy\PageTree\Model;
 use Crell\Serde\Attributes\Field;
 use DateTimeImmutable;
 
-class ParsedFrontmatter
+interface ParsedFrontmatter
 {
-    public function __construct(
-        public string $title = '',
-        public string $summary = '',
-        public array $tags = [],
-        public ?string $slug = null,
-        public bool $hidden = false,
-        public ?DateTimeImmutable $publishDate = null,
-        public ?DateTimeImmutable $lastModifiedDate = null,
-        #[Field(flatten: true)]
-        public array $other = [],
-    ) {}
+    public string $title { get; }
+    public string $summary { get; }
+    public array $tags { get; }
+    public ?string $slug { get; }
+    public bool $hidden { get; }
+    public bool $routable { get; }
+    public ?DateTimeImmutable $publishDate { get; }
+    public ?DateTimeImmutable $lastModifiedDate { get; }
+    public array $other { get; }
 }

@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree\Attributes;
+namespace Crell\MiDy\PageTree\Model;
 
-use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
-use Crell\MiDy\PageTree\PageInformation;
 use Crell\Serde\Attributes\Field;
 use DateTimeImmutable;
 
-#[\Attribute]
-readonly class PageRoute implements ParsedFrontmatter
+class BasicParsedFrontmatter implements ParsedFrontmatter
 {
     public function __construct(
         public string $title = '',
@@ -21,13 +18,7 @@ readonly class PageRoute implements ParsedFrontmatter
         public bool $routable = true,
         public ?DateTimeImmutable $publishDate = null,
         public ?DateTimeImmutable $lastModifiedDate = null,
-        public readonly string $template = '',
         #[Field(flatten: true)]
         public array $other = [],
     ) {}
-
-    public function hasAnyTag(string ...$tags): bool
-    {
-        return (bool)array_intersect($this->tags, $tags);
-    }
 }

@@ -6,25 +6,31 @@ namespace Crell\MiDy\MarkdownDeserializer;
 
 use Crell\MiDy\MarkdownDeserializer\Attributes\Content;
 use Crell\MiDy\PageTree\BasicPageInformation;
+use Crell\MiDy\PageTree\Model\BasicParsedFrontmatter;
+use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
 use Crell\MiDy\PageTree\PageInformation;
 use Crell\Serde\Attributes\Field;
+use DateTimeImmutable;
 
 use function Crell\MiDy\str_extract_between;
 
-class MarkdownPage implements PageInformation
+class MarkdownPage implements ParsedFrontmatter
 {
     public function __construct(
         #[Content]
         public(set) readonly string $content,
-        public readonly string $title = '',
+        public string $title = '',
         // This is not ideal, as it will try to re-summarize on every request if the summary is empty.
-        public private(set) string $summary = '' { get => $this->summary ?: $this->summarize(); },
+        public string $summary = '' { get => $this->summary ?: $this->summarize(); },
+        public array $tags = [],
+        public ?string $slug = null,
+        public bool $hidden = false,
+        public bool $routable = true,
+        public ?DateTimeImmutable $publishDate = null,
+        public ?DateTimeImmutable $lastModifiedDate = null,
         public readonly string $template = '',
-        public readonly array $tags = [],
-        public readonly ?string $slug = null,
-        public readonly bool $hidden = false,
         #[Field(flatten: true)]
-        public readonly array $other = [],
+        public array $other = [],
     ) {}
 
     public function toTemplateParameters(): array
@@ -36,19 +42,6 @@ class MarkdownPage implements PageInformation
             'template' => $this->template,
         ];
         return $out;
-    }
-
-    /**
-     * @todo This is gross, but the easiest way to not cache the entire contents in the route cache.  Do better later.
-     */
-    public function pageInformation(): PageInformation
-    {
-        return new BasicPageInformation(
-            title: $this->title,
-            summary: $this->summary,
-            tags: $this->tags,
-            slug: $this->slug,
-        );
     }
 
     private function summarize(): string

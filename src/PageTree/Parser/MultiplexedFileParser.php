@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Parser;
 
+use Crell\MiDy\PageTree\Model\ParsedFileInformation;
+use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
 use Crell\MiDy\PageTree\ParsedFile;
 
 class MultiplexedFileParser implements FileParser
@@ -24,12 +26,12 @@ class MultiplexedFileParser implements FileParser
         }
     }
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFile|FileParserError
+    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
         /** @var FileParser $parser */
         foreach ($this->parsers[$fileInfo->getExtension()] ?? [] as $parser) {
-            if (($routeFile = $parser->map($fileInfo, $parentLogicalPath, $basename)) instanceof ParsedFile) {
-                return $routeFile;
+            if (($frontmatter = $parser->map($fileInfo, $parentLogicalPath, $basename)) instanceof ParsedFrontmatter) {
+                return $frontmatter;
             }
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Parser;
 
+use Crell\MiDy\PageTree\Model\ParsedFileInformation;
 use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\ParsedFile;
 use Crell\MiDy\PageTree\ParsedFolder;
@@ -14,7 +15,7 @@ use function Crell\fp\amap;
 
 class Parser
 {
-    private const string StripPrefix = '/^([\d_-]+)_(.*)/m';
+    public const string StripPrefix = '/^([\d_-]+)_(.*)/m';
     public const string ControlFile = 'folder.midy';
     public const string IndexPageName = 'index';
 
@@ -95,32 +96,22 @@ class Parser
         });
     }
 
-    public function parseFile(\SplFileInfo $file, string $folderLogicalPath, ?int $orderOverride = null): ?ParsedFile
+    public function parseFile(\SplFileInfo $file, string $folderLogicalPath, ?int $orderOverride = null): ?ParsedFileInformation
     {
         // SPL is so damned stupid...
         [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
-        $parsedFile = $this->fileParser->map($file, $folderLogicalPath, $basename);
-        if ($parsedFile instanceof FileParserError) {
+
+        $frontmatter = $this->fileParser->map($file, $folderLogicalPath, $basename);
+        if ($frontmatter instanceof FileParserError) {
             // @todo Log or something?
             return null;
         }
-        $parsedFile->order = $orderOverride ?? $order;
-        // In case it's an index page, we need to "shift up" some of the data
-        // since the file is standing in for its folder.
-        if ($basename === self::IndexPageName) {
-            // The logical path of the index page is its parent folder's path.
-            $parsedFile->logicalPath = dirname($parsedFile->logicalPath);
-            // The folder it should appear under is its folder's parent,
-            // so that it "is" a child of that parent.
-            $parsedFile->folder = dirname($parsedFile->folder);
-            // The pathName of the index page should be its folder's basename.
-            $folderParts = \explode('/', $folderLogicalPath);
-            $parsedFile->pathName = array_pop($folderParts);
-            // And flag it as a file representing a folder.
-            $parsedFile->isFolder = true;
+
+        if ($orderOverride) {
+            $order = $orderOverride;
         }
 
-        return $parsedFile;
+        return ParsedFileInformation::createFromParsedData($file, $frontmatter, $folderLogicalPath, $basename, $order);
     }
 
     private function getIndexFile(string $folderPhysicalPath): ?\SplFileInfo
