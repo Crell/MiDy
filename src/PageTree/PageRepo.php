@@ -278,6 +278,8 @@ class PageRepo
      * Returns a list of all files that exist in the system.
      *
      * This is for the pre-generator logic.  Don't use it otherwise.
+     *
+     * @return iterable<FileInPage>
      */
     public function allFiles(): iterable
     {
