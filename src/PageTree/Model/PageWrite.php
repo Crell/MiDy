@@ -61,7 +61,7 @@ class PageWrite
     /**
      * @param string $logicalPath
      * @param string $folder
-     * @param array<ParsedFileInformation> $parsedFiles
+     * @param array<string, ParsedFileInformation> $parsedFiles
      */
     public function __construct(
         public string $logicalPath,

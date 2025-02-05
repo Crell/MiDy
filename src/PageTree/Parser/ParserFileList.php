@@ -27,6 +27,7 @@ class ParserFileList implements \IteratorAggregate
 
     public function __construct(
         private readonly SortOrder $sortOrder,
+        private readonly string $folderPath,
     ) {}
 
     public function addParsedFile(ParsedFileInformation $file): void
@@ -42,8 +43,8 @@ class ParserFileList implements \IteratorAggregate
     {
         foreach ($this->files as $path => $files) {
             // We only need to sort the files within the Page, as we cannot query on that order later.
-            usort($files, $this->comparator);
-            yield new PageWrite($path, $files[0]->folder, $files);
+            uasort($files, $this->comparator);
+            yield new PageWrite($path, $this->folderPath, $files);
         }
     }
 
