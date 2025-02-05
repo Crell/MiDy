@@ -4,17 +4,10 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Router;
 
-use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MiDy;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageTree;
-use Crell\MiDy\PageTree\Parser\LatteFileParser;
-use Crell\MiDy\PageTree\Parser\MarkdownLatteFileParser;
-use Crell\MiDy\PageTree\Parser\MultiplexedFileParser;
 use Crell\MiDy\PageTree\Parser\Parser;
-use Crell\MiDy\PageTree\Parser\PhpFileParser;
-use Crell\MiDy\PageTree\Parser\StaticFileParser;
 use Crell\MiDy\PageTree\SetupDB;
 use Crell\MiDy\PageTree\SetupParser;
 use Crell\MiDy\PageTree\SetupRepo;
