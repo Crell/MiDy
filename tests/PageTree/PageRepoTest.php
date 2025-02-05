@@ -229,7 +229,7 @@ class PageRepoTest extends TestCase
 
         $cache->writeFolder($folder);
 
-        $pageWrite = new PageWrite($pagePath, $folder->logicalPath, $files);
+        $pageWrite = new PageWrite($pagePath, $files);
         $cache->writePage($pageWrite);
 
         $dbValidation($this);
@@ -265,14 +265,14 @@ class PageRepoTest extends TestCase
                 self::makeParsedFolder(physicalPath: '/bar'),
             ],
             'pages' => [
-                new PageWrite('/foo/a', '/foo', [
+                new PageWrite('/foo/a', [
                     self::makeParsedFile(physicalPath: '/foo/a.md'),
                     self::makeParsedFile(physicalPath: '/foo/a.txt'),
                 ]),
-                new PageWrite('/foo/b', '/foo', [
+                new PageWrite('/foo/b', [
                     self::makeParsedFile(physicalPath: '/foo/b.md'),
                 ]),
-                new PageWrite('/bar/c', '/bar', [
+                new PageWrite('/bar/c', [
                     self::makeParsedFile(physicalPath: '/bar/c.md'),
                 ]),
             ],
@@ -297,26 +297,26 @@ class PageRepoTest extends TestCase
                 self::makeParsedFolder(physicalPath: '/bar/foo'),
             ],
             'pages' => [
-                new PageWrite('/foo/a', '/foo', [
+                new PageWrite('/foo/a', [
                     self::makeParsedFile(physicalPath: '/foo/a.md'),
                     self::makeParsedFile(physicalPath: '/foo/a.txt'),
                 ]),
-                new PageWrite('/foo/b', '/foo', [
+                new PageWrite('/foo/b', [
                     self::makeParsedFile(physicalPath: '/foo/b.md'),
                 ]),
-                new PageWrite('/bar/c', '/bar', [
+                new PageWrite('/bar/c',  [
                     self::makeParsedFile(physicalPath: '/bar/c.md'),
                 ]),
-                new PageWrite('/foo/sub/y', '/foo/sub', [
+                new PageWrite('/foo/sub/y', [
                     self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
                 ]),
-                new PageWrite('/foobar', '/foobar', [
+                new PageWrite('/foobar', [
                     self::makeParsedFile(physicalPath: '/foobar/fake.md'),
                 ]),
-                new PageWrite('/foobar/fake', '/foobar', [
+                new PageWrite('/foobar/fake', [
                     self::makeParsedFile(physicalPath: '/foobar/fake.md'),
                 ]),
-                new PageWrite('/bar/foo/nope', '/bar/foo', [
+                new PageWrite('/bar/foo/nope', [
                     self::makeParsedFile(physicalPath: '/bar/foo/nope.md'),
                 ]),
             ],
@@ -335,18 +335,18 @@ class PageRepoTest extends TestCase
         ];
 
         $hiddenPages = [
-            new PageWrite('/foo/a', '/foo', [
+            new PageWrite('/foo/a', [
                 self::makeParsedFile(physicalPath: '/foo/a.md', hidden: true),
                 self::makeParsedFile(physicalPath: '/foo/a.txt', hidden: true),
             ]),
-            new PageWrite('/foo/b', '/foo', [
+            new PageWrite('/foo/b', [
                 self::makeParsedFile(physicalPath: '/foo/b.md'),
                 self::makeParsedFile(physicalPath: '/foo/b.txt', hidden: true),
             ]),
-            new PageWrite('/bar/c', '/bar', [
+            new PageWrite('/bar/c', [
                 self::makeParsedFile(physicalPath: '/bar/c.md', hidden: true),
             ]),
-            new PageWrite('/foo/sub/y', '/foo/sub', [
+            new PageWrite('/foo/sub/y', [
                 self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
             ]),
         ];
@@ -394,18 +394,18 @@ class PageRepoTest extends TestCase
         ];
 
         $routablePages = [
-            new PageWrite('/foo/a', '/foo', [
+            new PageWrite('/foo/a', [
                 self::makeParsedFile(physicalPath: '/foo/a.md', routable: false),
                 self::makeParsedFile(physicalPath: '/foo/a.txt', routable: false),
             ]),
-            new PageWrite('/foo/b', '/foo', [
+            new PageWrite('/foo/b', [
                 self::makeParsedFile(physicalPath: '/foo/b.md'),
                 self::makeParsedFile(physicalPath: '/foo/b.txt', routable: false),
             ]),
-            new PageWrite('/bar/c', '/bar', [
+            new PageWrite('/bar/c', [
                 self::makeParsedFile(physicalPath: '/bar/c.md', routable: false),
             ]),
-            new PageWrite('/foo/sub/y', '/foo/sub', [
+            new PageWrite('/foo/sub/y', [
                 self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
             ]),
         ];
@@ -477,26 +477,26 @@ class PageRepoTest extends TestCase
                     self::makeParsedFolder(physicalPath: '/bar'),
                 ],
                 'pages' => [
-                    new PageWrite('/foo/a', '/foo', [
+                    new PageWrite('/foo/a', [
                         self::makeParsedFile(physicalPath: '/foo/a.md', tags: ['A', 'B']),
                         self::makeParsedFile(physicalPath: '/foo/a.txt', tags: ['B', 'C']),
                     ]),
-                    new PageWrite('/foo/b', '/foo', [
+                    new PageWrite('/foo/b', [
                         self::makeParsedFile(physicalPath: '/foo/b.md', tags: ['D']),
                     ]),
-                    new PageWrite('/foo/c', '/foo', [
+                    new PageWrite('/foo/c', [
                         self::makeParsedFile(physicalPath: '/foo/c.md'),
                     ]),
-                    new PageWrite('/foo/d', '/foo', [
+                    new PageWrite('/foo/d', [
                         self::makeParsedFile(physicalPath: '/foo/d.md', tags: ['A', 'C']),
                     ]),
-                    new PageWrite('/foo/e', '/foo', [
+                    new PageWrite('/foo/e', [
                         self::makeParsedFile(physicalPath: '/foo/e.md'),
                     ]),
-                    new PageWrite('/bar/x', '/bar', [
+                    new PageWrite('/bar/x', [
                         self::makeParsedFile(physicalPath: '/bar/x.md', tags: ['B']),
                     ]),
-                    new PageWrite('/foo/sub/y', '/foo/sub', [
+                    new PageWrite('/foo/sub/y', [
                         self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
                     ]),
                 ],
@@ -545,26 +545,26 @@ class PageRepoTest extends TestCase
                     self::makeParsedFolder(physicalPath: '/bar'),
                 ],
                 'pages' => [
-                    new PageWrite('/foo/a', '/foo', [
+                    new PageWrite('/foo/a', [
                         self::makeParsedFile(physicalPath: '/foo/a.md', publishDate: new \DateTimeImmutable('2024-01-01')),
                         self::makeParsedFile(physicalPath: '/foo/a.txt', publishDate: new \DateTimeImmutable('2024-02-01')),
                     ]),
-                    new PageWrite('/foo/b', '/foo', [
+                    new PageWrite('/foo/b', [
                         self::makeParsedFile(physicalPath: '/foo/b.md'),
                     ]),
-                    new PageWrite('/foo/c', '/foo', [
+                    new PageWrite('/foo/c', [
                         self::makeParsedFile(physicalPath: '/foo/c.md', publishDate: new \DateTimeImmutable('2024-03-01')),
                     ]),
-                    new PageWrite('/foo/d', '/foo', [
+                    new PageWrite('/foo/d', [
                         self::makeParsedFile(physicalPath: '/foo/d.md', publishDate: new \DateTimeImmutable('2024-04-01')),
                     ]),
-                    new PageWrite('/foo/e', '/foo', [
+                    new PageWrite('/foo/e', [
                         self::makeParsedFile(physicalPath: '/foo/e.md', publishDate: new \DateTimeImmutable('2024-05-01')),
                     ]),
-                    new PageWrite('/bar/x', '/bar', [
+                    new PageWrite('/bar/x', [
                         self::makeParsedFile(physicalPath: '/bar/x.md', publishDate: new \DateTimeImmutable('2024-06-01')),
                     ]),
-                    new PageWrite('/foo/sub/y', '/foo/sub', [
+                    new PageWrite('/foo/sub/y', [
                         self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
                     ]),
                 ],
@@ -592,26 +592,26 @@ class PageRepoTest extends TestCase
                     self::makeParsedFolder(physicalPath: '/bar'),
                 ],
                 'pages' => [
-                    new PageWrite('/foo/a', '/foo', [
+                    new PageWrite('/foo/a', [
                         self::makeParsedFile(physicalPath: '/foo/a.md'),
                         self::makeParsedFile(physicalPath: '/foo/a.txt'),
                     ]),
-                    new PageWrite('/foo/b', '/foo', [
+                    new PageWrite('/foo/b', [
                         self::makeParsedFile(physicalPath: '/foo/b.md'),
                     ]),
-                    new PageWrite('/foo/c', '/foo', [
+                    new PageWrite('/foo/c', [
                         self::makeParsedFile(physicalPath: '/foo/c.md'),
                     ]),
-                    new PageWrite('/foo/d', '/foo', [
+                    new PageWrite('/foo/d', [
                         self::makeParsedFile(physicalPath: '/foo/d.md'),
                     ]),
-                    new PageWrite('/foo/e', '/foo', [
+                    new PageWrite('/foo/e', [
                         self::makeParsedFile(physicalPath: '/foo/e.md'),
                     ]),
-                    new PageWrite('/bar/x', '/bar', [
+                    new PageWrite('/bar/x', [
                         self::makeParsedFile(physicalPath: '/bar/x.md'),
                     ]),
-                    new PageWrite('/foo/sub/y', '/foo/sub', [
+                    new PageWrite('/foo/sub/y', [
                         self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
                     ]),
                 ],
@@ -659,26 +659,26 @@ class PageRepoTest extends TestCase
                     self::makeParsedFolder(physicalPath: '/bar'),
                 ],
                 'pages' => [
-                    new PageWrite('/foo/a', '/foo', [
+                    new PageWrite('/foo/a', [
                         self::makeParsedFile(physicalPath: '/foo/a.md', order: 3, publishDate: new \DateTimeImmutable('2024-02-01')),
                         self::makeParsedFile(physicalPath: '/foo/a.txt', order: 7, publishDate: new \DateTimeImmutable('2024-02-01')),
                     ]),
-                    new PageWrite('/foo/b', '/foo', [
+                    new PageWrite('/foo/b', [
                         self::makeParsedFile(physicalPath: '/foo/b.md', order: 2, publishDate: new \DateTimeImmutable('2024-01-01')),
                     ]),
-                    new PageWrite('/foo/c', '/foo', [
+                    new PageWrite('/foo/c', [
                         self::makeParsedFile(physicalPath: '/foo/c.md', publishDate: new \DateTimeImmutable('2024-04-01')),
                     ]),
-                    new PageWrite('/foo/d', '/foo', [
+                    new PageWrite('/foo/d', [
                         self::makeParsedFile(physicalPath: '/foo/d.md', order: 6, publishDate: new \DateTimeImmutable('2024-08-01')),
                     ]),
-                    new PageWrite('/foo/e', '/foo', [
+                    new PageWrite('/foo/e', [
                         self::makeParsedFile(physicalPath: '/foo/e.md', order: 6, publishDate: new \DateTimeImmutable('2024-07-01')),
                     ]),
-                    new PageWrite('/bar/x', '/bar', [
+                    new PageWrite('/bar/x', [
                         self::makeParsedFile(physicalPath: '/bar/x.md', publishDate: new \DateTimeImmutable('2024-02-01')),
                     ]),
-                    new PageWrite('/foo/sub/y', '/foo/sub', [
+                    new PageWrite('/foo/sub/y', [
                         self::makeParsedFile(physicalPath: '/foo/sub/y.md', order: 5, publishDate: new \DateTimeImmutable('2024-03-01')),
                     ]),
                 ],
@@ -726,17 +726,17 @@ class PageRepoTest extends TestCase
         $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
         $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo/bar'));
 
-        $cache->writePage(new PageWrite('/foo/a', '/foo', [
+        $cache->writePage(new PageWrite('/foo/a', [
             self::makeParsedFile(physicalPath: '/foo/a.md'),
             self::makeParsedFile(physicalPath: '/foo/a.txt'),
         ]));
-        $cache->writePage(new PageWrite('/foo/b', '/foo', [
+        $cache->writePage(new PageWrite('/foo/b', [
             self::makeParsedFile(physicalPath: '/foo/b.txt'),
         ]));
-        $cache->writePage(new PageWrite('/foo/bar/c.md', '/foo/bar', [
+        $cache->writePage(new PageWrite('/foo/bar/c.md', [
             self::makeParsedFile(physicalPath: '/foo/bar/c.md'),
         ]));
-        $cache->writePage(new PageWrite('/foo/bar/index', '/foo', [
+        $cache->writePage(new PageWrite('/foo/bar/index', [
             self::makeParsedFile(physicalPath: '/foo/bar/index.latte'),
         ]));
 

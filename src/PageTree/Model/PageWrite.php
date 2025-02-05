@@ -54,6 +54,10 @@ class PageWrite
         );
     }
 
+    public string $folder {
+        get => current($this->parsedFiles)->folder;
+    }
+
     public array $files {
         get => array_map(static fn(ParsedFileInformation $f) => $f->toFileInPage(), $this->parsedFiles);
     }
@@ -65,7 +69,6 @@ class PageWrite
      */
     public function __construct(
         public string $logicalPath,
-        public string $folder,
         private array $parsedFiles,
     ) {}
 

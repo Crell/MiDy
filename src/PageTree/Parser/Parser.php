@@ -46,7 +46,7 @@ class Parser
             );
             $this->cache->writeFolder($folder);
 
-            $children = new ParserFileList($controlData->order, $logicalPath);
+            $children = new ParserFileList($controlData->order);
 
             // Now reindex every file in the folder.
             /** @var \SplFileInfo $file */
