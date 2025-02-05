@@ -12,7 +12,7 @@ use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\PageTree\Pagination;
 use Crell\MiDy\PageTree\ParsedFolder;
 
-class NewFolder implements \IteratorAggregate
+class NewFolder implements \IteratorAggregate, Page
 {
     use NewFolderIndexPage;
 

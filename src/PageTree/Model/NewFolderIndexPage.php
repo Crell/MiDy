@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Model;
 
-use Crell\MiDy\PageTree\PageFile;
+use Crell\MiDy\PageTree\Page;
+use DateTimeImmutable;
 
 /**
  * Pass through all page functionality to the index page, if any.
@@ -28,13 +29,19 @@ trait NewFolderIndexPage
     public private(set) string $path { get => $this->path ??= str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }
 
     public private(set) string $name { get => $this->name ??= $this->indexPage?->name ?? ''; }
+    public private(set) array $other { get => $this->other ??= $this->indexPage?->other ?? []; }
+    public private(set) string $physicalPath { get => $this->physicalPath ??= $this->indexPage?->physicalPath ?? ''; }
+    public private(set) DateTimeImmutable $publishDate { get => $this->publishDate ??= $this->indexPage?->publishDate; }
+    public private(set) DateTimeImmutable $lastModifiedDate {
+        get => $this->lastModifiedDate ??= $this->indexPage?->lastModifiedDate ?? new DateTimeImmutable('@' . $this->parsedFolder->mtime);
+    }
 
     public function variants(): array
     {
         return $this->indexPage?->variants() ?? [];
     }
 
-    public function variant(string $ext): ?PageFile
+    public function variant(string $ext): ?Page
     {
         return $this->indexPage?->variant($ext);
     }

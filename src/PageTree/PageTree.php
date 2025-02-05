@@ -88,7 +88,18 @@ class PageTree
 
         $numPages = (int)ceil($result->total / $pageSize);
 
-        $items = new BasicPageSet($result->pages);
+        // Up-convert to a Folder if necessary. I'm not sure this is the right place
+        // for it, but it works for now.
+        $pages = [];
+        foreach ($result->pages as $page) {
+            if ($page->isFolder) {
+                $pages[] = new NewFolder($this->loadFolder($page->logicalPath), $this, $page);
+            } else {
+                $pages[] = $page;
+            }
+        }
+
+        $items = new BasicPageSet($pages);
 
         return new Pagination(
             total: $result->total,

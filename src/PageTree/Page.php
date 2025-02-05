@@ -10,6 +10,8 @@ interface Page extends Frontmatter
 {
     public string $path { get; }
 
+    public string $physicalPath { get; }
+
     /**
      * @return array<Page>
      */
