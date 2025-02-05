@@ -6,8 +6,6 @@ namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\PageTree\Model\PageWrite;
 use Crell\MiDy\PageTree\Model\ParsedFileInformation;
-use Crell\MiDy\PageTree\PageRecord;
-use Crell\MiDy\PageTree\ParsedFile;
 use Crell\MiDy\PageTree\SortOrder;
 
 /**

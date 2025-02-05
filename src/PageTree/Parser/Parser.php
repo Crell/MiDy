@@ -6,7 +6,6 @@ namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\PageTree\Model\ParsedFileInformation;
 use Crell\MiDy\PageTree\PageRepo;
-use Crell\MiDy\PageTree\ParsedFile;
 use Crell\MiDy\PageTree\ParsedFolder;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;

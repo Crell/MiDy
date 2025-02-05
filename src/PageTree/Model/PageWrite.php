@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Model;
 
-use Crell\MiDy\PageTree\ParsedFile;
-
 use function Crell\fp\pipe;
 
 class PageWrite

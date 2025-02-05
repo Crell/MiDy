@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Model;
 
-use Crell\MiDy\PageTree\FolderIndexPage;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\PageSet;

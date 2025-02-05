@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Model;
 
 use Crell\MiDy\PageTree\Page;
-use Crell\MiDy\PageTree\PageFile;
 use DateTimeImmutable;
 
 class PageRead implements Page
