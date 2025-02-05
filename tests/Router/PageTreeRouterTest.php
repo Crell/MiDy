@@ -16,6 +16,7 @@ use Crell\MiDy\PageTree\Parser\Parser;
 use Crell\MiDy\PageTree\Parser\PhpFileParser;
 use Crell\MiDy\PageTree\Parser\StaticFileParser;
 use Crell\MiDy\PageTree\SetupDB;
+use Crell\MiDy\PageTree\SetupParser;
 use Crell\MiDy\PageTree\SetupRepo;
 use Crell\MiDy\Router\PageTreeRouter\PageHandler;
 use Crell\MiDy\Router\PageTreeRouter\PageTreeRouter;
@@ -34,6 +35,7 @@ class PageTreeRouterTest extends TestCase
     use SetupFilesystem;
     use SetupDB;
     use SetupRepo;
+    use SetupParser;
 
     private Midy $app;
     private Parser $parser;
@@ -42,18 +44,6 @@ class PageTreeRouterTest extends TestCase
     public function setUp(): void
     {
         $this->app = new MiDy('.');
-    }
-
-    #[Before(priority: 10)]
-    public function setupParser(): void
-    {
-        $fileParser = new MultiplexedFileParser();
-        $fileParser->addParser(new StaticFileParser(new StaticRoutes()));
-        $fileParser->addParser(new PhpFileParser());
-        $fileParser->addParser(new LatteFileParser());
-        $fileParser->addParser(new MarkdownLatteFileParser(new MarkdownPageLoader()));
-
-        $this->parser = new Parser($this->repo, $fileParser);
     }
 
     protected function makeRequest(string $path, string $method = 'GET'): ServerRequestInterface

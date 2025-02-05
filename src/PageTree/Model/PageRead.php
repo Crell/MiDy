@@ -39,7 +39,12 @@ class PageRead implements Page
 
     public function variants(): array
     {
-        return array_map(fn (string $ext) => $this->variant($ext), array_keys($this->files));
+        // We need to preserve keys, which array_map() doesn't do.
+        $ret = [];
+        foreach (array_keys($this->files) as $ext) {
+            $ret[$ext] = $this->variant($ext);
+        }
+        return $ret;
     }
 
     public function variant(string $ext): ?PageRead
