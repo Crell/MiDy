@@ -4,33 +4,68 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Model;
 
+use Crell\MiDy\PageTree\Page;
+use Crell\MiDy\PageTree\PageFile;
 use DateTimeImmutable;
 
-class PageRead
+class PageRead implements Page
 {
-    protected FileInPage $activeFile { get => $this->activeFile ??= array_values($this->files)[0]; }
+    private FileInPage $activeFile { get => $this->activeFile ??= array_values($this->files)[0]; }
 
     public array $other {
         get => $this->activeFile->other;
     }
+
+    public string $path { get => $this->logicalPath; }
 
     /**
      * @param array<string> $tags
      * @param array<string, FileInPage> $files
      */
     public function __construct(
-        public string $logicalPath,
-        public string $folder,
-        public string $title,
-        public int $order,
-        public bool $hidden,
-        public bool $routable,
-        public bool $isFolder,
-        public DateTimeImmutable $publishDate,
-        public DateTimeImmutable $lastModifiedDate,
-        public array $tags,
-        public array $files,
+        private(set) string $logicalPath,
+        private(set) string $folder,
+        private(set) string $title,
+        private(set) string $summary,
+        private(set) int $order,
+        private(set) bool $hidden,
+        private(set) bool $routable,
+        private(set) bool $isFolder,
+        private(set) DateTimeImmutable $publishDate,
+        private(set) DateTimeImmutable $lastModifiedDate,
+        private(set) array $tags,
+        private(set) array $files,
     ) {}
 
-    // Variant stuff here.
+    public function variants(): array
+    {
+        return array_map(fn (string $ext) => $this->variant($ext), array_keys($this->files));
+    }
+
+    public function variant(string $ext): ?PageRead
+    {
+        if (!array_key_exists($ext, $this->files)) {
+            return null;
+        }
+
+        $ret = clone($this);
+        $ret->files = [$ext => $this->files[$ext]];
+        return $ret;
+    }
+
+    public function getTrailingPath(string $fullPath): array
+    {
+        if (!str_starts_with($fullPath, $this->logicalPath)) {
+            return [];
+        }
+
+        // If the path ends with an extension, then we assume it's a file
+        // and there's no trailing necessary.
+        if (pathinfo($fullPath, PATHINFO_EXTENSION)) {
+            return [];
+        }
+
+        return array_values(array_filter(explode('/', substr($fullPath, strlen($this->logicalPath)))));
+    }
+
 }

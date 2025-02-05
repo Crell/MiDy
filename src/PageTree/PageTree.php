@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTree\Model\FileInPage;
+use Crell\MiDy\PageTree\Model\NewFolder;
 use Crell\MiDy\PageTree\Parser\Parser;
 
 class PageTree
@@ -30,10 +32,10 @@ class PageTree
     /**
      * Returns the Folder read-object for this path.
      */
-    public function folder(string $logicalPath): ?Folder
+    public function folder(string $logicalPath): ?NewFolder
     {
         $data = $this->loadFolder($logicalPath);
-        return $data ? new Folder($data, $this) : null;
+        return $data ? new NewFolder($data, $this) : null;
     }
 
     /**
@@ -52,13 +54,13 @@ class PageTree
             return null;
         }
 
-        $needsReindex = array_any($page->files, fn (ParsedFile $file): bool => $file->mtime < filemtime($file->physicalPath));
+        $needsReindex = array_any($page->files, fn (FileInPage $file): bool => $file->mtime < filemtime($file->physicalPath));
         if ($needsReindex) {
             $this->reindexFolder($page->folder);
             $page = $this->cache->readPage($path);
         }
 
-        return $this->makePage($path, $page?->files ?? []);
+        return $page;
     }
 
     public function queryPages(
@@ -86,7 +88,7 @@ class PageTree
 
         $numPages = (int)ceil($result->total / $pageSize);
 
-        $items = new BasicPageSet($this->instantiatePages($result->pages));
+        $items = new BasicPageSet($result->pages);
 
         return new Pagination(
             total: $result->total,

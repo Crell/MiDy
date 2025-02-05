@@ -6,9 +6,7 @@ namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\ClassFinder;
 use Crell\MiDy\PageTree\Attributes\PageRoute;
-use Crell\MiDy\PageTree\Model\ParsedFileInformation;
 use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
-use Crell\MiDy\PageTree\ParsedFile;
 
 class PhpFileParser implements FileParser
 {

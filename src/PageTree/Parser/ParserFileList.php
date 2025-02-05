@@ -35,7 +35,7 @@ class ParserFileList implements \IteratorAggregate
         if ($this->sortOrder === SortOrder::Desc) {
             $file->order *= -1;
         }
-        $this->files[$file->logicalPath][] = $file;
+        $this->files[$file->logicalPath][$file->ext] = $file;
     }
 
     public function getIterator(): \Generator
@@ -47,12 +47,12 @@ class ParserFileList implements \IteratorAggregate
         }
     }
 
-    private function sortAsc(ParsedFile $a, ParsedFile $b): int
+    private function sortAsc(ParsedFileInformation $a, ParsedFileInformation $b): int
     {
         return [$a->order] <=> [$b->order];
     }
 
-    private function sortDesc(ParsedFile $a, ParsedFile $b): int
+    private function sortDesc(ParsedFileInformation $a, ParsedFileInformation $b): int
     {
         return [$b->order] <=> [$a->order];
     }

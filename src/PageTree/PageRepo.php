@@ -44,6 +44,7 @@ class PageRepo
             publishDate  string             not null,
             lastModifiedDate  string        not null,
             pathName     TEXT               not null,
+            summary      TEXT               not null,
             tags         JSONB default '[]' not null,
             constraint page_pk
                 primary key (logicalPath),
@@ -156,6 +157,7 @@ class PageRepo
             'publishDate' => $page->publishDate->format('c'),
             'lastModifiedDate' => $page->lastModifiedDate->format('c'),
             'pathName' => $page->pathName,
+            'summary' => $page->summary,
             'tags' => json_encode($page->tags, JSON_THROW_ON_ERROR),
         ])->execute();
     }
@@ -163,7 +165,7 @@ class PageRepo
     public function readPage(string $path): ?PageRead
     {
         $result = $this->conn
-            ->createCommand("SELECT logicalPath, folder, files, title, \"order\", hidden, routable, isFolder, publishDate, lastModifiedDate, tags FROM page WHERE logicalPath=:logicalPath")
+            ->createCommand("SELECT logicalPath, folder, files, title, summary, \"order\", hidden, routable, isFolder, publishDate, lastModifiedDate, tags FROM page WHERE logicalPath=:logicalPath")
             ->bindParam(':logicalPath', $path)
             ->queryOne();
 
@@ -200,7 +202,7 @@ class PageRepo
         int $offset = 0,
     ): QueryResult {
         $query = new Query($this->conn)
-            ->select(['logicalPath', 'folder', 'files', 'title', 'order', 'hidden', 'routable', 'isFolder', 'publishDate', 'lastModifiedDate', 'tags'])
+            ->select(['logicalPath', 'folder', 'files', 'title', 'summary', 'order', 'hidden', 'routable', 'isFolder', 'publishDate', 'lastModifiedDate', 'tags'])
             ->from('page')
             ->andWhere('NOT logicalPath = folder')  // To exclude index pages as children.
         ;

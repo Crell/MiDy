@@ -14,6 +14,9 @@ class PageWrite
     public string $title {
         get => $this->values(__PROPERTY__)[0];
     }
+    public string $summary {
+        get => $this->values(__PROPERTY__)[0];
+    }
 
     public int $order {
         get => \max($this->values(__PROPERTY__));

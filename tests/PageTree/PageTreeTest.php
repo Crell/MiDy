@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTree\Model\PageRead;
 use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -87,7 +88,7 @@ class PageTreeTest extends TestCase
 
         self::assertCount(4, iterator_to_array($folder->children(includeHidden: true)));
         foreach ($folder as $page) {
-            self::assertInstanceOf(PageFile::class, $page);
+            self::assertInstanceOf(PageRead::class, $page);
         }
     }
 
