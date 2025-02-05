@@ -6,6 +6,7 @@ namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\PageTree\Model\FileInPage;
 use Crell\MiDy\PageTree\Model\NewFolder;
+use Crell\MiDy\PageTree\Model\PageRead;
 use Crell\MiDy\PageTree\Parser\Parser;
 
 class PageTree
@@ -88,18 +89,7 @@ class PageTree
 
         $numPages = (int)ceil($result->total / $pageSize);
 
-        // Up-convert to a Folder if necessary. I'm not sure this is the right place
-        // for it, but it works for now.
-        $pages = [];
-        foreach ($result->pages as $page) {
-            if ($page->isFolder) {
-                $pages[] = new NewFolder($this->loadFolder($page->logicalPath), $this, $page);
-            } else {
-                $pages[] = $page;
-            }
-        }
-
-        $items = new BasicPageSet($pages);
+        $items = new BasicPageSet($this->upcastPages($result->pages));
 
         return new Pagination(
             total: $result->total,
@@ -193,32 +183,24 @@ class PageTree
     }
 
     /**
-     * @param array<PageRecord> $pageRecords
-     * @return iterable<Page>
+     * Converts index pages into folders with an index page.
+     *
+     * I'm not sure this is the right place
+     * for it, but it works for now.
+     *
+     * @param array<PageRead> $pages
      */
-    private function instantiatePages(array $pageRecords): iterable
+    private function upcastPages(array $pages): array
     {
-        foreach ($pageRecords as $record) {
-            yield $this->makePage($record->logicalPath, $record->files);
-        }
-    }
-
-    /**
-     * @param array<ParsedFile> $files
-     */
-    private function makePage(string $logicalPath, array $files): ?Page
-    {
-        $page = match(count($files)) {
-            0 => null,
-            1 => new PageFile($files[0]),
-            default => new AggregatePage($logicalPath, array_map(static fn(ParsedFile $f) => new PageFile($f), $files)),
-        };
-
-        if (($files[0] ?? null)?->isFolder) {
-            $data = $this->loadFolder($logicalPath);
-            return $data ? new Folder($data, $this, $page) : null;
+        $ret = [];
+        foreach ($pages as $page) {
+            if ($page->isFolder) {
+                $ret[] = new NewFolder($this->loadFolder($page->logicalPath), $this, $page);
+            } else {
+                $ret[] = $page;
+            }
         }
 
-        return $page;
+        return $ret;
     }
 }
