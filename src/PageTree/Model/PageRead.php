@@ -16,6 +16,10 @@ class PageRead implements Page
         get => $this->activeFile->other;
     }
 
+    public string $physicalPath {
+        get => $this->activeFile->physicalPath;
+    }
+
     public string $path { get => $this->logicalPath; }
 
     /**
