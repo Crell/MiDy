@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Model\PageRead;
+use Crell\MiDy\PageTree\Model\PageRecord;
 use Traversable;
 
 readonly class QueryResult implements \Countable, \IteratorAggregate
 {
     /**
-     * @param array<PageRead> $pages
+     * @param array<PageRecord> $pages
      */
     public function __construct(
         public int $total,

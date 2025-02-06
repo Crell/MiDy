@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTree\Model\FileInPage;
+use Crell\MiDy\PageTree\Model\File;
 use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\PageTree;
 use DI\Attribute\Inject;
@@ -37,14 +37,14 @@ readonly class StaticFilePregenerator
         );
     }
 
-    private function copyFile(FileInPage $file): void
+    private function copyFile(File $file): void
     {
         $dest = $this->publicPath . $file->physicalPath . '.' . $file->ext;
         ensure_dir(pathinfo($dest, PATHINFO_DIRNAME));
         copy($file->physicalPath, $dest);
     }
 
-    private function filterStatic(FileInPage $file): bool
+    private function filterStatic(File $file): bool
     {
         return array_key_exists($file->ext, $this->staticRoutes->allowedExtensions);
     }

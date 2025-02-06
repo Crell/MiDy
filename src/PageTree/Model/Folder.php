@@ -11,6 +11,13 @@ use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\PageTree\Pagination;
 use Crell\MiDy\PageTree\ParsedFolder;
 
+/**
+ * A logical representation of a Folder.
+ *
+ * If the Folder contains an index page, then it may also be
+ * treated as a Page.  All Page behavior will be forwarded to
+ * the index page.
+ */
 class Folder implements \IteratorAggregate, Page
 {
     use FolderIndexPage;

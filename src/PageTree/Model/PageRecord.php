@@ -7,9 +7,14 @@ namespace Crell\MiDy\PageTree\Model;
 use Crell\MiDy\PageTree\Page;
 use DateTimeImmutable;
 
-class PageRead implements Page
+/**
+ * A saved Page record from the database.
+ *
+ * This is the "read model."
+ */
+class PageRecord implements Page
 {
-    private FileInPage $activeFile { get => $this->activeFile ??= array_values($this->files)[0]; }
+    private File $activeFile { get => $this->activeFile ??= array_values($this->files)[0]; }
 
     public array $other {
         get => $this->activeFile->other;
@@ -23,7 +28,7 @@ class PageRead implements Page
 
     /**
      * @param array<string> $tags
-     * @param array<string, FileInPage> $files
+     * @param array<string, File> $files
      */
     public function __construct(
         private(set) string $logicalPath,
@@ -50,7 +55,7 @@ class PageRead implements Page
         return $ret;
     }
 
-    public function variant(string $ext): ?PageRead
+    public function variant(string $ext): ?PageRecord
     {
         if (!array_key_exists($ext, $this->files)) {
             return null;

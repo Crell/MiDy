@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Model\ParsedFileInformation;
+use Crell\MiDy\PageTree\Model\ParsedFile;
 use Crell\MiDy\PageTree\Parser\Parser;
 
 trait MakerUtils
@@ -26,7 +26,7 @@ trait MakerUtils
         return new ParsedFolder(...$args);
     }
 
-    private static function makeParsedFile(...$args): ParsedFileInformation
+    private static function makeParsedFile(...$args): ParsedFile
     {
         $parts = pathinfo($args['physicalPath']);
 
@@ -45,6 +45,7 @@ trait MakerUtils
             'other' =>  [],
             'tags' => [],
             'summary' =>  '',
+            'slug' => null,
             'pathName' =>  $parts['filename'],
             'isFolder' => false,
         ];
@@ -65,6 +66,6 @@ trait MakerUtils
             $args['isFolder'] = true;
         }
 
-        return new ParsedFileInformation(...$args);
+        return new ParsedFile(...$args);
     }
 }

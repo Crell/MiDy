@@ -6,8 +6,10 @@ namespace Crell\MiDy\PageTree\Model;
 
 use Crell\MiDy\PageTree\Parser\Parser;
 
-// Formerly ParsedFile, may go back to that later.
-class ParsedFileInformation
+/**
+ * The combined information about a file, combining data from the filesystem and frontmatter.
+ */
+class ParsedFile
 {
     public function __construct(
         // Derived from file system.
@@ -17,7 +19,7 @@ class ParsedFileInformation
         public int $mtime,
         public int $order,
 
-        // Derived from filesystem, overridable from ParsedFrontMatter
+        // Derived from filesystem, overridable from ParsedFrontmatter
         public \DateTimeImmutable $publishDate,
         public \DateTimeImmutable $lastModifiedDate,
 
@@ -31,15 +33,11 @@ class ParsedFileInformation
         // From ParsedFrontmatter
         public string $title,
         public string $summary,
-
-        // From ParsedFrontmatter, maybe shouldn't have defaults here?
-        public array $tags = [],
-        public ?string $slug = null,
-        public bool $hidden = false,
-        public array $other = [],
-
-        // Optional so has to be last.
-        public bool $isFolder = false,
+        public array $tags,
+        public ?string $slug,
+        public bool $hidden,
+        public array $other,
+        public bool $isFolder,
     ) {}
 
     public static function createFromParsedData(
@@ -87,9 +85,12 @@ class ParsedFileInformation
         );
     }
 
-    public function toFileInPage(): FileInPage
+    /**
+     * Get just the data we bother to save to the database.
+     */
+    public function toFile(): File
     {
-        return new FileInPage(
+        return new File(
             physicalPath: $this->physicalPath,
             ext: $this->ext,
             mtime: $this->mtime,

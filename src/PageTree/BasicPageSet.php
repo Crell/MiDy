@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Model\PageRead;
-
 /**
  * Possibly the only type of page set, but we need it separate from the interface for flexibility.
  */
@@ -19,7 +17,7 @@ class BasicPageSet implements PageSet, \IteratorAggregate
     }
 
     /**
-     * @param array<string, PageRead> $pages
+     * @param array<string, Page> $pages
      */
     public function __construct(
         private readonly iterable $pages,

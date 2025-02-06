@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Model\FileInPage;
+use Crell\MiDy\PageTree\Model\File;
 use Crell\MiDy\PageTree\Model\Folder;
-use Crell\MiDy\PageTree\Model\PageRead;
+use Crell\MiDy\PageTree\Model\PageRecord;
 use Crell\MiDy\PageTree\Parser\Parser;
 
 class PageTree
@@ -55,7 +55,7 @@ class PageTree
             return null;
         }
 
-        $needsReindex = array_any($page->files, fn (FileInPage $file): bool => $file->mtime < filemtime($file->physicalPath));
+        $needsReindex = array_any($page->files, fn (File $file): bool => $file->mtime < filemtime($file->physicalPath));
         if ($needsReindex) {
             $this->reindexFolder($page->folder);
             $page = $this->cache->readPage($path);
@@ -188,7 +188,7 @@ class PageTree
      * I'm not sure this is the right place
      * for it, but it works for now.
      *
-     * @param array<PageRead> $pages
+     * @param array<PageRecord> $pages
      */
     private function upcastPages(array $pages): array
     {

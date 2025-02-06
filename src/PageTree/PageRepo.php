@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Model\FileInPage;
-use Crell\MiDy\PageTree\Model\PageRead;
-use Crell\MiDy\PageTree\Model\PageWrite;
+use Crell\MiDy\PageTree\Model\File;
+use Crell\MiDy\PageTree\Model\PageRecord;
+use Crell\MiDy\PageTree\Model\PageData;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Yiisoft\Db\Query\Query;
@@ -138,7 +138,7 @@ class PageRepo
         return array_map($this->instantiateFolder(...), $result);
     }
 
-    public function writePage(PageWrite $page): void
+    public function writePage(PageData $page): void
     {
         $this->conn->createCommand()
             ->delete('page', 'logicalPath = :logicalPath')
@@ -162,7 +162,7 @@ class PageRepo
         ])->execute();
     }
 
-    public function readPage(string $path): ?PageRead
+    public function readPage(string $path): ?PageRecord
     {
         $result = $this->conn
             ->createCommand("SELECT logicalPath, folder, files, title, summary, \"order\", hidden, routable, isFolder, publishDate, lastModifiedDate, tags FROM page WHERE logicalPath=:logicalPath")
@@ -279,7 +279,7 @@ class PageRepo
      *
      * This is for the pre-generator logic.  Don't use it otherwise.
      *
-     * @return iterable<FileInPage>
+     * @return iterable<File>
      */
     public function allFiles(): iterable
     {
@@ -290,7 +290,7 @@ class PageRepo
         }
     }
 
-    private function instantiatePage(array $record): PageRead
+    private function instantiatePage(array $record): PageRecord
     {
         $files = json_decode($record['files'], true, 512, JSON_THROW_ON_ERROR);
         $record['files'] = array_map($this->instantiateFile(...), $files);
@@ -304,7 +304,7 @@ class PageRepo
 
         $record['tags'] = json_decode($record['tags'], true, 512, JSON_THROW_ON_ERROR);
 
-        return new PageRead(...$record);
+        return new PageRecord(...$record);
     }
 
     private function instantiateFolder(array $record): ParsedFolder
@@ -318,9 +318,9 @@ class PageRepo
         return new ParsedFolder(...$record);
     }
 
-    private function instantiateFile(array $record): FileInPage
+    private function instantiateFile(array $record): File
     {
-        return new FileInPage(...$record);
+        return new File(...$record);
     }
 
     public function inTransaction(\Closure $closure): mixed

@@ -6,6 +6,15 @@ namespace Crell\MiDy\PageTree\Model;
 
 use DateTimeImmutable;
 
+/**
+ * Frontmatter of a file, as parsed from the file contents.
+ *
+ * Because a file can easily skip all frontmatter, these values
+ * are all optional, and either have the "zero" value of their type
+ * as a default, or null.
+ *
+ * This is the "write model."
+ */
 interface ParsedFrontmatter
 {
     public string $title { get; }

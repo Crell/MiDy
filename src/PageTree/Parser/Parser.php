@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Parser;
 
-use Crell\MiDy\PageTree\Model\ParsedFileInformation;
+use Crell\MiDy\PageTree\Model\ParsedFile;
 use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\ParsedFolder;
 use Crell\Serde\Serde;
@@ -95,7 +95,7 @@ class Parser
         });
     }
 
-    public function parseFile(\SplFileInfo $file, string $folderLogicalPath, ?int $orderOverride = null): ?ParsedFileInformation
+    public function parseFile(\SplFileInfo $file, string $folderLogicalPath, ?int $orderOverride = null): ?ParsedFile
     {
         // SPL is so damned stupid...
         [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
@@ -110,7 +110,7 @@ class Parser
             $order = $orderOverride;
         }
 
-        return ParsedFileInformation::createFromParsedData($file, $frontmatter, $folderLogicalPath, $basename, $order);
+        return ParsedFile::createFromParsedData($file, $frontmatter, $folderLogicalPath, $basename, $order);
     }
 
     private function getIndexFile(string $folderPhysicalPath): ?\SplFileInfo

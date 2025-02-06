@@ -7,9 +7,11 @@ namespace Crell\MiDy\PageTree\Model;
 use DateTimeImmutable;
 
 /**
- * Almost the same as ParsedFrontmatter, but all fields are required to exist.
+ * Frontmatter metadata of a Page.
  *
- * Also, no slug, as that's not needed for reading.
+ * Very similar to ParsedFrontmatter, but all values are required to exist.
+ *
+ * This is the "read model."
  */
 interface Frontmatter
 {

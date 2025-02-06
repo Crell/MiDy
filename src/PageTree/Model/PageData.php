@@ -6,7 +6,12 @@ namespace Crell\MiDy\PageTree\Model;
 
 use function Crell\fp\pipe;
 
-class PageWrite
+/**
+ * A page to save to the database.
+ *
+ * This is the "write model."
+ */
+class PageData
 {
     // @todo More robust than this.
     public string $title {
@@ -57,13 +62,13 @@ class PageWrite
     }
 
     public array $files {
-        get => array_map(static fn(ParsedFileInformation $f) => $f->toFileInPage(), $this->parsedFiles);
+        get => array_map(static fn(ParsedFile $f) => $f->toFile(), $this->parsedFiles);
     }
 
     /**
      * @param string $logicalPath
      * @param string $folder
-     * @param array<string, ParsedFileInformation> $parsedFiles
+     * @param array<string, ParsedFile> $parsedFiles
      */
     public function __construct(
         public string $logicalPath,
