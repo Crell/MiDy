@@ -1,10 +1,10 @@
-{parameters \Crell\MiDy\PageTree\Model\NewFolder $folder, int $depth = 2}
+{parameters \Crell\MiDy\PageTree\Model\Folder $folder, int $depth = 2}
 {varType \Crell\MiDy\PageTree\PageTree $pageTree}
 
 <ul n:if="$depth > 0" n:inner-foreach="$folder->children(pageSize: 20) as $page">
     <li>
         <a href="{$page->path}">{$page->title}</a>
-        {if $page instanceof \Crell\MiDy\PageTree\Model\NewFolder}
+        {if $page instanceof \Crell\MiDy\PageTree\Model\Folder}
             {include menu.latte, folder: $page, depth: $depth - 1}
         {/if}
     </li>

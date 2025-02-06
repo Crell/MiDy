@@ -11,9 +11,9 @@ use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\PageTree\Pagination;
 use Crell\MiDy\PageTree\ParsedFolder;
 
-class NewFolder implements \IteratorAggregate, Page
+class Folder implements \IteratorAggregate, Page
 {
-    use NewFolderIndexPage;
+    use FolderIndexPage;
 
     public private(set) string $logicalPath {
         get => $this->logicalPath ??= $this->parsedFolder->logicalPath;

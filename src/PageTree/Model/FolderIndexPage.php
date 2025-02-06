@@ -13,7 +13,7 @@ use DateTimeImmutable;
  * This is a trait used only by Folder, basically just for code organization.
  * It's easier than having the properties and methods split into separate sections.
  */
-trait NewFolderIndexPage
+trait FolderIndexPage
 {
     public private(set) string $title {
         get => $this->title ??=
@@ -33,7 +33,9 @@ trait NewFolderIndexPage
     public private(set) string $physicalPath { get => $this->physicalPath ??= $this->indexPage?->physicalPath ?? ''; }
     public private(set) DateTimeImmutable $publishDate { get => $this->publishDate ??= $this->indexPage?->publishDate; }
     public private(set) DateTimeImmutable $lastModifiedDate {
-        get => $this->lastModifiedDate ??= $this->indexPage?->lastModifiedDate ?? new DateTimeImmutable('@' . $this->parsedFolder->mtime);
+        get => $this->lastModifiedDate
+            ??= $this->indexPage?->lastModifiedDate
+            ?? new DateTimeImmutable('@' . $this->parsedFolder->mtime);
     }
 
     public function variants(): array

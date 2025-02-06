@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\PageTree\Model\FileInPage;
-use Crell\MiDy\PageTree\Model\NewFolder;
+use Crell\MiDy\PageTree\Model\Folder;
 use Crell\MiDy\PageTree\Model\PageRead;
 use Crell\MiDy\PageTree\Parser\Parser;
 
@@ -33,10 +33,10 @@ class PageTree
     /**
      * Returns the Folder read-object for this path.
      */
-    public function folder(string $logicalPath): ?NewFolder
+    public function folder(string $logicalPath): ?Folder
     {
         $data = $this->loadFolder($logicalPath);
-        return $data ? new NewFolder($data, $this) : null;
+        return $data ? new Folder($data, $this) : null;
     }
 
     /**
@@ -195,7 +195,7 @@ class PageTree
         $ret = [];
         foreach ($pages as $page) {
             if ($page->isFolder) {
-                $ret[] = new NewFolder($this->loadFolder($page->logicalPath), $this, $page);
+                $ret[] = new Folder($this->loadFolder($page->logicalPath), $this, $page);
             } else {
                 $ret[] = $page;
             }
