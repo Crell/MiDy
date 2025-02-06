@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTree\Model\BasicParsedFrontmatter;
-use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
+use Crell\MiDy\PageTree\BasicParsedFrontmatter;
+use Crell\MiDy\PageTree\ParsedFrontmatter;
 
 class StaticFileParser implements FileParser
 {

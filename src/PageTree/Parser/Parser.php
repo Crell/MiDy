@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Parser;
 
-use Crell\MiDy\PageTree\Model\ParsedFile;
 use Crell\MiDy\PageTree\PageRepo;
+use Crell\MiDy\PageTree\ParsedFile;
 use Crell\MiDy\PageTree\ParsedFolder;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;

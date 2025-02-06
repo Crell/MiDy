@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Attributes;
 
-use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
+use Crell\MiDy\PageTree\ParsedFrontmatter;
 use Crell\Serde\Attributes\Field;
 use DateTimeImmutable;
 

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Model\File;
-use Crell\MiDy\PageTree\Model\Folder;
-use Crell\MiDy\PageTree\Model\PageRecord;
 use Crell\MiDy\PageTree\Parser\Parser;
 
 class PageTree

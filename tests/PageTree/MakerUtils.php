@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Model\ParsedFile;
 use Crell\MiDy\PageTree\Parser\Parser;
 
 trait MakerUtils

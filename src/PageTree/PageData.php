@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree\Model;
+namespace Crell\MiDy\PageTree;
 
 use function Crell\fp\pipe;
 

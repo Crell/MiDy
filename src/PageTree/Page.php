@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Model\Frontmatter;
-
 interface Page extends Frontmatter
 {
     public string $path { get; }

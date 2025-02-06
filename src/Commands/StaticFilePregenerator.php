@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTree\Model\File;
+use Crell\MiDy\PageTree\File;
 use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\PageTree;
 use DI\Attribute\Inject;

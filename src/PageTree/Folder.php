@@ -2,14 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree\Model;
-
-use Crell\MiDy\PageTree\Page;
-use Crell\MiDy\PageTree\PageRepo;
-use Crell\MiDy\PageTree\PageSet;
-use Crell\MiDy\PageTree\PageTree;
-use Crell\MiDy\PageTree\Pagination;
-use Crell\MiDy\PageTree\ParsedFolder;
+namespace Crell\MiDy\PageTree;
 
 /**
  * A logical representation of a Folder.

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\MarkdownDeserializer;
 
 use Crell\MiDy\MarkdownDeserializer\Attributes\Content;
-use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
+use Crell\MiDy\PageTree\ParsedFrontmatter;
 use Crell\Serde\Attributes\Field;
 use DateTimeImmutable;
 

@@ -6,7 +6,7 @@ namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\MarkdownDeserializer\MarkdownError;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
-use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
+use Crell\MiDy\PageTree\ParsedFrontmatter;
 
 class MarkdownLatteFileParser implements FileParser
 {

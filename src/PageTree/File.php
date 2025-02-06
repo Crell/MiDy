@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree\Model;
+namespace Crell\MiDy\PageTree;
 
 /**
  * The limited data we need about a file, as represented within a Page record.

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Model\PageRecord;
 use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;

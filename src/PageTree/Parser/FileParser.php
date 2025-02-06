@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Parser;
 
-use Crell\MiDy\PageTree\Model\ParsedFrontmatter;
+use Crell\MiDy\PageTree\ParsedFrontmatter;
 
 interface FileParser
 {

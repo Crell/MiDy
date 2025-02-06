@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\PageTree\Model;
+namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\PageTree\Page;
 use DateTimeImmutable;
 
 /**
