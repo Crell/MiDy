@@ -24,9 +24,4 @@ readonly class PageRoute implements ParsedFrontmatter
         #[Field(flatten: true)]
         public array $other = [],
     ) {}
-
-    public function hasAnyTag(string ...$tags): bool
-    {
-        return (bool)array_intersect($this->tags, $tags);
-    }
 }
