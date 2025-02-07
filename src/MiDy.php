@@ -135,9 +135,10 @@ class MiDy implements RequestHandlerInterface
         $this->setupListeners();
 
         // @todo Hacky.
-        if (isset($_ENV['ENABLE_CACHE'])) {
-            $_ENV['ENABLE_CACHE'] = in_array($_ENV['ENABLE_CACHE'], ['1', 'true', 'on'], false);
-        }
+        // We can't actually do this, due to https://github.com/PHP-DI/PHP-DI/issues/900
+//        if (isset($_ENV['ENABLE_CACHE'])) {
+//            $_ENV['ENABLE_CACHE'] = in_array($_ENV['ENABLE_CACHE'], ['1', 'true', 'on'], false);
+//        }
 
         if (class_exists(\Tracy\Debugger::class)) {
 //            \Tracy\Debugger::enable();

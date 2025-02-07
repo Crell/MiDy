@@ -14,11 +14,20 @@ readonly class ResponseBuilder
 {
     public const string ETAG_HASH_ALGORITHM = 'xxh3';
 
+    private bool $enableCache;
+
     public function __construct(
         private ResponseFactoryInterface $responseFactory,
         private StreamFactoryInterface $streamFactory,
-        private bool $enableCache = true,
-    ) {}
+        bool|string $enableCache = true,
+    ) {
+        // This is to work around a dumb bug in PHP-DI: https://github.com/PHP-DI/PHP-DI/issues/900
+        $this->enableCache = match ($enableCache) {
+            true, 'true', 'on', 'yes' => true,
+            false, 'false', 'off', 'no' => false,
+            default => false,
+        };
+    }
 
     public function createResponse(int $code, string|StreamInterface $body, ?string $contentType = null): ResponseInterface
     {
