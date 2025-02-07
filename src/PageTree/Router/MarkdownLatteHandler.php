@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Router\PageTreeRouter;
+namespace Crell\MiDy\PageTree\Router;
 
 use Crell\MiDy\Config\MarkdownLatteConfiguration;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;

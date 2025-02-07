@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Crell\MiDy\Router\PageTreeRouter;
+namespace Crell\MiDy\PageTree\Router;
 
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageTree;
