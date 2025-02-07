@@ -1,0 +1,18 @@
+{layout $templateRoot . '/layout.latte'}
+{varType \Crell\MiDy\PageTree\Page $currentPage}
+
+{*---
+title: Publication date override (Latte)
+publishDate: '2024-10-31'
+lastModifiedDate: '2024-12-25'
+---*}
+
+{define title}{$currentPage->title}{/define}
+
+{block content}
+    <p>This should be published on Halloween and updated on Christmas, regardless of what the filesystem says.</p>
+
+    <p>Published: {$currentPage->publishDate|date:'j F Y'}</p>
+    <p>Updated: {$currentPage->lastModifiedDate|date:'j F Y'}</p>
+
+{/block}

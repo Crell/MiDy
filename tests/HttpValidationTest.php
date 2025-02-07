@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -179,4 +180,19 @@ class HttpValidationTest extends TestCase
         $response = $this->app->handle($modifiedTimeRequest);
         self::assertEquals(304, $response->getStatusCode());
     }
+
+    #[Test]
+    #[TestWith(['/pubdate-override-latte'])]
+    #[TestWith(['/pubdate-override-md'])]
+    public function dates_are_respected_and_displayed(string $path): void
+    {
+        $serverRequest = $this->makeRequest($path);
+        $response = $this->app->handle($serverRequest);
+        self::assertEquals(200, $response->getStatusCode());
+
+        $body = $response->getBody()->getContents();
+        self::assertStringContainsString('<p>Published: 31 October 2024</p>', $body);
+        self::assertStringContainsString('<p>Updated: 25 December 2024</p>', $body);
+    }
+
 }

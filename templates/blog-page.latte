@@ -1,0 +1,12 @@
+{layout $templateRoot . '/page.latte'}
+{varType \Crell\MiDy\PageTree\Page $currentPage}
+{varType string $content}
+
+{define title}{$currentPage->title}{/define}
+
+{block content}
+    <p>Published: {$currentPage->publishDate|date:'j F Y'}</p>
+    <p>Updated: {$currentPage->lastModifiedDate|date:'j F Y'}</p>
+
+{$content}
+{/block}
