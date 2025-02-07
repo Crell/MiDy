@@ -1,7 +1,7 @@
 {layout $templateRoot . '/layout.latte'}
-{varType \Crell\MiDy\PageTree\Page $page}
+{varType \Crell\MiDy\PageTree\Page $currentPage}
 
-{define title}{$page->title}{/define}
+{define title}{$currentPage->title}{/define}
 
 {block content}
 {$content}

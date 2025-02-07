@@ -49,7 +49,7 @@ class MarkdownLatteHandler implements PageHandler
 
             $template = $this->templateRoot . '/' . ($mdPage->template ?: $this->config->defaultPageTemplate);
             //$args = $mdPage->toTemplateParameters();
-            $args['page'] = $page;
+            $args['currentPage'] = $page;
             // Pre-render the Content rather than making the template do it.
             $args['content'] = new Html($this->converter->convert($mdPage->content));
 
