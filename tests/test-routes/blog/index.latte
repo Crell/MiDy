@@ -12,6 +12,7 @@
 
     <article n:foreach="$pagination->items as $page">
         <h3><a href="{$page->path}">{$page->title}</a></h3>
+        <p>Posted: <time>{$page->publishDate|date:'j F Y'}</time></p>
         <div>{$page->summary}</div>
     </article>
 
