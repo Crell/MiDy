@@ -37,19 +37,21 @@ class MarkdownLatteHandler implements PageHandler
             method: 'GET',
             vars: [
                 'file' => $page->variant($ext)->physicalPath,
+                'page' => $page,
             ],
         );
     }
 
-    public function action(ServerRequestInterface $request, string $file): ResponseInterface
+    public function action(ServerRequestInterface $request, Page $page, string $file): ResponseInterface
     {
-        return $this->builder->handleCacheableFileRequest($request, $file, function() use ($file) {
-            $page = $this->loader->load($file);
+        return $this->builder->handleCacheableFileRequest($request, $file, function() use ($file, $page) {
+            $mdPage = $this->loader->load($file);
 
-            $template = $this->templateRoot . '/' . ($page->template ?: $this->config->defaultPageTemplate);
-            $args = $page->toTemplateParameters();
+            $template = $this->templateRoot . '/' . ($mdPage->template ?: $this->config->defaultPageTemplate);
+            //$args = $mdPage->toTemplateParameters();
+            $args['page'] = $page;
             // Pre-render the Content rather than making the template do it.
-            $args['content'] = new Html($this->converter->convert($page->content));
+            $args['content'] = new Html($this->converter->convert($mdPage->content));
 
             $args['extraStyles'][] = sprintf('%s', $this->config->codeThemeStyles);
 

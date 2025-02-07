@@ -29,16 +29,17 @@ class LatteHandler implements PageHandler
             method: 'GET',
             vars: [
                 'file' => $page->variant($ext)->physicalPath,
+                'page' => $page,
                 'query' =>  $request->getQueryParams(),
             ],
         );
     }
 
-    public function action(ServerRequestInterface $request, string $file, array $query): ResponseInterface
+    public function action(ServerRequestInterface $request, string $file, Page $page, array $query): ResponseInterface
     {
-        return $this->builder->handleCacheableFileRequest($request, $file, function () use ($file, $query) {
-            $page = $this->renderer->render($file, ['query' => $query]);
-            return $this->builder->ok($page, 'text/html');
+        return $this->builder->handleCacheableFileRequest($request, $file, function () use ($file, $query, $page) {
+            $rendered = $this->renderer->render($file, ['query' => $query, 'page' => $page]);
+            return $this->builder->ok($rendered, 'text/html');
         });
     }
 }

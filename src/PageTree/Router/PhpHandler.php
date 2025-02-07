@@ -40,7 +40,8 @@ class PhpHandler implements SupportsTrailingPath
                 action: $actionObject->$method(...),
                 method: strtoupper($method),
                 vars: [
-                    'file' => $page,
+                    'file' => $page->variant($ext)->physicalPath,
+                    'page' => $page,
                     'trailing' => $trailing,
                 ],
             );
