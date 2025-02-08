@@ -15,12 +15,33 @@ class PageTreeExtension extends Extension
     {
         return [
             'pageUrl' => $this->pageUrl(...),
-            // ...
+            'atomId' => $this->atomId(...),
         ];
     }
 
     public function pageUrl(Page $page): string
     {
         return sprintf("%s%s", rtrim($this->baseUrl, '/'), $page->path);
+    }
+
+    /**
+     * Create an Atom ID for the specified page.
+     *
+     * The algorithm here is taken from
+     * @link https://web.archive.org/web/20110514113830/http://diveintomark.org/archives/2004/05/28/howto-atom-id
+     * @link https://datatracker.ietf.org/doc/html/rfc4151
+     */
+    public function atomId(Page $page): string
+    {
+        $url = $this->pageUrl($page);
+        $parts = parse_url($url);
+
+        if (isset($parts['fragment'])) {
+            $parts['path'] .= '/' . $parts['fragment'];
+        }
+
+        $date = $page->publishDate->format('Y-m-d');
+
+        return sprintf('tag:%s,%s:%s', $parts['host'], $date, $parts['path']);
     }
 }

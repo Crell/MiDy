@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Latte;
 
 use Crell\MiDy\PageTree\MockPage;
+use Crell\MiDy\PageTree\Page;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -21,6 +22,35 @@ class PageTreeExtensionTest extends TestCase
 
         $ext = new PageTreeExtension($base);
         $result = $ext->pageUrl($mockPage);
+
+        self::assertEquals($expected, $result);
+    }
+
+    #[Test]
+    #[TestWith([
+        'http://www.example.com/',
+        new MockPage(path: '/foo', publishDate: new \DateTimeImmutable('2024-10-31')),
+        'tag:www.example.com,2024-10-31:/foo',
+    ])]
+    #[TestWith([
+        'http://www.example.com/',
+        new MockPage(path: '/foo#anchor', publishDate: new \DateTimeImmutable('2024-10-31')),
+        'tag:www.example.com,2024-10-31:/foo/anchor',
+    ])]
+    #[TestWith([
+        'https://www.example.com/',
+        new MockPage(path: '/foo#anchor', publishDate: new \DateTimeImmutable('2024-10-31')),
+        'tag:www.example.com,2024-10-31:/foo/anchor',
+    ])]
+    #[TestWith([
+        'http://www.example.com:8080/',
+        new MockPage(path: '/foo#anchor', publishDate: new \DateTimeImmutable('2024-10-31')),
+        'tag:www.example.com,2024-10-31:/foo/anchor',
+    ], 'exclude port from tag')]
+    public function atom_ids(string $base, Page $mockPage, string $expected): void
+    {
+        $ext = new PageTreeExtension($base);
+        $result = $ext->atomId($mockPage);
 
         self::assertEquals($expected, $result);
     }
