@@ -19,6 +19,10 @@ class Folder implements \IteratorAggregate, Page
         get => $this->logicalPath ??= $this->parsedFolder->logicalPath;
     }
 
+    public string $folder {
+        get => $this->logicalPath;
+    }
+
     public function __construct(
         private readonly ParsedFolder $parsedFolder,
         private readonly PageTree $pageTree,

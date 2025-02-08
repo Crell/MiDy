@@ -40,6 +40,9 @@ class MockPage implements Page
     public string $physicalPath {
         get => $this->values[__PROPERTY__] ?? '';
     }
+    public string $folder {
+        get => $this->values[__PROPERTY__] ?? '';
+    }
 
     public function __construct(...$values)
     {
@@ -63,5 +66,4 @@ class MockPage implements Page
     {
         // TODO: Implement getTrailingPath() method.
     }
-
 }

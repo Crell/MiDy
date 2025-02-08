@@ -12,7 +12,7 @@
     <id>{atomId($currentPage)}</id>
     <updated>{$currentPage->publishDate|date:'c'}</updated>
 
-    {foreach $pageTree->queryPages(folder: '/blog') as $page}
+    {foreach $pageTree->queryPages(folder: $currentPage->folder) as $page}
         {varType \Crell\MiDy\PageTree\Page $page}
         <entry>
             <title>{$page->title}</title>
