@@ -19,9 +19,14 @@ class PageTreeExtension extends Extension
         ];
     }
 
-    public function pageUrl(Page $page): string
+    public function pageUrl(Page $page, array $query = []): string
     {
-        return sprintf("%s%s", rtrim($this->baseUrl, '/'), $page->path);
+        $queryString = '';
+        if ($query) {
+            $queryString = '?' . http_build_query($query);
+        }
+
+        return sprintf("%s%s%s", rtrim($this->baseUrl, '/'), $page->path, $queryString);
     }
 
     /**
