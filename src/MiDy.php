@@ -24,6 +24,7 @@ use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
+use Crell\MiDy\PageTree\Latte\PageTreeExtension;
 use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\PageTree\Parser\LatteFileParser;
 use Crell\MiDy\PageTree\Parser\MarkdownLatteFileParser;
@@ -357,8 +358,12 @@ class MiDy implements RequestHandlerInterface
         $containerBuilder->addDefinitions([
             Engine::class => autowire()
                 ->method('addExtension', get(CommonMarkExtension::class))
+                ->method('addExtension', get(PageTreeExtension::class))
                 ->method('addExtension', get(TracyExtension::class))
                 ->method('setTempDirectory', get('paths.cache.latte'))
+            ,
+            PageTreeExtension::class => autowire()
+                ->constructorParameter('baseUrl', env('BASE_URL', 'http://localhost/'))
             ,
         ]);
 
