@@ -20,4 +20,9 @@ readonly class Pagination implements \IteratorAggregate
     {
         return $this->items;
     }
+
+    public function lastPageNum(): int
+    {
+        return (int)ceil($this->total / $this->pageSize);
+    }
 }

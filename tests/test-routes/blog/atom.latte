@@ -5,14 +5,24 @@
 {varType \Crell\MiDy\PageTree\Page $currentPage}
 {varType array $query}
 
-<feed xmlns="http://www.w3.org/2005/Atom">
+{var $pageSize = 2}
 
+{var $pageNum = $query['page'] ?? 1}
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+    {var $pagination = $pageTree->queryPages(folder: $currentPage->folder, pageSize: $pageSize, pageNum: $pageNum)}
+    {* Todo: Need to exclude this page itself from the results. *}
     <title>{$currentPage->title}</title>
     <link href="{pageUrl($currentPage)}" rel="self" />
+    <link rel="first" href="{pageUrl($currentPage)}"/>
+    <link rel="last" href="{pageUrl($currentPage, ['page' => $pagination->lastPageNum()])}"/>
+    <link n:if="$pageNum < $pagination->lastPageNum()" rel="next" href="{pageUrl($currentPage, ['page' => $pageNum + 1])}"/>
+    <link n:if="$pageNum > 1" rel="previous" href="{pageUrl($currentPage, ['page' => $pageNum - 1])}"/>
+
     <id>{atomId($currentPage)}</id>
     <updated>{$currentPage->publishDate|date:'c'}</updated>
 
-    {foreach $pageTree->queryPages(folder: $currentPage->folder) as $page}
+    {foreach $pagination->items as $page}
         {varType \Crell\MiDy\PageTree\Page $page}
         <entry>
             <title>{$page->title}</title>
