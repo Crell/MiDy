@@ -16,6 +16,8 @@ use function Crell\MiDy\str_extract_between;
 
 class MarkdownPageLoader
 {
+    private const FrontMatterDelimiters = '---';
+
     private readonly MarkdownDocument $documentStructure;
 
     /**
@@ -64,7 +66,7 @@ class MarkdownPageLoader
      */
     private function extractFrontMatter(string $source): array
     {
-        $frontmatter = str_extract_between($source, '---', '---') ?? '';
+        $frontmatter = str_extract_between($source, self::FrontMatterDelimiters, self::FrontMatterDelimiters) ?? '';
 
         if ($frontmatter) {
             // Add 6 to account for the delimiters themselves.

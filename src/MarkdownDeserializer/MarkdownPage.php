@@ -13,6 +13,9 @@ use function Crell\MiDy\str_extract_between;
 
 class MarkdownPage implements ParsedFrontmatter
 {
+    private const SummaryOpenTag = '<!--summary-->';
+    private const SummaryCloseTag = '<!--/summary-->';
+
     public function __construct(
         #[Content]
         public(set) readonly string $content,
@@ -43,7 +46,7 @@ class MarkdownPage implements ParsedFrontmatter
 
     private function summarize(): string
     {
-        $bodySummary = str_extract_between($this->content, '<!--summary-->', '<!--/summary-->');
+        $bodySummary = str_extract_between($this->content, self::SummaryOpenTag, self::SummaryCloseTag);
 
         if ($bodySummary) {
             return trim($bodySummary);
