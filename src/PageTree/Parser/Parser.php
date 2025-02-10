@@ -157,7 +157,7 @@ class Parser
         }
 
         $contents = file_get_contents($controlFile);
-        return $this->serde->deserialize($contents, from: 'json', to: FolderDef::class);
+        return $this->serde->deserialize($contents, from: 'yaml', to: FolderDef::class);
     }
 
     /**

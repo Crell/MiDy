@@ -1,4 +1,2 @@
-{
-  "flatten": true,
-  "order": "Desc"
-}
+flatten: true
+order: Desc

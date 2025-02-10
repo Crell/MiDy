@@ -19,11 +19,11 @@ class ParserTest extends TestCase
     {
         file_put_contents($this->routesPath . '/foo.html', 'Foo');
         file_put_contents($this->routesPath . '/bar.html', 'Bar');
-        file_put_contents($this->routesPath . '/folder.midy', '{"order": "Desc"}');
+        file_put_contents($this->routesPath . '/folder.midy', 'order: "Desc"');
         mkdir($this->routesPath . '/subdir');
         file_put_contents($this->routesPath . '/subdir/baz.html', 'Baz');
         file_put_contents($this->routesPath . '/subdir/beep.html', 'Beep');
-        file_put_contents($this->routesPath . '/subdir/folder.midy', '{"order": "Desc"}');
+        file_put_contents($this->routesPath . '/subdir/folder.midy', 'order: "Desc"');
 
         $this->parser->parseFolder($this->routesPath . '/subdir', '/subdir', []);
 
