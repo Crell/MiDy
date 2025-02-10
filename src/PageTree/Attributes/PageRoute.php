@@ -12,15 +12,14 @@ use DateTimeImmutable;
 readonly class PageRoute implements ParsedFrontmatter
 {
     public function __construct(
-        public string $title = '',
-        public string $summary = '',
+        public ?string $title = null,
+        public ?string $summary = null,
         public array $tags = [],
         public ?string $slug = null,
-        public bool $hidden = false,
-        public bool $routable = true,
+        public ?bool $hidden = null,
+        public ?bool $routable = null,
         public ?DateTimeImmutable $publishDate = null,
         public ?DateTimeImmutable $lastModifiedDate = null,
-        public readonly string $template = '',
         #[Field(flatten: true)]
         public array $other = [],
     ) {}

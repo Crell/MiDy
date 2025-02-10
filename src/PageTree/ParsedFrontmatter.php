@@ -17,12 +17,12 @@ use DateTimeImmutable;
  */
 interface ParsedFrontmatter
 {
-    public string $title { get; }
-    public string $summary { get; }
-    public array $tags { get; }
+    public ?string $title { get; }
+    public ?string $summary { get; }
+    public ?array $tags { get; }
     public ?string $slug { get; }
-    public bool $hidden { get; }
-    public bool $routable { get; }
+    public ?bool $hidden { get; }
+    public ?bool $routable { get; }
     public ?DateTimeImmutable $publishDate { get; }
     public ?DateTimeImmutable $lastModifiedDate { get; }
     public array $other { get; }

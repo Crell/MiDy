@@ -27,7 +27,7 @@ class Parser
     public function parseFolder(string $physicalPath, string $logicalPath, array $mounts): bool
     {
         return $this->cache->inTransaction(function() use ($physicalPath, $logicalPath, $mounts) {
-            $controlData = $this->parseControlFile($physicalPath);
+            $folderDef = $this->parseControlFile($physicalPath);
 
             if (!file_exists($physicalPath)) {
                 return false;
@@ -40,18 +40,18 @@ class Parser
                 logicalPath: $logicalPath,
                 physicalPath: $physicalPath,
                 mtime: $folderInfo->getMTime(),
-                flatten: $controlData->flatten,
+                flatten: $folderDef->flatten,
                 title: $folderInfo->getBasename(),
             );
             $this->cache->writeFolder($folder);
 
-            $children = new ParserFileList($controlData->order);
+            $children = new ParserFileList($folderDef->order);
 
             // Now reindex every file in the folder.
             /** @var \SplFileInfo $file */
-            foreach ($this->getChildIterator($physicalPath, $controlData->flatten) as $file) {
+            foreach ($this->getChildIterator($physicalPath, $folderDef->flatten) as $file) {
                 if ($file->isFile()) {
-                    $children->addParsedFile($this->parseFile($file, $logicalPath));
+                    $children->addParsedFile($this->parseFile($file, $logicalPath, $folderDef));
                 } else {
                     // It's a directory.
                     [$basename, $order] = $this->parseName($file->getFilename());
@@ -66,13 +66,13 @@ class Parser
                     }
 
                     $childLogicalPath = rtrim($logicalPath, '/') . '/' . $basename;
-                    $childControlData = $this->parseControlFile($childPhysicalPath);
+                    $childFolderDef = $this->parseControlFile($childPhysicalPath);
 
                     $childFolder = new ParsedFolder(
                         logicalPath: $childLogicalPath,
                         physicalPath: $childPhysicalPath,
                         mtime: 0,
-                        flatten: $childControlData->flatten,
+                        flatten: $childFolderDef->flatten,
                         title: $file->getBasename(),
                     // @todo What do we do with order?  Crap.
                     );
@@ -82,7 +82,7 @@ class Parser
                     // as the "folder".
                     $childIndexFile = $this->getIndexFile($childFolder->physicalPath);
                     if ($childIndexFile !== null) {
-                        $children->addParsedFile($this->parseFile($childIndexFile, $childFolder->logicalPath, $order));
+                        $children->addParsedFile($this->parseFile($childIndexFile, $childFolder->logicalPath, $childFolderDef, $order));
                     }
                 }
             }
@@ -95,7 +95,7 @@ class Parser
         });
     }
 
-    public function parseFile(\SplFileInfo $file, string $folderLogicalPath, ?int $orderOverride = null): ?ParsedFile
+    public function parseFile(\SplFileInfo $file, string $folderLogicalPath, FolderDef $folderDef = new FolderDef(), ?int $orderOverride = null): ?ParsedFile
     {
         // SPL is so damned stupid...
         [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));
@@ -110,7 +110,7 @@ class Parser
             $order = $orderOverride;
         }
 
-        return ParsedFile::createFromParsedData($file, $frontmatter, $folderLogicalPath, $basename, $order);
+        return ParsedFile::createFromParsedData($file, $frontmatter, $folderLogicalPath, $folderDef, $basename, $order);
     }
 
     private function getIndexFile(string $folderPhysicalPath): ?\SplFileInfo

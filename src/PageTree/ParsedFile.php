@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTree\Parser\FolderDef;
 use Crell\MiDy\PageTree\Parser\Parser;
 
 /**
@@ -44,6 +45,7 @@ class ParsedFile
         \SplFileInfo $fileInfo,
         ParsedFrontmatter $frontmatter,
         string $folderLogicalPath,
+        FolderDef $folderDef,
         string $basename,
         int $order,
     ): self {
@@ -70,17 +72,17 @@ class ParsedFile
             physicalPath: $fileInfo->getPathname(),
             mtime: $fileInfo->getMTime(),
             order: $order,
-            publishDate: $frontmatter->publishDate ?? new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            lastModifiedDate: $frontmatter->lastModifiedDate ?? new \DateTimeImmutable('@' . $fileInfo->getMTime()),
-            routable: $frontmatter->routable,
+            publishDate: $frontmatter->publishDate ?? $folderDef->defaults->publishDate ?? new \DateTimeImmutable('@' . $fileInfo->getMTime()),
+            lastModifiedDate: $frontmatter->lastModifiedDate ?? $folderDef->defaults->lastModifiedDate ?? new \DateTimeImmutable('@' . $fileInfo->getMTime()),
+            routable: $frontmatter->routable ?? $folderDef->defaults->routable ?? true,
             pathName: $pathName,
             folder: $folderLogicalPath,
-            title: $frontmatter->title,
-            summary: $frontmatter->summary,
-            tags: $frontmatter->tags,
+            title: $frontmatter->title ?? $folderDef->defaults->title ?? '',
+            summary: $frontmatter->summary ?? $folderDef->defaults->summary ?? '',
+            tags: array_values(array_unique(array_merge($frontmatter->tags, $folderDef->defaults->tags))),
             slug: $basename,
-            hidden: $frontmatter->hidden,
-            other: $frontmatter->other,
+            hidden: $frontmatter->hidden ?? $folderDef->defaults->hidden ?? false,
+            other: $frontmatter->other + $folderDef->defaults->other,
             isFolder: $isFolder,
         );
     }

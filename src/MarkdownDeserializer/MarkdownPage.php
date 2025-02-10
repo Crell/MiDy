@@ -19,13 +19,13 @@ class MarkdownPage implements ParsedFrontmatter
     public function __construct(
         #[Content]
         public(set) readonly string $content,
-        public string $title = '',
+        public ?string $title = null,
         // This is not ideal, as it will try to re-summarize on every request if the summary is empty.
-        public string $summary = '' { get => $this->summary ?: $this->summarize(); },
+        public ?string $summary = null { get => $this->summary ?: $this->summarize(); },
         public array $tags = [],
         public ?string $slug = null,
-        public bool $hidden = false,
-        public bool $routable = true,
+        public ?bool $hidden = null,
+        public ?bool $routable = null,
         public ?DateTimeImmutable $publishDate = null,
         public ?DateTimeImmutable $lastModifiedDate = null,
         public readonly string $template = '',

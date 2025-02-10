@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTree\Parser\FolderDef;
 use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -154,5 +155,43 @@ class ParserTest extends TestCase
         foreach ($expected as $field => $value) {
             self::assertEquals($value, $parsedFile->$field);
         }
+    }
+
+    #[Test]
+    public function folder_defaults_affect_file_frontmatter(): void
+    {
+        file_put_contents($this->routesPath . '/use-defaults.md', <<<END
+        ---
+        title: Foo
+        ---
+        Body here
+        END);
+        file_put_contents($this->routesPath . '/has-values.md', <<<END
+        ---
+        tags: ['a', 'b']
+        author: 'Crell'
+        hidden: false
+        ---
+        Body here
+        END);
+
+        $folderDef = new FolderDef(
+            defaults: new BasicParsedFrontmatter(
+                tags: ['def', 'ault'],
+                hidden: true,
+                other: ['author' => 'Larry'],
+            )
+        );
+
+        $useDefaults = $this->parser->parseFile(new \SplFileInfo($this->routesPath . '/use-defaults.md'), '/', $folderDef);
+        $hasValues = $this->parser->parseFile(new \SplFileInfo($this->routesPath . '/has-values.md'), '/', $folderDef);
+
+        self::assertFalse($hasValues->hidden);
+        self::assertEquals('Crell', $hasValues->other['author']);
+        self::assertEquals(['a', 'b', 'def', 'ault'], $hasValues->tags);
+
+        self::assertTrue($useDefaults->hidden);
+        self::assertEquals('Larry', $useDefaults->other['author']);
+        self::assertEquals(['def', 'ault'], $useDefaults->tags);
     }
 }
