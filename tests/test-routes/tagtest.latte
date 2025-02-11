@@ -1,6 +1,5 @@
 {layout $templateRoot . '/layout.latte'}
 
-{varType \Crell\MiDy\PageTree\PageTree $pageTree}
 {varType array $query}
 
 {define title}Tag Test{/define}
@@ -9,7 +8,7 @@
 
     Find all pages across the site by tag.
 
-    {var $pagination = $pageTree->anyTag(['sqlite'], 2, $query['page'] ?? 1)}
+    {var $pagination = pageQuery(anyTag: ['sqlite'], pageSize: 2, pageNum: $query['page'] ?? 1)}
 
     {dump $pagination}
 

@@ -2,18 +2,14 @@
 {layout $templateRoot . '/html.latte'}
 {default $siteName = ''}
 
-{varType \Crell\MiDy\PageTree\PageTree $pageTree}
-
-
 {block body}
     <h1>{ifset title}{include title}{else}Untitled{/ifset}</h1>
     <main>
         {block content}{/block}
     </main>
-<aside>
-    {block sidebar}
-        {include 'sidebar.latte' pageTree: $pageTree}
-    {/block}
-
-</aside>
+    <aside>
+        {block sidebar}
+            {include 'sidebar.latte'}
+        {/block}
+    </aside>
 {/block}

@@ -6,6 +6,9 @@ namespace Crell\MiDy\PageTree\Latte;
 
 use Crell\MiDy\PageTree\MockPage;
 use Crell\MiDy\PageTree\Page;
+use Crell\MiDy\PageTree\PageRepo;
+use Crell\MiDy\PageTree\PageTree;
+use Crell\MiDy\PageTree\Parser\Parser;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +24,12 @@ class PageTreeExtensionTest extends TestCase
     {
         $mockPage = new MockPage(path: $path);
 
-        $ext = new PageTreeExtension($base);
+        $pageTree = new class extends PageTree
+        {
+            public function __construct() {}
+        };
+
+        $ext = new PageTreeExtension($base, $pageTree);
         $result = $ext->pageUrl($mockPage, $query);
 
         self::assertEquals($expected, $result);
@@ -50,7 +58,12 @@ class PageTreeExtensionTest extends TestCase
     ], 'exclude port from tag')]
     public function atom_ids(string $base, Page $mockPage, string $expected): void
     {
-        $ext = new PageTreeExtension($base);
+        $pageTree = new class extends PageTree
+        {
+            public function __construct() {}
+        };
+
+        $ext = new PageTreeExtension($base, $pageTree);
         $result = $ext->atomId($mockPage);
 
         self::assertEquals($expected, $result);

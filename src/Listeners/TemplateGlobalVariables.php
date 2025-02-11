@@ -17,7 +17,6 @@ readonly class TemplateGlobalVariables
         private TemplateVariables $templateVariables,
         #[Inject('paths.templates')]
         private string $templatePath,
-        private PageTree $tree,
     ) {}
 
     public function __invoke(TemplatePreRender $event): void
@@ -25,7 +24,6 @@ readonly class TemplateGlobalVariables
         $event->args += $this->templateVariables->variables;
         $event->args += [
             'templateRoot' => $this->templatePath,
-            'pageTree' => $this->tree,
         ];
     }
 }

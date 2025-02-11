@@ -1,5 +1,4 @@
 {parameters \Crell\MiDy\PageTree\Folder $folder, int $depth = 2}
-{varType \Crell\MiDy\PageTree\PageTree $pageTree}
 
 <ul n:if="$depth > 0" n:inner-foreach="$folder->children(pageSize: 20) as $page">
     <li>

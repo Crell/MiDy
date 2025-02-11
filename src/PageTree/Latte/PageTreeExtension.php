@@ -4,18 +4,28 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Latte;
 
+use Crell\MiDy\PageTree\Folder;
 use Crell\MiDy\PageTree\Page;
+use Crell\MiDy\PageTree\PageRepo;
+use Crell\MiDy\PageTree\PageTree;
+use Crell\MiDy\PageTree\Pagination;
 use Latte\Extension;
 
 class PageTreeExtension extends Extension
 {
-    public function __construct(private readonly string $baseUrl) {}
+    public function __construct(
+        private readonly string $baseUrl,
+        private readonly PageTree $pageTree,
+    ) {}
 
     public function getFunctions(): array
     {
         return [
             'pageUrl' => $this->pageUrl(...),
             'atomId' => $this->atomId(...),
+            'pageQuery' => $this->pageQuery(...),
+            'folder' => $this->folder(...),
+            'page' => $this->page(...),
         ];
     }
 
@@ -48,5 +58,39 @@ class PageTreeExtension extends Extension
         $date = $page->publishDate->format('Y-m-d');
 
         return sprintf('tag:%s,%s:%s', $parts['host'], $date, $parts['path']);
+    }
+
+    public function pageQuery(
+        ?string $folder = null,
+        bool $deep = false,
+        bool $includeHidden = false,
+        bool $routableOnly = true,
+        array $anyTag = [],
+        ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
+        array $orderBy = [],
+        int $pageSize = PageRepo::DefaultPageSize,
+        int $pageNum = 1
+    ): Pagination {
+        return $this->pageTree->queryPages(
+            folder: $folder,
+            deep: $deep,
+            includeHidden: $includeHidden,
+            routableOnly: $routableOnly,
+            anyTag: $anyTag,
+            publishedBefore: $publishedBefore,
+            orderBy: $orderBy,
+            pageSize: $pageSize,
+            pageNum: $pageNum
+        );
+    }
+
+    public function folder(string $path): ?Folder
+    {
+        return $this->pageTree->folder($path);
+    }
+
+    public function page(string $path): ?Page
+    {
+        return $this->pageTree->page($path);
     }
 }

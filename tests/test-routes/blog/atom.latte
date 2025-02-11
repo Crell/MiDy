@@ -1,7 +1,6 @@
 {contentType application/Tom/xml}
 <?xml version="1.0" encoding="utf-8"?>
 
-{varType \Crell\MiDy\PageTree\PageTree $pageTree}
 {varType \Crell\MiDy\PageTree\Page $currentPage}
 {varType array $query}
 
@@ -10,7 +9,7 @@
 {var $pageNum = $query['page'] ?? 1}
 
 <feed xmlns="http://www.w3.org/2005/Atom">
-    {var $pagination = $pageTree->queryPages(folder: $currentPage->folder, pageSize: $pageSize, pageNum: $pageNum)}
+    {var $pagination = pageQuery(folder: $currentPage->folder, pageSize: $pageSize, pageNum: $pageNum)}
     {* Todo: Need to exclude this page itself from the results. *}
     <title>{$currentPage->title}</title>
     <link href="{pageUrl($currentPage)}" rel="self" />
