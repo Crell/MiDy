@@ -7,17 +7,17 @@
 {define title}Test Page{/define}
 
 {block links}
-    {var $pageNum = $query['page'] ?? 1}
+    {var $pageNum = (int)($query['page'] ?? 1)}
     {var $pageSize = 2}
     {var $pagination = pageQuery(folder: $currentPage->path, anyTag: ['sqlite'], pageSize: $pageSize, pageNum: $pageNum)}
     <link rel="first" href="{pageUrl($currentPage)}"/>
-    <link rel="last" href="{pageUrl($currentPage, ['page' => $pagination->lastPageNum()])}"/>
-    <link n:if="$pageNum < $pagination->lastPageNum()" rel="next" href="{pageUrl($currentPage, ['page' => $pageNum + 1])}"/>
-    <link n:if="$pageNum > 1" rel="previous" href="{pageUrl($currentPage, ['page' => $pageNum - 1])}"/>
+    <link n:if="$pagination->lastPageNum !== 1" rel="last" href="{pageUrl($currentPage, ['page' => $pagination->lastPageNum])}"/>
+    <link n:if="$pagination->nextPageNum" rel="next" href="{pageUrl($currentPage, ['page' => $pagination->nextPageNum])}"/>
+    <link n:if="$pagination->previousPageNum" rel="previous" href="{pageUrl($currentPage, ['page' => $pagination->previousPageNum])}"/>
 {/block}
 
 {block content}
-    {var $pageNum = $query['page'] ?? 1}
+    {var $pageNum = (int)($query['page'] ?? 1)}
     {var $pagination = pageQuery(folder: $currentPage->folder, anyTag: ['sqlite'], pageSize: 2, pageNum: $pageNum)}
     <article n:foreach="$pagination->items as $page">
         <h3><a href="{$page->path}">{$page->title}</a></h3>

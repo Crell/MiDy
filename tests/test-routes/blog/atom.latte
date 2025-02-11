@@ -6,7 +6,7 @@
 
 {var $pageSize = 2}
 
-{var $pageNum = $query['page'] ?? 1}
+{var $pageNum = (int)($query['page'] ?? 1)}
 
 <feed xmlns="http://www.w3.org/2005/Atom">
     {var $pagination = pageQuery(folder: $currentPage->folder, pageSize: $pageSize, pageNum: $pageNum)}
@@ -14,9 +14,9 @@
     <title>{$currentPage->title}</title>
     <link href="{pageUrl($currentPage)}" rel="self" />
     <link rel="first" href="{pageUrl($currentPage)}"/>
-    <link rel="last" href="{pageUrl($currentPage, ['page' => $pagination->lastPageNum()])}"/>
-    <link n:if="$pageNum < $pagination->lastPageNum()" rel="next" href="{pageUrl($currentPage, ['page' => $pageNum + 1])}"/>
-    <link n:if="$pageNum > 1" rel="previous" href="{pageUrl($currentPage, ['page' => $pageNum - 1])}"/>
+    <link n:if="$pagination->lastPageNum !== 1" rel="last" href="{pageUrl($currentPage, ['page' => $pagination->lastPageNum])}"/>
+    <link n:if="$pagination->nextPageNum" rel="next" href="{pageUrl($currentPage, ['page' => $pagination->nextPageNum])}"/>
+    <link n:if="$pagination->previousPageNum" rel="previous" href="{pageUrl($currentPage, ['page' => $pagination->previousPageNum])}"/>
 
     <id>{atomId($currentPage)}</id>
     <updated>{$currentPage->publishDate|date:'c'}</updated>

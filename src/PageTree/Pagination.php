@@ -6,23 +6,34 @@ namespace Crell\MiDy\PageTree;
 
 use Traversable;
 
-readonly class Pagination implements \IteratorAggregate
+class Pagination implements \IteratorAggregate
 {
+    public int $lastPageNum {
+        get => $this->lastPageNum ??= (int)ceil($this->total / $this->pageSize);
+    }
+
+    public ?int $nextPageNum {
+        get => $this->nextPageNum ??= $this->pageNum < $this->lastPageNum
+            ? $this->pageNum + 1
+            : null;
+    }
+
+    public ?int $previousPageNum {
+        get => $this->previousPageNum ??= $this->pageNum > 1
+            ? $this->pageNum - 1
+            : null;
+    }
+
     public function __construct(
-        public int $total,
-        public int $pageSize,
-        public int $pageCount,
-        public int $pageNum,
-        public PageSet $items,
+        public readonly int $total,
+        public readonly int $pageSize,
+        public readonly int $pageCount,
+        public readonly int $pageNum,
+        public readonly PageSet $items,
     ) {}
 
     public function getIterator(): Traversable
     {
         return $this->items;
-    }
-
-    public function lastPageNum(): int
-    {
-        return (int)ceil($this->total / $this->pageSize);
     }
 }
