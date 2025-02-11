@@ -1,2 +1,5 @@
 flatten: true
 order: Desc
+defaults:
+    title: 'Testing'
+    template: 'blog-page.latte'

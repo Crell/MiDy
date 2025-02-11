@@ -28,7 +28,6 @@ class MarkdownPage implements ParsedFrontmatter
         public ?bool $routable = null,
         public ?DateTimeImmutable $publishDate = null,
         public ?DateTimeImmutable $lastModifiedDate = null,
-        public readonly string $template = '',
         #[Field(flatten: true)]
         public array $other = [],
     ) {}

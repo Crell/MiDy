@@ -47,8 +47,8 @@ class MarkdownLatteHandler implements PageHandler
         return $this->builder->handleCacheableFileRequest($request, $file, function() use ($file, $page) {
             $mdPage = $this->loader->load($file);
 
-            $template = $this->templateRoot . '/' . ($mdPage->template ?: $this->config->defaultPageTemplate);
-            //$args = $mdPage->toTemplateParameters();
+            $template = $this->templateRoot . '/' . ($page->other['template'] ?? $this->config->defaultPageTemplate);
+
             $args['currentPage'] = $page;
             // Pre-render the Content rather than making the template do it.
             $args['content'] = new Html($this->converter->convert($mdPage->content));
