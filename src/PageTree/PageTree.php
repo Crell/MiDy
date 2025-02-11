@@ -97,28 +97,6 @@ class PageTree
         );
     }
 
-    /**
-     * Retrieves all visible pages under the specified path.
-     *
-     * @todo This should probably return lazily for better scalability.
-     *
-     * @return iterable<string, Page>
-     */
-    public function folderAllPages(string $folderPath, int $pageSize = PHP_INT_MAX, int $pageNum = 1): iterable
-    {
-        return $this->queryPages(folder: $folderPath, pageSize: $pageSize, pageNum: $pageNum)->items;
-    }
-
-    public function folderAnyTag(string $folderPath, array $tags, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination
-    {
-        return $this->queryPages(folder: $folderPath, anyTag: $tags, pageSize: $pageSize, pageNum: $pageNum);
-    }
-
-    public function anyTag(array $tags, int $pageSize = 10, int $pageNum = 1): Pagination
-    {
-        return $this->queryPages(anyTag: $tags, pageSize: $pageSize, pageNum: $pageNum);
-    }
-
     public function reindexAll(string $logicalRoot = '/'): void
     {
         $this->reindexFolder($logicalRoot);

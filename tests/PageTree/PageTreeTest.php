@@ -400,40 +400,6 @@ class PageTreeTest extends TestCase
         self::assertPagesMatch(['Fourth'], $result->items);
     }
 
-//    #[Test, RunInSeparateProcess]
-//    public function can_query_for_all_tags_in_folder(): void
-//    {
-//        file_put_contents($this->routesPath . '/first.md', <<<END
-//        ---
-//        title: First
-//        tags: [first, page]
-//        ---
-//        First page
-//        END);
-//        file_put_contents($this->routesPath . '/second.md', <<<END
-//        ---
-//        title: Second
-//        tags: [second, page]
-//        ---
-//        Second page
-//        END);
-//        file_put_contents($this->routesPath . '/third.md', <<<END
-//        ---
-//        title: Fake First
-//        tags: [first]
-//        ---
-//        Second page
-//        END);
-//
-//        $tree = new PageTree($this->repo, $this->parser, $this->routesPath);
-//
-//        $folder = $tree->folder('/');
-//
-//        $result = $folder->filterAllTags(['page', 'first']);
-//
-//        self::assertPagesMatch(['First'], $result->items);
-//    }
-
     #[Test, RunInSeparateProcess]
     public function can_query_for_any_tag(): void
     {
@@ -484,13 +450,13 @@ class PageTreeTest extends TestCase
         $tree = new PageTree($this->repo, $this->parser, $this->routesPath);
         $tree->reindexAll();
 
-        $result = $tree->anyTag(['c', 'b']);
+        $result = $tree->queryPages(anyTag: ['c', 'b']);
         self::assertPagesMatch(['First', 'Second', 'Sub A', 'Sub B'], $result->items);
 
-        $result = $tree->anyTag(['c', 'b'], 2);
+        $result = $tree->queryPages(anyTag: ['c', 'b'], pageSize: 2);
         self::assertPagesMatch(['First', 'Second'], $result->items);
 
-        $result = $tree->anyTag(['c', 'b'], 2, 2);
+        $result = $tree->queryPages(anyTag: ['c', 'b'], pageSize: 2, pageNum: 2);
         self::assertPagesMatch(['Sub A', 'Sub B'], $result->items);
     }
 
