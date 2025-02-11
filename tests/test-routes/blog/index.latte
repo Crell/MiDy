@@ -18,7 +18,8 @@
 
 {block content}
     {var $pageNum = (int)($query['page'] ?? 1)}
-    {var $pagination = pageQuery(folder: $currentPage->folder, anyTag: ['sqlite'], pageSize: 2, pageNum: $pageNum)}
+    {var $pageSize = 2}
+    {var $pagination = pageQuery(folder: $currentPage->path, anyTag: ['sqlite'], pageSize: $pageSize, pageNum: $pageNum)}
     <article n:foreach="$pagination->items as $page">
         <h3><a href="{$page->path}">{$page->title}</a></h3>
         <p>Posted: <time>{$page->publishDate|date:'j F Y'}</time></p>
@@ -30,5 +31,4 @@
     <ul class="paginator" n:foreach="range(1, $pagination->pageCount) as $i">
         <li><a href="?page={$i}">{$i}</a></li>
     </ul>
-
 {/block}
