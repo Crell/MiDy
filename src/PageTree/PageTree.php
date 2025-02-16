@@ -70,7 +70,8 @@ class PageTree
         ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
         array $orderBy = [],
         int $pageSize = PageRepo::DefaultPageSize,
-        int $pageNum = 1
+        int $pageNum = 1,
+        array $exclude = [],
     ): Pagination {
         $result = $this->cache->queryPages(
             folder: $folder,
@@ -81,7 +82,8 @@ class PageTree
             publishedBefore: $publishedBefore,
             orderBy: $orderBy,
             limit: $pageSize,
-            offset: $pageSize * ($pageNum - 1)
+            offset: $pageSize * ($pageNum - 1),
+            exclude: $exclude,
         );
 
         $numPages = (int)ceil($result->total / $pageSize);

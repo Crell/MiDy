@@ -183,6 +183,9 @@ class PageRepo
      *   the value is either SORT_ASC or SORT_DESC, as desired. Regardless of what
      *   is provided, the sort list will be appended with: order, title, path, to
      *   ensure queries are always deterministic.
+     * @param string[] $exclude
+     *   An array of paths to ignore in the query results. This is mainly useful
+     *   for excluding the current page from listing pages other than an index page.
      *
      * @todo publishedAfter,
      *      titleContains
@@ -197,6 +200,7 @@ class PageRepo
         array $orderBy = [],
         int $limit = self::DefaultPageSize,
         int $offset = 0,
+        array $exclude = [],
     ): QueryResult {
         $query = new Query($this->conn)
             ->select(['logicalPath', 'folder', 'files', 'title', 'summary', 'order', 'hidden', 'routable', 'isFolder', 'publishDate', 'lastModifiedDate', 'tags'])
@@ -247,6 +251,11 @@ class PageRepo
                 ]);
                 $query->andWhere($cond)->addParams([':folder' => $folder . '/%']);
             }
+        }
+
+        if ($exclude) {
+            // Never trust arrays.
+            $query->andWhere(['not in', "logicalPath", array_values($exclude)]);
         }
 
         $total = $query->count();

@@ -69,7 +69,8 @@ class PageTreeExtension extends Extension
         ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
         array $orderBy = [],
         int $pageSize = PageRepo::DefaultPageSize,
-        int $pageNum = 1
+        int $pageNum = 1,
+        array $exclude = [],
     ): Pagination {
         return $this->pageTree->queryPages(
             folder: $folder,
@@ -80,7 +81,8 @@ class PageTreeExtension extends Extension
             publishedBefore: $publishedBefore,
             orderBy: $orderBy,
             pageSize: $pageSize,
-            pageNum: $pageNum
+            pageNum: $pageNum,
+            exclude: $exclude,
         );
     }
 

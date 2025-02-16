@@ -37,7 +37,8 @@ class Folder implements \IteratorAggregate, Page
         ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
         array $orderBy = [],
         int $pageSize = PageRepo::DefaultPageSize,
-        int $pageNum = 1
+        int $pageNum = 1,
+        array $exclude = [],
     ): Pagination {
         return $this->pageTree->queryPages(
             folder: $this->logicalPath,
@@ -49,6 +50,7 @@ class Folder implements \IteratorAggregate, Page
             orderBy: $orderBy,
             pageSize: $pageSize,
             pageNum: $pageNum,
+            exclude: $exclude,
         );
     }
 

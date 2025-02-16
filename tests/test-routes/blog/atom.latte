@@ -9,7 +9,13 @@
 {var $pageNum = $query->getNum('page', 1)}
 
 <feed xmlns="http://www.w3.org/2005/Atom">
-    {var $pagination = pageQuery(folder: $currentPage->folder, anyTag: [$query->getString('tag')], pageSize: $pageSize, pageNum: $pageNum)}
+    {var $pagination = pageQuery(
+        folder: $currentPage->folder,
+        exclude: [$currentPage->path],
+        anyTag: [$query->getString('tag')],
+        pageSize: $pageSize,
+        pageNum: $pageNum,
+    )}
     {* Todo: Need to exclude this page itself from the results. *}
     <title>{$currentPage->title}</title>
     <link href="{pageUrl($currentPage)}" rel="self" />

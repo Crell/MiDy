@@ -692,12 +692,75 @@ class PageRepoTest extends TestCase
         }
     }
 
+    public static function query_pages_data_exclusions(): iterable
+    {
+        $exclusionCases = [
+            'index page is self-excluding' => [
+                'exclude' => [],
+                'expectedCount' => 4,
+            ],
+            'arbitrary page can be excluded' => [
+                'exclude' => ['/foo/b'],
+                'expectedCount' => 3,
+            ],
+            'multiple pages can be excluded' => [
+                'exclude' => ['/foo/b', '/foo/c'],
+                'expectedCount' => 2,
+            ],
+        ];
+        foreach ($exclusionCases as $name => $settings) {
+            yield "exclusions for $name" => [
+                'folders' => [
+                    self::makeParsedFolder(physicalPath: '/foo'),
+                    self::makeParsedFolder(physicalPath: '/foo/sub'),
+                    self::makeParsedFolder(physicalPath: '/bar'),
+                ],
+                'pages' => [
+                    new PageData('/foo/index', [
+                        self::makeParsedFile(physicalPath: '/foo/index.md'),
+                    ]),
+                    new PageData('/foo/b', [
+                        self::makeParsedFile(physicalPath: '/foo/b.md'),
+                    ]),
+                    new PageData('/foo/c', [
+                        self::makeParsedFile(physicalPath: '/foo/c.md'),
+                    ]),
+                    new PageData('/foo/d', [
+                        self::makeParsedFile(physicalPath: '/foo/d.md'),
+                    ]),
+                    new PageData('/foo/e', [
+                        self::makeParsedFile(physicalPath: '/foo/e.md'),
+                    ]),
+                    new PageData('/bar/x', [
+                        self::makeParsedFile(physicalPath: '/bar/x.md'),
+                    ]),
+                    new PageData('/foo/sub/y', [
+                        self::makeParsedFile(physicalPath: '/foo/sub/y.md'),
+                    ]),
+                ],
+                'query' => [
+                    'folder' => '/foo',
+                    'exclude' => $settings['exclude'],
+                ],
+                'expectedCount' => $settings['expectedCount'],
+                'totalPages' => $settings['expectedCount'],
+                'validator' => function (QueryResult $queryResult) use ($settings) {
+                    $paths = array_column($queryResult->pages, 'logicalPath');
+                    foreach ($settings['exclude'] as $excluded) {
+                        self::assertNotContains($excluded, $paths);
+                    }
+                },
+            ];
+        }
+    }
+
     #[Test]
     #[DataProvider('query_pages_data')]
     #[DataProvider('query_pages_data_ordering')]
     #[DataProvider('query_pages_data_pagination')]
     #[DataProvider('query_pages_data_publication_date')]
     #[DataProvider('query_pages_data_tags_any')]
+    #[DataProvider('query_pages_data_exclusions')]
     public function query_pages(array $folders, array $pages, array $query, int $expectedCount, int $totalPages, \Closure $validator): void
     {
         $cache = new PageRepo($this->conn);
