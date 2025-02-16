@@ -11,7 +11,8 @@ use Crell\MiDy\PageTree\ParsedFrontmatter;
 class StaticFileParser implements FileParser
 {
     public array $supportedExtensions {
-        get => array_keys($this->config->allowedExtensions);
+        // Ignore HTML files, as those get their own parser.
+        get => array_diff(array_keys($this->config->allowedExtensions), ['html']);
     }
 
     public function __construct(
@@ -21,11 +22,9 @@ class StaticFileParser implements FileParser
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
         // Static files have no frontmatter to parse.
-        /// @todo Except HTML files, where maybe we can pull the title at least.
         return new BasicParsedFrontmatter(
             title: ucfirst($basename),
             hidden: true,
         );
     }
 }
-

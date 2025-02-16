@@ -53,6 +53,17 @@ class ParserTest extends TestCase
             ],
         ];
 
+        yield 'Basic static HTML file' => [
+            'file' => '/foo.html',
+            'content' => '<html><head><title>Title here</title></head><body>Body here</body></html>',
+            'expected' => [
+                'logicalPath' => '/foo',
+                'ext' => 'html',
+                'hidden' => false,
+                'title' => 'Title here',
+            ],
+        ];
+
         yield 'Latte template header is parsed' => [
             'file' => '/foo.latte',
             'content' => <<<END

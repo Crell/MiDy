@@ -26,6 +26,7 @@ use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
 use Crell\MiDy\PageTree\Latte\PageTreeExtension;
 use Crell\MiDy\PageTree\PageTree;
+use Crell\MiDy\PageTree\Parser\HtmlFileParser;
 use Crell\MiDy\PageTree\Parser\LatteFileParser;
 use Crell\MiDy\PageTree\Parser\MarkdownLatteFileParser;
 use Crell\MiDy\PageTree\Parser\MultiplexedFileParser;
@@ -249,6 +250,7 @@ class MiDy implements RequestHandlerInterface
                 ->constructorParameter('fileParser', get(MultiplexedFileParser::class))
             ,
             MultiplexedFileParser::class => autowire()
+                ->method('addParser', get(HtmlFileParser::class))
                 ->method('addParser', get(StaticFileParser::class))
                 ->method('addParser', get(LatteFileParser::class))
                 ->method('addParser', get(MarkdownLatteFileParser::class))

@@ -3,6 +3,7 @@
     "require": {
         "php": "~8.4",
         "ext-pdo": "*",
+        "ext-dom": "*",
         "nyholm/psr7": "^1.8",
         "nyholm/psr7-server": "^1.1",
         "psr/log": "^3.0",
