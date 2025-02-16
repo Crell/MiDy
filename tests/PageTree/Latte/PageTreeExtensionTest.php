@@ -6,9 +6,7 @@ namespace Crell\MiDy\PageTree\Latte;
 
 use Crell\MiDy\PageTree\MockPage;
 use Crell\MiDy\PageTree\Page;
-use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\PageTree;
-use Crell\MiDy\PageTree\Parser\Parser;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
