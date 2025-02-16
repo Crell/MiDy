@@ -38,7 +38,7 @@ class LatteHandler implements PageHandler
     public function action(ServerRequestInterface $request, string $file, Page $page, array $query): ResponseInterface
     {
         return $this->builder->handleCacheableFileRequest($request, $file, function () use ($file, $query, $page) {
-            $rendered = $this->renderer->render($file, ['query' => $query, 'currentPage' => $page]);
+            $rendered = $this->renderer->render($file, ['query' => new HttpQuery($query), 'currentPage' => $page]);
             return $this->builder->ok($rendered, 'text/html');
         });
     }

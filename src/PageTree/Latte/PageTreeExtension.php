@@ -9,6 +9,7 @@ use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\PageTree\Pagination;
+use Crell\MiDy\PageTree\Router\HttpQuery;
 use Latte\Extension;
 
 class PageTreeExtension extends Extension
@@ -29,14 +30,13 @@ class PageTreeExtension extends Extension
         ];
     }
 
-    public function pageUrl(Page $page, array $query = []): string
+    public function pageUrl(Page $page, array|HttpQuery $query = []): string
     {
-        $queryString = '';
-        if ($query) {
-            $queryString = '?' . http_build_query($query);
+        if (is_array($query)) {
+            $query = new HttpQuery($query);
         }
 
-        return sprintf("%s%s%s", rtrim($this->baseUrl, '/'), $page->path, $queryString);
+        return sprintf("%s%s%s", rtrim($this->baseUrl, '/'), $page->path, $query);
     }
 
     /**

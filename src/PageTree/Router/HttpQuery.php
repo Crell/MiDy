@@ -7,7 +7,7 @@ namespace Crell\MiDy\PageTree\Router;
 /**
  * @todo This likely belongs in a different namespace.
  */
-readonly class HttpQuery
+readonly class HttpQuery implements \Stringable
 {
     public function __construct(private array $params = []) {}
 
@@ -52,11 +52,19 @@ readonly class HttpQuery
         }
 
         return $default;
-
     }
 
-    public function toArray(): array
+    public function toQueryString(): string
     {
-        return $this->params;
+        $params = array_filter($this->params, static fn($val) => !is_null($val));
+        if ($params) {
+            return '?' . http_build_query($params);
+        }
+        return '';
+    }
+
+    public function __toString(): string
+    {
+        return $this->toQueryString();
     }
 }

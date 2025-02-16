@@ -1,6 +1,6 @@
 {varType string $templateRoot}
 {varType \Crell\MiDy\PageTree\Page $currentPage}
-{varType array $query}
+{varType Crell\MiDy\PageTree\Router\HttpQuery $query}
 
 {layout $templateRoot . '/layout.latte'}
 
@@ -11,19 +11,19 @@ title: Test Page
 {define title}{$currentPage->title}{/define}
 
 {block links}
-    {var $pageNum = (int)($query['page'] ?? 1)}
+    {var $pageNum = $query->getNum('page', 1)}
     {var $pageSize = 2}
-    {var $pagination = pageQuery(folder: $currentPage->path, anyTag: [$query['tag'] ?? null], pageSize: $pageSize, pageNum: $pageNum)}
+    {var $pagination = pageQuery(folder: $currentPage->path, anyTag: [$query->getString('tag')], pageSize: $pageSize, pageNum: $pageNum)}
     <link rel="first" href="{pageUrl($currentPage)}"/>
-    <link n:if="$pagination->lastPageNum !== 1" rel="last" href="{pageUrl($currentPage, [...$query, 'page' => $pagination->lastPageNum])}"/>
-    <link n:if="$pagination->nextPageNum" rel="next" href="{pageUrl($currentPage, [...$query, 'page' => $pagination->nextPageNum])}"/>
-    <link n:if="$pagination->previousPageNum" rel="previous" href="{pageUrl($currentPage, [...$query, 'page' => $pagination->previousPageNum])}"/>
+    <link n:if="$pagination->lastPageNum !== 1" rel="last" href="{pageUrl($currentPage, $query->with(page: $pagination->lastPageNum))}"/>
+    <link n:if="$pagination->nextPageNum" rel="next" href="{pageUrl($currentPage, $query->with(page: $pagination->nextPageNum))}"/>
+    <link n:if="$pagination->previousPageNum" rel="previous" href="{pageUrl($currentPage, $query->with(page: $pagination->previousPageNum))}"/>
 {/block}
 
 {block content}
-    {var $pageNum = (int)($query['page'] ?? 1)}
+    {var $pageNum = $query->getNum('page', 1)}
     {var $pageSize = 2}
-    {var $pagination = pageQuery(folder: $currentPage->path, anyTag: [$query['tag'] ?? null], pageSize: $pageSize, pageNum: $pageNum)}
+    {var $pagination = pageQuery(folder: $currentPage->path, anyTag: [$query->getString('tag')], pageSize: $pageSize, pageNum: $pageNum)}
     <article n:foreach="$pagination->items as $page">
         <h3><a href="{$page->path}">{$page->title}</a></h3>
         <p>Posted: <time>{$page->publishDate|date:'j F Y'}</time></p>
@@ -36,6 +36,6 @@ title: Test Page
     <div>Showing page {$pagination->pageNum} of {$pagination->pageCount}</div>
 
     <ul class="paginator" n:foreach="range(1, $pagination->pageCount) as $i">
-        <li><a href="{pageUrl($currentPage, [...$query, 'page' => $i])}">{$i}</a></li>
+        <li><a href="{pageUrl($currentPage, $query->with(page: $i))}">{$i}</a></li>
     </ul>
 {/block}
