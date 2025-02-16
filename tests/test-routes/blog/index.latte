@@ -4,7 +4,11 @@
 
 {layout $templateRoot . '/layout.latte'}
 
-{define title}Test Page{/define}
+{*---
+title: Test Page
+---*}
+
+{define title}{$currentPage->title}{/define}
 
 {block links}
     {var $pageNum = (int)($query['page'] ?? 1)}
