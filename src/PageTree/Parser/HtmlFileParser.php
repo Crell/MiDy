@@ -20,7 +20,7 @@ class HtmlFileParser implements FileParser
 
     public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
-        $html = HTMLDocument::createFromFile($fileInfo->getPathname());
+        $html = HTMLDocument::createFromFile($fileInfo->getPathname(), LIBXML_NOERROR);
 
         // Static files have no frontmatter to parse.
         return new BasicParsedFrontmatter(

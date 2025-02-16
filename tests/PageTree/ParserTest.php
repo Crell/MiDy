@@ -55,7 +55,7 @@ class ParserTest extends TestCase
 
         yield 'Basic static HTML file' => [
             'file' => '/foo.html',
-            'content' => '<html><head><title>Title here</title></head><body>Body here</body></html>',
+            'content' => '<html lang="en"><head><title>Title here</title></head><body>Body here</body></html>',
             'expected' => [
                 'logicalPath' => '/foo',
                 'ext' => 'html',
