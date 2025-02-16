@@ -224,7 +224,8 @@ class PageRepo
             $query->andWhere(['routable' => 1]);
         }
 
-        if ($anyTag) {
+        // Trim out any empty strings or nulls, as those are invalid tags.
+        if ($anyTag = array_filter($anyTag)) {
             $query->from([...$query->getFrom(), 'json_each(tags)']);
             $query->andWhere(['in', "json_each.value", $anyTag]);
             // The json_each() call results in a row-per-tag, so we need to
