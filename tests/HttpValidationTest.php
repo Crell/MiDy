@@ -79,22 +79,26 @@ class HttpValidationTest extends TestCase
             'static html' => ['/html-test'],
             'latte page' => ['/latte-test'],
             'markdown page' => ['/md-test'],
-            'png image' => ['/png-test'],
-            'php handler' => ['/php-test'],
-            'png image with extension' => ['/png-test.png'],
+            'png image' => ['/png-test', 'image/png'],
+            'php handler' => ['/php-test', 'text/plain'],
+            'png image with extension' => ['/png-test.png', 'image/png'],
             'subdir page' => ['/subdir/page-three'],
             'subdir index' => ['/subdir'],
+            // There is a bug somewhere, where only in testing,
+            // Latte doesn't spit out the right header. Uncomment when that is fixed.
+            // 'atom index' => ['/blog/atom', 'application/atom+xml'],
         ];
     }
 
     #[Test, DataProvider('successGetRoutes'), RunInSeparateProcess]
-    public function basic_200_checks(string $path): void
+    public function basic_200_checks(string $path, string $contentType = 'text/html'): void
     {
         $serverRequest = $this->makeRequest($path);
 
         $response = $this->app->handle($serverRequest);
 
         self::assertEquals(200, $response->getStatusCode());
+        self::assertEquals($contentType, $response->getHeaderLine('content-type'));
     }
 
     #[Test, RunInSeparateProcess]

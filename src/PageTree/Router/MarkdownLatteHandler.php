@@ -55,9 +55,9 @@ class MarkdownLatteHandler implements PageHandler
 
             $args['extraStyles'][] = sprintf('%s', $this->config->codeThemeStyles);
 
-            $output = $this->renderer->render($template, $args);
+            $result = $this->renderer->render($template, $args);
 
-            return $this->builder->ok($output, 'text/html');
+            return $this->builder->ok($result->content, $result->contentType);
         });
     }
 }
