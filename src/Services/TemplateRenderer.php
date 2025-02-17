@@ -27,11 +27,16 @@ readonly class TemplateRenderer
         $this->latte->render($event->template, $event->args);
         $rendered = ob_get_clean();
 
+        // When running on the CLI (such as tests), headers_list() doesn't work.  If using XDebug,
+        // it has its own headers method that we can use instead.  This is ugly,
+        // but the only way I know of that gets tests to pass.
+        // @see https://github.com/sebastianbergmann/phpunit/issues/3409#issuecomment-442596333
+        $headers = (PHP_SAPI === 'cli' && function_exists('xdebug_get_headers'))
+            ? xdebug_get_headers()
+            : headers_list();
         // If no content type is found, assume it's HTML.
-        // @todo This seems to be failing only in tests, where header_list()
-        //   comes back empty.
         $contentType = 'text/html';
-        foreach (array_map(strtolower(...), headers_list()) as $header) {
+        foreach (array_map(strtolower(...), $headers) as $header) {
             if (str_starts_with($header, 'content-type')) {
                 sscanf($header, 'content-type: %s', $contentType);
                 break;

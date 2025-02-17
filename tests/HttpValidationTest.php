@@ -84,9 +84,7 @@ class HttpValidationTest extends TestCase
             'png image with extension' => ['/png-test.png', 'image/png'],
             'subdir page' => ['/subdir/page-three'],
             'subdir index' => ['/subdir'],
-            // There is a bug somewhere, where only in testing,
-            // Latte doesn't spit out the right header. Uncomment when that is fixed.
-            // 'atom index' => ['/blog/atom', 'application/atom+xml'],
+            'atom index' => ['/blog/atom', 'application/atom+xml'],
         ];
     }
 
@@ -98,7 +96,8 @@ class HttpValidationTest extends TestCase
         $response = $this->app->handle($serverRequest);
 
         self::assertEquals(200, $response->getStatusCode());
-        self::assertEquals($contentType, $response->getHeaderLine('content-type'));
+        // Sometimes the header includes an encoding clause, sometimes not. We're only checking the type itself.
+        self::assertEquals($contentType, explode(';', $response->getHeaderLine('content-type'))[0]);
     }
 
     #[Test, RunInSeparateProcess]
