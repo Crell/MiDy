@@ -6,7 +6,7 @@
 
 A tool for building **Mi**ldly **Dy**namic websites, with more features than you would expect.
 
-MiDy is in pre-alpha.  Most of it works, and it's in a state that people can play with it, but lots of things are still subject to change.  Feedback welcome.
+MiDy is in alpha.  Most of it works, and it's in a state that people can play with it, but it's not yet production-ready.  Feedback welcome.
 
 ## Who is this for
 
@@ -50,7 +50,7 @@ The `index.md` file in the above example will be used as the "file" representati
 
 ## Running
 
-MiDy requires PHP 8.4.  (We're living on the edge.)  The easiest way to try it out is 
+MiDy requires PHP 8.4.  The easiest way to try it out is
 
 1. Clone this repository
 2. Run `docker compose build && docker compose up -d`
@@ -63,34 +63,48 @@ See the [`tests/test-routes`](tests/test-routes) folder for many examples.  (Tha
 
 ## Templating
 
-Templating is provided by the [Latte template engine](https://latte.nette.org/en/).  (If there's interest, I can explore supporting Twig as well, though doing both at once could be tricky.)  If you've used Twig, it's very similar but uses a more PHP-ish syntax.
+Templating is provided by the [Latte template engine](https://latte.nette.org/en/).  (If there's interest, I can explore supporting Twig as well, though doing both at once could be tricky.)  If you've used Twig, it's very similar but uses a more PHP-ish syntax.  Several enhancement functions are included as well.
 
-Latte route pages have access to a `$templateRoot` variable, which can be used to access the common templates for the site.  By default, that is the `/templates` directory.  You can structure your templates however you'd like, however, it is strongly recommended that you keep the `html.latte` template in place as is, and extend it with one or more layout templates.  The default layout template is named `layout.latte`.  Have a look at the files in that directory to see how they work.
+When referencing another template (such as for extending from a common layout), rather than referencing the template file as a direct path, use the `template()` function and a file name.  That will look up the file from a series of configurable directories, with each overriding the one previous.  That way, MiDy can ship with a set of basic core templates (like `html.latte` for the HTML page itself), a downloadable theme can provide a broader look and feel, and an individual site can provide its own templates that override some or all of those provided.
 
 A typical Latte route page will look something like this:
 
 ```latte
 {* Specify the layout file to use.  Aka, parent template. *}
-{layout $templateRoot . '/layout.latte'}
+{layout template('layout.latte')}
 
 {* Type-specify the parameters the template is expected to get, for type hinting. *}
-{varType \Crell\MiDy\PageTree\Folder $root}
+{varType \Crell\MiDy\PageTree\Page $currentPage}
 
 {*---
-YAML Frontmatter here, much like Markdown files often have.
+YAML Frontmatter here, much like Markdown files often have.  Always include a title.
+title: Title of the page.
 ---*}
 
-{define title}Title of this page{/define}
+{define title}{$currentPage->title}{/define}
 
 {block styles}
 {* Any extra CSS files you want to inject into the page head on this page only. *}
 {/block}
 
 {block content}
-    Whatever the heck you want here, as the body of the page.  You can use the $root
-    variable to access the page tree to auto-generate navigation, etc.
+    Whatever the heck you want here, as the body of the page.
 {/block}
 ```
+
+There are two other important functions included.
+
+### `pageQuery()`
+
+This function allows read (but not write!) access to the cached index of pages.  It should always be called with named arguments, but allows you to search by folder (shallow or deep), tag, publication date, whether a page is hidden, and other options.  All results are paginated by default, and the pagination size is configurable as well.  Ordering is also configurable.
+
+`pageQuery()` can be used to build blog index pages, upcoming events feeds, or a site tree of the entire site.
+
+The return value of `pageQuery()` is a [`Pagination`](src/PageTree/Pagination.php) object.  It contains all necessary information about the pagination, as well as a collection of `Page` objects that matched the query.
+
+### `folder()`
+
+This function returns a `Folder` object.  It is similar to a `Page` object, and if that folder has an index file it can be treated as one, but it can also be iterated to get a list of all the pages in that folder.
 
 ## Shell commands
 
@@ -113,20 +127,16 @@ Pre-generates the entire site, excluding PHP pages.  If there are no PHP pages, 
 While the task list is long, here's the main things still on my radar before 1.0:
 
 * Gobs of performance improvements.  It's already pretty fast, but for instance it's rebuilding the container every request still.  That obviously can be improved.
-* Build an easy way to generate RSS/Atom feeds.
-* Try rebuilding the PageTree to use an SQLite cache backend, which should scale better and be more performant.
-* Explore multi-sourced page trees.
 * Make routing more flexible, including possibly argument path segments.
 * Split most major components out to their own stand-alone LGPLv3 libraries.
 * This thing is almost a framework, by design.  Factor the framework out as well, including an extension mechanism.
 * Build a "skeleton" app, and move 99% of the code to composer packages used by that.  As little code as possible should be "in" a real site.
-* Make publication date a first class value, and derive it from the file if possible.
 * Flesh out the shell commands a lot better.  Like, use a real command framework.
 * Way more detailed documentation.
 
 ## Feedback
 
-MiDy is still in active development and is not ready for production use, but I would love feedback on it in its current state!  Please try it out, poke around, kick the tires, and otherwise see how it could be made better.  If you have suggestions, please either open an issue or reach out to me on the [PHPC Discord](https://phpc.chat/) server.
+MiDy is still in active development and is not ready for production use, but it is stable enough to experiment with.  Please try it out, poke around, kick the tires, and otherwise see how it could be made better.  If you have suggestions, please either open an issue or reach out to me on the [PHPC Discord](https://phpc.chat/) server.
 
 ## Contributing
 
