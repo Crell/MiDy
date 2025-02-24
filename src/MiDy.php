@@ -15,6 +15,7 @@ use Crell\Config\IniFileSource;
 use Crell\Config\LayeredLoader;
 use Crell\Config\PhpFileSource;
 use Crell\Config\SerializedFilesystemCache;
+use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
 use Crell\MiDy\Middleware\CacheHeaderMiddleware;
@@ -98,6 +99,8 @@ class MiDy implements RequestHandlerInterface
 {
     public readonly ContainerInterface $container;
 
+    private readonly string $appRoot;
+
     private readonly string $routePath;
     private readonly string $cachePath;
     private readonly string $configPath;
@@ -120,13 +123,15 @@ class MiDy implements RequestHandlerInterface
      *   The root of the public (web-accessible) folder.
      */
     public function __construct(
-        private readonly string $appRoot = '..',
+        string $appRoot = '..',
         ?string $routesPath = null,
         ?string $cachePath = null,
         ?string $configPath = null,
         ?string $templatesPath = null,
         ?string $publicPath = null,
     ) {
+        $this->appRoot = realpath($appRoot);
+
         $this->cachePath = $this->ensurePath($cachePath, $_ENV['CACHE_PATH'] ?? '/cache');
         $this->routePath = $this->ensurePath($routesPath, $_ENV['ROUTES_PATH'] ?? '/routes');
         $this->configPath = $this->ensurePath($configPath, $_ENV['CONFIG_PATH'] ?? '/configuration');
@@ -181,6 +186,7 @@ class MiDy implements RequestHandlerInterface
             'paths.cache' => value($this->cachePath),
             'paths.templates' => value($this->templatesPath),
             'paths.public' => value($this->publicPath),
+            'paths.app.root' => value($this->appRoot),
 
             // Derived paths.
             'paths.cache.routes' => value(ensure_dir($this->cachePath . '/routes')),
@@ -362,10 +368,16 @@ class MiDy implements RequestHandlerInterface
                 ->method('addExtension', get(CommonMarkExtension::class))
                 ->method('addExtension', get(PageTreeExtension::class))
                 ->method('addExtension', get(TracyExtension::class))
+                ->method('addExtension', get(LatteThemeExtension::class))
                 ->method('setTempDirectory', get('paths.cache.latte'))
             ,
             PageTreeExtension::class => autowire()
                 ->constructorParameter('baseUrl', env('BASE_URL', 'http://localhost/'))
+            ,
+            LatteThemeExtension::class => autowire()
+                ->constructorParameter('allowedRoot', value($this->appRoot))
+                ->constructorParameter('core', value($this->appRoot . '/src/templates'))
+                ->constructorParameter('site', get('paths.templates'))
             ,
         ]);
 

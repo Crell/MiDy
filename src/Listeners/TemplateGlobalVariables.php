@@ -14,15 +14,10 @@ readonly class TemplateGlobalVariables
 {
     public function __construct(
         private TemplateVariables $templateVariables,
-        #[Inject('paths.templates')]
-        private string $templatePath,
     ) {}
 
     public function __invoke(TemplatePreRender $event): void
     {
         $event->args += $this->templateVariables->variables;
-        $event->args += [
-            'templateRoot' => $this->templatePath,
-        ];
     }
 }
