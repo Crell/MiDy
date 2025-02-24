@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Router;
 
 use Crell\MiDy\Config\MarkdownLatteConfiguration;
+use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\Router\RouteResult;
@@ -24,7 +25,7 @@ class MarkdownLatteHandler implements PageHandler
     public function __construct(
         private readonly ResponseBuilder $builder,
         private readonly MarkdownPageLoader $loader,
-        private readonly string $templateRoot,
+        private readonly LatteThemeExtension $themeExtension,
         private readonly TemplateRenderer $renderer,
         private readonly MarkdownLatteConfiguration $config,
         private readonly ConverterInterface $converter,
@@ -47,7 +48,7 @@ class MarkdownLatteHandler implements PageHandler
         return $this->builder->handleCacheableFileRequest($request, $file, function() use ($file, $page) {
             $mdPage = $this->loader->load($file);
 
-            $template = $this->templateRoot . '/' . ($page->other['template'] ?? $this->config->defaultPageTemplate);
+            $template = $this->themeExtension->findTemplatePath($page->other['template'] ?? $this->config->defaultPageTemplate);
 
             $args['currentPage'] = $page;
             // Pre-render the Content rather than making the template do it.

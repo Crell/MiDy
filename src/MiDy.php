@@ -269,7 +269,6 @@ class MiDy implements RequestHandlerInterface
                 ->method('addHandler', get(PhpHandler::class))
             ,
             MarkdownLatteHandler::class => autowire()
-                ->constructorParameter('templateRoot', get('paths.templates'))
             ,
             PageTree::class => autowire()
                 ->constructorParameter('rootPhysicalPath', get('paths.routes'))
