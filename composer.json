@@ -1,5 +1,7 @@
 {
     "name": "crell/midy",
+    "description": "A tool for building static or Mildly Dynamic websites",
+    "license": "GPL-3.0-or-later",
     "require": {
         "php": "~8.4",
         "ext-pdo": "*",
