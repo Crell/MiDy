@@ -10,7 +10,10 @@ use Crell\MiDy\MiDy;
 require __DIR__ . '/../vendor/autoload.php';
 
 $dotenv = new Dotenv();
-$dotenv->loadEnv(__DIR__ . '/../.env');
+$envFile = __DIR__ . '/../.env';
+if (file_exists($envFile)) {
+    $dotenv->loadEnv($envFile);
+}
 
 $app = new MiDy();
 
