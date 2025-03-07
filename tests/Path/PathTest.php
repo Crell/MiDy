@@ -28,8 +28,37 @@ class PathTest extends TestCase
         $obj = Path::fromString($path);
 
         self::assertInstanceOf($expectedClass, $obj);
-        self::assertEquals($path, (string)$obj);
+        self::assertEquals($path, $obj);
         self::assertEquals($expectedExt, $obj->ext);
     }
 
+    #[Test]
+    #[TestWith(['foo/bar', 'baz', 'foo/bar/baz'])]
+    #[TestWith(['/foo/bar', 'baz', '/foo/bar/baz'])]
+    #[TestWith(['foo/bar', '/baz', 'foo/bar/baz'])]
+    #[TestWith(['/foo/bar', '/baz', '/foo/bar/baz'])]
+    #[TestWith(['vfs://foo/bar', '/baz', 'vfs://foo/bar/baz'])]
+    #[TestWith(['http://example.com/foo/bar', '/baz', 'http://example.com/foo/bar/baz'])]
+    public function append(string $basePath, string $fragment, string $expected): void
+    {
+        $obj = Path::fromString($basePath);
+        $new = $obj->append($fragment);
+
+        self::assertEquals($expected, $new);
+    }
+
+    #[Test]
+    #[TestWith(['foo/bar.md', 'baz'])]
+    #[TestWith(['/foo/bar.md', 'baz'])]
+    #[TestWith(['vfs://foo/bar.md', 'baz'])]
+    #[TestWith(['foo/bar', 'vfs://baz'])]
+    #[TestWith(['/foo/bar', 'vfs://baz'])]
+    #[TestWith(['vfs://foo/bar', 'vfs://baz'])]
+    public function append_errors(string $basePath, string $fragment): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $obj = Path::fromString($basePath);
+        $new = $obj->append($fragment);
+    }
 }

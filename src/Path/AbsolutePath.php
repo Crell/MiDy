@@ -8,6 +8,7 @@ class AbsolutePath extends Path
 {
     public function __construct(string $path)
     {
+        $this->path = $path;
         $this->segments = array_filter(explode('/', $path));
 
         $pathinfo = pathinfo($path);

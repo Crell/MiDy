@@ -8,6 +8,7 @@ class PathFragment extends Path
 {
     public function __construct(string $path)
     {
+        $this->path = $path;
         $pathinfo = pathinfo($path);
         $this->ext = $pathinfo['extension'] ?? null;
 

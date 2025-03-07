@@ -12,6 +12,7 @@ class StreamPath extends Path
 
     public function __construct(string $path)
     {
+        $this->path = $path;
         [$this->stream, $pathPart] = explode(self::StreamSeparator, $path);
         $this->segments = explode('/', $pathPart);
 
