@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Path;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -32,14 +33,25 @@ class PathTest extends TestCase
         self::assertEquals($expectedExt, $obj->ext);
     }
 
+    /**
+     * Test cases that are not compile time constant and so cannot be used in TestWith.
+     */
+    public static function appendExamples(): iterable
+    {
+        yield ['foo/bar', 'baz', 'foo/bar/baz'];
+        yield ['/foo/bar', 'baz', '/foo/bar/baz'];
+        yield ['foo/bar', '/baz', 'foo/bar/baz'];
+        yield ['/foo/bar', '/baz', '/foo/bar/baz'];
+        yield ['vfs://foo/bar', '/baz', 'vfs://foo/bar/baz'];
+        yield ['http://example.com/foo/bar', '/baz', 'http://example.com/foo/bar/baz'];
+
+        yield ['foo/bar', Path::fromString('baz'), 'foo/bar/baz'];
+        yield ['/foo/bar', Path::fromString('baz'), '/foo/bar/baz'];
+    }
+
     #[Test]
-    #[TestWith(['foo/bar', 'baz', 'foo/bar/baz'])]
-    #[TestWith(['/foo/bar', 'baz', '/foo/bar/baz'])]
-    #[TestWith(['foo/bar', '/baz', 'foo/bar/baz'])]
-    #[TestWith(['/foo/bar', '/baz', '/foo/bar/baz'])]
-    #[TestWith(['vfs://foo/bar', '/baz', 'vfs://foo/bar/baz'])]
-    #[TestWith(['http://example.com/foo/bar', '/baz', 'http://example.com/foo/bar/baz'])]
-    public function append(string $basePath, string $fragment, string $expected): void
+    #[DataProvider('appendExamples')]
+    public function append(string $basePath, string|PathFragment $fragment, string $expected): void
     {
         $obj = Path::fromString($basePath);
         $new = $obj->append($fragment);

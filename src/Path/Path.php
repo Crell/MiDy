@@ -27,8 +27,12 @@ abstract class Path implements \Stringable
         return new $class($path);
     }
 
-    protected static function getClass(string $path): string
+    protected static function getClass(string|PathFragment $path): string
     {
+        if ($path instanceof PathFragment) {
+            return PathFragment::class;
+        }
+
         $class = PathFragment::class;
         if (str_starts_with($path, '/')) {
             $class = AbsolutePath::class;
@@ -40,7 +44,7 @@ abstract class Path implements \Stringable
         return $class;
     }
 
-    public function append(string $fragment): Path
+    public function append(string|PathFragment $fragment): Path
     {
         if (! $this->appendable) {
             throw new \InvalidArgumentException('Cannot append a path fragment onto a path to a file.');
