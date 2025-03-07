@@ -369,4 +369,19 @@ Right now, FileParsers are responsible for creating the full ParsedFile, which t
 
 Or does it?  Is there a good reason to let an individual parser do things differently?  Would it want to override the ext, or the physicalPath, or mtime?  It doesn't seem like it, but...
 
+-------------------------
+
+OK, it's ready for public alpha.  Is it? What else do I need to do first?
+
+It looks like moving it to a fully vendored setup is going to be hard, because all the path logic then gets wrong.  It's looking for paths down in vendor.  That's to say nothing of how then to auto-wire the container and dispatcher for everything in the vendored MiDy, or if I split it into multiple parts...  I really don't want to have to build a whole module system...
+
+Which means I should probably focus on splitting off the little pieces instead.  Unclear when that makes the most sense to do.
+
+Switching to an Evented Kernel is likely very invasive.  Not sure how feasible that is to do here, or if it's smarter to build separately first so I don't have to rename the classes a dozen times.  Also, heh, 8.4 redesign for the events.  Gulp.
+
+The errors and listeners setup definitely needs to be revised.
+
+The pathlib should probabl come soon.  If not now, then by alpha 2.
+
+So... I think pathlib is about it.  Huh.
 
