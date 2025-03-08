@@ -7,29 +7,41 @@ namespace Crell\MiDy\Path;
 abstract class Path implements \Stringable
 {
     /** @var array<string> */
-    protected protected(set) readonly array $segments;
+    protected protected(set) array $segments {
+        get => $this->segments;
+        set => $value;
+    }
 
     public protected(set) readonly ?string $ext;
 
-    public bool $isFile {
-        get => str_contains($this->segments[array_key_last($this->segments)], '.');
+    public protected(set) bool $isFile {
+        get => $this->isFile ??= $this->deriveIsFile();
     }
 
-    public bool $appendable {
-        get => ! $this->isFile;
-    }
-
-    public Path $parent {
+    public protected(set) Path $parent {
         get => $this->parent ??= $this->deriveParent();
     }
 
     protected protected(set) readonly string $path;
 
-    public static function fromString(string $path): Path
+    /**
+     * Path itself cannot be constructed externally. Only via the static method.
+     */
+    protected function __construct() {}
+
+    protected function deriveIsFile(): bool
+    {
+        return str_contains($this->segments[array_key_last($this->segments)], '.');
+    }
+
+    public static function create(string $path): Path
     {
         $class = self::getClass($path);
+        return $class::createFromString($path);
         return new $class($path);
     }
+
+    protected static abstract function createFromString(string $path);
 
     protected static function getClass(string|PathFragment $path): string
     {
@@ -50,15 +62,23 @@ abstract class Path implements \Stringable
 
     public function append(string|PathFragment $fragment): Path
     {
-        if (! $this->appendable) {
+        if ($this->isFile) {
             throw new \InvalidArgumentException('Cannot append a path fragment onto a path to a file.');
         }
 
-        $class = self::getClass($fragment);
-        return match ($class) {
-            PathFragment::class => static::fromString($this->path . '/' . $fragment),
-            AbsolutePath::class => static::fromString($this->path . $fragment),
-            default => throw new \InvalidArgumentException('StreamPaths may not be used to append to an existing path')
+        if (self::getClass($fragment) === StreamPath::class) {
+            throw new \InvalidArgumentException('StreamPaths may not be used to append to an existing path');
+        }
+
+        $fragSegments = $fragment instanceof self
+            ? $fragment->segments
+            : array_filter(explode('/', $fragment));
+
+        $combinedSegments = [...$this->segments, ...$fragSegments];
+
+        return match ($this::class) {
+            PathFragment::class, AbsolutePath::class => $this::createFromSegments($combinedSegments),
+            StreamPath::class => StreamPath::createFromSegments($combinedSegments, $this->stream),
         };
     }
 
@@ -69,6 +89,6 @@ abstract class Path implements \Stringable
 
     protected function deriveParent(): static
     {
-        return self::fromString(dirname((string)$this));
+        return self::create(dirname((string)$this));
     }
 }

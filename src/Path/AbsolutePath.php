@@ -6,12 +6,27 @@ namespace Crell\MiDy\Path;
 
 class AbsolutePath extends Path
 {
-    public function __construct(string $path)
+    protected static function createFromString(string $path)
     {
-        $this->path = $path;
-        $this->segments = array_filter(explode('/', $path));
+        $new = new static();
+        $new->path = $path;
+        $new->segments = array_filter(explode('/', $path));
 
-        $pathinfo = pathinfo($path);
-        $this->ext = $pathinfo['extension'] ?? null;
+        $new->ext = pathinfo($new->path, PATHINFO_EXTENSION);
+
+        return $new;
+    }
+
+    protected static function createFromSegments(array $segments): static
+    {
+        $new = new static();
+
+        $new->segments = $segments;
+
+        $new->path = '/' . implode('/', $segments);
+
+        $new->ext = pathinfo($new->path, PATHINFO_EXTENSION);
+
+        return $new;
     }
 }

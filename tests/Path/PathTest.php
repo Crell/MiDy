@@ -26,7 +26,7 @@ class PathTest extends TestCase
     #[TestWith(['vfs://foo/bar.html.twig', StreamPath::class, 'twig'])]
     public function correct_information_parsed(string $path, string $expectedClass, ?string $expectedExt = null): void
     {
-        $obj = Path::fromString($path);
+        $obj = Path::create($path);
 
         self::assertInstanceOf($expectedClass, $obj);
         self::assertEquals($path, $obj);
@@ -42,17 +42,18 @@ class PathTest extends TestCase
         yield ['/foo/bar', 'baz', '/foo/bar/baz'];
         yield ['foo/bar', '/baz', 'foo/bar/baz'];
         yield ['/foo/bar', '/baz', '/foo/bar/baz'];
+        yield ['/foo/bar/', '/baz', '/foo/bar/baz'];
         yield ['vfs://foo/bar', '/baz', 'vfs://foo/bar/baz'];
         yield ['http://example.com/foo/bar', '/baz', 'http://example.com/foo/bar/baz'];
 
-        yield ['foo/bar', Path::fromString('baz'), 'foo/bar/baz'];
-        yield ['/foo/bar', Path::fromString('baz'), '/foo/bar/baz'];
+        yield ['foo/bar', Path::create('baz'), 'foo/bar/baz'];
+        yield ['/foo/bar', Path::create('baz'), '/foo/bar/baz'];
     }
 
     #[Test, DataProvider('appendExamples')]
     public function append(string $basePath, string|PathFragment $fragment, string $expected): void
     {
-        $obj = Path::fromString($basePath);
+        $obj = Path::create($basePath);
         $new = $obj->append($fragment);
 
         self::assertEquals($expected, $new);
@@ -69,7 +70,7 @@ class PathTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $obj = Path::fromString($basePath);
+        $obj = Path::create($basePath);
         $new = $obj->append($fragment);
     }
 
@@ -85,7 +86,7 @@ class PathTest extends TestCase
     #[TestWith(['vfs://foo', 'vfs://'])]
     public function parent(string $path, string $parent): void
     {
-        $obj = Path::fromString($path);
+        $obj = Path::create($path);
 
         self::assertEquals($parent, $obj->parent);
         self::assertInstanceOf($obj::class, $obj->parent);

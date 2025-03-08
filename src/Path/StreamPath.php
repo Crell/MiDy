@@ -8,23 +8,39 @@ class StreamPath extends Path
 {
     public const string StreamSeparator = '://';
 
-    public string $stream;
+    public readonly string $stream;
 
-    public function __construct(string $path)
+    protected static function createFromString(string $path)
     {
-        $this->path = $path;
-        [$this->stream, $pathPart] = explode(self::StreamSeparator, $path);
-        $this->segments = explode('/', $pathPart);
+        $new = new static();
+        $new->path = $path;
+        [$new->stream, $pathPart] = explode(self::StreamSeparator, $path);
+        $new->segments = explode('/', $pathPart);
 
-        $pathinfo = pathinfo($path);
-        $this->ext = $pathinfo['extension'] ?? null;
+        $new->ext = pathinfo($new->path, PATHINFO_EXTENSION);
+
+        return $new;
+    }
+
+    protected static function createFromSegments(array $segments, string $stream): static
+    {
+        $new = new static();
+
+        $new->segments = $segments;
+        $new->stream = $stream;
+
+        $new->path = $stream . self::StreamSeparator . implode('/', $segments);
+
+        $new->ext = pathinfo($new->path, PATHINFO_EXTENSION);
+
+        return $new;
     }
 
     protected function deriveParent(): static
     {
         if (count($this->segments) <= 1) {
             /** @var StreamPath */
-            return static::fromString($this->stream . self::StreamSeparator);
+            return static::create($this->stream . self::StreamSeparator);
         }
         return parent::deriveParent();
     }
