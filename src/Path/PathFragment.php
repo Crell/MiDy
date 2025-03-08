@@ -17,7 +17,6 @@ class PathFragment extends Path
         return $new;
     }
 
-
     protected static function createFromSegments(array $segments): static
     {
         $new = new static();

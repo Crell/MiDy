@@ -60,7 +60,7 @@ abstract class Path implements \Stringable
         return $class;
     }
 
-    public function append(string|PathFragment $fragment): Path
+    public function concat(string|PathFragment $fragment): Path
     {
         if ($this->isFile) {
             throw new \InvalidArgumentException('Cannot append a path fragment onto a path to a file.');

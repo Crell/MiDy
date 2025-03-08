@@ -36,7 +36,7 @@ class PathTest extends TestCase
     /**
      * Test cases that are not compile time constant and so cannot be used in TestWith.
      */
-    public static function appendExamples(): iterable
+    public static function concatExamples(): iterable
     {
         yield ['foo/bar', 'baz', 'foo/bar/baz'];
         yield ['/foo/bar', 'baz', '/foo/bar/baz'];
@@ -50,11 +50,11 @@ class PathTest extends TestCase
         yield ['/foo/bar', Path::create('baz'), '/foo/bar/baz'];
     }
 
-    #[Test, DataProvider('appendExamples')]
-    public function append(string $basePath, string|PathFragment $fragment, string $expected): void
+    #[Test, DataProvider('concatExamples')]
+    public function concat(string $basePath, string|PathFragment $fragment, string $expected): void
     {
         $obj = Path::create($basePath);
-        $new = $obj->append($fragment);
+        $new = $obj->concat($fragment);
 
         self::assertEquals($expected, $new);
     }
@@ -71,7 +71,7 @@ class PathTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $obj = Path::create($basePath);
-        $new = $obj->append($fragment);
+        $new = $obj->concat($fragment);
     }
 
     #[Test]
