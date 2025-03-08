@@ -81,7 +81,7 @@ abstract class Path implements \Stringable
 
         return match ($this::class) {
             PathFragment::class, AbsolutePath::class => $this::createFromSegments($combinedSegments),
-            StreamPath::class => StreamPath::createFromSegments($combinedSegments, $this->stream),
+            StreamPath::class => static::createFromSegments($combinedSegments, $this->stream),
         };
     }
 
@@ -92,6 +92,12 @@ abstract class Path implements \Stringable
 
     protected function deriveParent(): static
     {
-        return self::create(dirname((string)$this));
+        $segments = $this->segments;
+        array_pop($segments);
+        if ($this instanceof StreamPath) {
+            return static::createFromSegments($segments, $this->stream);
+        }
+
+        return static::createFromSegments($segments);
     }
 }

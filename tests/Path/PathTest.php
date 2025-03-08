@@ -84,6 +84,7 @@ class PathTest extends TestCase
     #[TestWith(['', ''])]
     #[TestWith(['/', '/'])]
     #[TestWith(['vfs://foo', 'vfs://'])]
+    #[TestWith(['vfs://', 'vfs://'])]
     public function parent(string $path, string $parent): void
     {
         $obj = Path::create($path);
