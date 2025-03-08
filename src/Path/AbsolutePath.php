@@ -14,9 +14,4 @@ class AbsolutePath extends Path
         $pathinfo = pathinfo($path);
         $this->ext = $pathinfo['extension'] ?? null;
     }
-
-    public function __toString(): string
-    {
-        return '/' . parent::__toString();
-    }
 }

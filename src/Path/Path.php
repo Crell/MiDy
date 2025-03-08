@@ -19,6 +19,10 @@ abstract class Path implements \Stringable
         get => ! $this->isFile;
     }
 
+    public Path $parent {
+        get => $this->parent ??= $this->deriveParent();
+    }
+
     protected protected(set) readonly string $path;
 
     public static function fromString(string $path): Path
@@ -60,6 +64,11 @@ abstract class Path implements \Stringable
 
     public function __toString(): string
     {
-        return implode('/', $this->segments);
+        return $this->path;
+    }
+
+    protected function deriveParent(): static
+    {
+        return self::fromString(dirname((string)$this));
     }
 }

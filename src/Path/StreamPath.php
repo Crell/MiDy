@@ -18,11 +18,14 @@ class StreamPath extends Path
 
         $pathinfo = pathinfo($path);
         $this->ext = $pathinfo['extension'] ?? null;
-
     }
 
-    public function __toString(): string
+    protected function deriveParent(): static
     {
-        return $this->stream . self::StreamSeparator . parent::__toString();
+        if (count($this->segments) <= 1) {
+            /** @var StreamPath */
+            return static::fromString($this->stream . self::StreamSeparator);
+        }
+        return parent::deriveParent();
     }
 }

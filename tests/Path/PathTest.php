@@ -49,8 +49,7 @@ class PathTest extends TestCase
         yield ['/foo/bar', Path::fromString('baz'), '/foo/bar/baz'];
     }
 
-    #[Test]
-    #[DataProvider('appendExamples')]
+    #[Test, DataProvider('appendExamples')]
     public function append(string $basePath, string|PathFragment $fragment, string $expected): void
     {
         $obj = Path::fromString($basePath);
@@ -72,5 +71,23 @@ class PathTest extends TestCase
 
         $obj = Path::fromString($basePath);
         $new = $obj->append($fragment);
+    }
+
+    #[Test]
+    #[TestWith(['foo/bar', 'foo'])]
+    #[TestWith(['/foo/bar', '/foo'])]
+    #[TestWith(['vfs://foo/bar', 'vfs://foo'])]
+    #[TestWith(['foo/bar.md', 'foo'])]
+    #[TestWith(['/foo/bar.md', '/foo'])]
+    #[TestWith(['vfs://foo/bar.md', 'vfs://foo'])]
+    #[TestWith(['', ''])]
+    #[TestWith(['/', '/'])]
+    #[TestWith(['vfs://foo', 'vfs://'])]
+    public function parent(string $path, string $parent): void
+    {
+        $obj = Path::fromString($path);
+
+        self::assertEquals($parent, $obj->parent);
+        self::assertInstanceOf($obj::class, $obj->parent);
     }
 }
