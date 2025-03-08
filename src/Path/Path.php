@@ -24,6 +24,10 @@ abstract class Path implements \Stringable
 
     protected protected(set) readonly string $path;
 
+    public protected(set) string $end {
+        get => $this->end ??= $this->segments[array_key_last($this->segments)] ?? '';
+    }
+
     /**
      * Path itself cannot be constructed externally. Only via the static method.
      */
@@ -31,7 +35,7 @@ abstract class Path implements \Stringable
 
     protected function deriveIsFile(): bool
     {
-        return str_contains($this->segments[array_key_last($this->segments)], '.');
+        return str_contains($this->end, '.');
     }
 
     public static function create(string $path): Path

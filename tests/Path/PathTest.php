@@ -91,4 +91,22 @@ class PathTest extends TestCase
         self::assertEquals($parent, $obj->parent);
         self::assertInstanceOf($obj::class, $obj->parent);
     }
+
+    #[Test]
+    #[TestWith(['foo/bar', 'bar'])]
+    #[TestWith(['foo/bar.md', 'bar.md'])]
+    #[TestWith(['/foo/bar', 'bar'])]
+    #[TestWith(['/foo/bar.md', 'bar.md'])]
+    #[TestWith(['/foo', 'foo'])]
+    #[TestWith(['/foo.md', 'foo.md'])]
+    #[TestWith(['vfs://foo/bar', 'bar'])]
+    #[TestWith(['vfs://foo/bar.md', 'bar.md'])]
+    #[TestWith(['/', ''])]
+    #[TestWith(['', ''])]
+    #[TestWith(['vfs://', ''])]
+    public function end(string $path, string $end): void
+    {
+        $obj = Path::create($path);
+        self::assertEquals($end, $obj->end);
+    }
 }
