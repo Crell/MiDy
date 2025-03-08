@@ -38,7 +38,6 @@ abstract class Path implements \Stringable
     {
         $class = self::getClass($path);
         return $class::createFromString($path);
-        return new $class($path);
     }
 
     protected static abstract function createFromString(string $path);
