@@ -87,7 +87,7 @@ class PageRepoTest extends TestCase
         $folder = self::makeParsedFolder(physicalPath: '/foo');
         $cache->writeFolder($folder);
 
-        $savedFolder = $cache->readFolder('/foo');
+        $savedFolder = $cache->readFolder(LogicalPath::create('/foo'));
 
         self::assertEquals($folder->physicalPath, $savedFolder->physicalPath);
         self::assertEquals($folder->mtime, $savedFolder->mtime);
@@ -102,7 +102,7 @@ class PageRepoTest extends TestCase
 
         $cache->reinitialize();
 
-        $savedFolder = $cache->readFolder('/foo');
+        $savedFolder = $cache->readFolder(LogicalPath::create('/foo'));
 
         self::assertNull($savedFolder);
     }
@@ -116,7 +116,7 @@ class PageRepoTest extends TestCase
         $folder = self::makeParsedFolder(physicalPath: '/foo');
         $cache->writeFolder($folder);
 
-        $cache->deleteFolder('/foo');
+        $cache->deleteFolder(LogicalPath::create('/foo'));
 
         $record = $this->conn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
 
@@ -231,7 +231,7 @@ class PageRepoTest extends TestCase
 
         $dbValidation($this);
 
-        $pageRead = $cache->readPage($pagePath);
+        $pageRead = $cache->readPage(LogicalPath::create($pagePath));
 
         self::assertEquals('/foo/test', $pageRead->path);
         self::assertEquals('/foo', $pageRead->folder);
@@ -248,7 +248,7 @@ class PageRepoTest extends TestCase
 
         $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
 
-        $record = $cache->readPage('/foo/bar');
+        $record = $cache->readPage(LogicalPath::create('/foo/bar'));
 
         self::assertNull($record);
     }
