@@ -30,8 +30,9 @@ class PageTree
     /**
      * Returns the Folder read-object for this path.
      */
-    public function folder(string $logicalPath): ?Folder
+    public function folder(LogicalPath|string $logicalPath): ?Folder
     {
+        $logicalPath = LogicalPath::create($logicalPath);
         $data = $this->loadFolder($logicalPath);
         return $data ? new Folder($data, $this) : null;
     }
@@ -39,12 +40,14 @@ class PageTree
     /**
      * Loads a single page by path.
      */
-    public function page(string $path): ?Page
+    public function page(string|LogicalPath $path): ?Page
     {
+        $path = LogicalPath::create($path);
+
         // We don't need the folder, but this ensures
         // the folder has been parsed so that the files
         // table is populated.
-        $this->folder(dirname($path));
+        $this->folder($path->parent);
 
         $page = $this->cache->readPage($path);
 
@@ -52,9 +55,9 @@ class PageTree
             return null;
         }
 
-        $needsReindex = array_any($page->files, fn (File $file): bool => $file->mtime < filemtime($file->physicalPath));
+        $needsReindex = array_any($page->files, static fn (File $file): bool => $file->mtime < filemtime($file->physicalPath));
         if ($needsReindex) {
-            $this->reindexFolder($page->folder);
+            $this->reindexFolder(LogicalPath::create($page->folder));
             $page = $this->cache->readPage($path);
         }
 
@@ -62,7 +65,7 @@ class PageTree
     }
 
     public function queryPages(
-        ?string $folder = null,
+        string|LogicalPath|null $folder = null,
         bool $deep = false,
         bool $includeHidden = false,
         bool $routableOnly = true,
@@ -99,8 +102,9 @@ class PageTree
         );
     }
 
-    public function reindexAll(string $logicalRoot = '/'): void
+    public function reindexAll(string|LogicalPath $logicalRoot = '/'): void
     {
+        $logicalRoot = LogicalPath::create($logicalRoot);
         $this->reindexFolder($logicalRoot);
 
         foreach ($this->cache->childFolders($logicalRoot) as $child) {
@@ -108,7 +112,7 @@ class PageTree
         }
     }
 
-    private function loadFolder(string $logicalPath): ?ParsedFolder
+    private function loadFolder(LogicalPath $logicalPath): ?ParsedFolder
     {
         $folder = $this->cache->readFolder($logicalPath);
 
@@ -122,11 +126,11 @@ class PageTree
     /**
      * Re-parse a folder at a given location by reparsing its parent's contents.
      */
-    private function reindexFolder(string $logicalPath): ?ParsedFolder
+    private function reindexFolder(LogicalPath $logicalPath): ?ParsedFolder
     {
         // If it's one of the mount roots, just parse that directly.
-        if (array_key_exists($logicalPath, $this->mountPoints)) {
-            $ret = $this->parser->parseFolder($this->mountPoints[$logicalPath], $logicalPath, $this->mountPoints);
+        if (array_key_exists((string)$logicalPath, $this->mountPoints)) {
+            $ret = $this->parser->parseFolder($this->mountPoints[(string)$logicalPath], $logicalPath, $this->mountPoints);
             // In case of parser error, fail here.
             if (!$ret) {
                 return null;
@@ -134,8 +138,9 @@ class PageTree
             // In case there is another mount point that is an immediate child,
             // reindex that too so we get any index file in it.
             foreach ($this->mountPoints as $logicalMount => $physicalMount) {
-                if ($logicalMount !== $logicalPath && dirname($logicalMount) === $logicalPath) {
-                    $this->reindexFolder($logicalMount);
+                // The weak-comparison is deliberate here, because $logicalPath is a stringable object.
+                if ($logicalMount != $logicalPath && dirname($logicalMount) == $logicalPath) {
+                    $this->reindexFolder(LogicalPath::create($logicalMount));
                 }
             }
             return $this->cache->readFolder($logicalPath);
@@ -144,10 +149,8 @@ class PageTree
         // Otherwise, we need to get the logical parent folder and get its physical
         // path, so we know what to parse.  If the parent is not yet indexed,
         // it will get reindexed, too.
-        $parts = explode('/', $logicalPath);
-        $slug = array_pop($parts);
-        $parentFolderPath = '/' . implode('/', array_filter($parts));
-        $parent = $this->loadFolder($parentFolderPath);
+        $slug = $logicalPath->end;
+        $parent = $this->loadFolder($logicalPath->parent);
         if (!$parent) {
             return null;
         }

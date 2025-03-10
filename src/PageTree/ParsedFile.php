@@ -14,7 +14,7 @@ class ParsedFile
 {
     public function __construct(
         // Derived from file system.
-        public string $logicalPath,
+        public LogicalPath $logicalPath,
         public string $ext,
         public string $physicalPath,
         public int $mtime,
@@ -29,7 +29,7 @@ class ParsedFile
         public string $pathName,
 
         // Probably don't need this eventually.
-        public string $folder,
+        public LogicalPath $folder,
 
         // From ParsedFrontmatter
         public string $title,
@@ -44,12 +44,12 @@ class ParsedFile
     public static function createFromParsedData(
         \SplFileInfo $fileInfo,
         ParsedFrontmatter $frontmatter,
-        string $folderLogicalPath,
+        LogicalPath $folderLogicalPath,
         FolderDef $folderDef,
         string $basename,
         int $order,
     ): self {
-        $logicalPath = rtrim($folderLogicalPath, '/') . '/' . $basename;
+        $logicalPath = $folderLogicalPath->concat($basename);
 
         $pathName = $basename;
         $isFolder = false;
@@ -58,10 +58,9 @@ class ParsedFile
             $logicalPath = $folderLogicalPath;
             // The folder it should appear under is its folder's parent,
             // so that it "is" a child of that parent.
-            $folderLogicalPath = dirname($folderLogicalPath);
+            $folderLogicalPath = $logicalPath->parent;
             // The pathName of the index page should be its folder's basename.
-            $folderParts = \explode('/', $folderLogicalPath);
-            $pathName = array_pop($folderParts);
+            $pathName = $folderLogicalPath->end;
             // And flag it as a file representing a folder.
             $isFolder = true;
         }

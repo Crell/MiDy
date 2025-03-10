@@ -6,15 +6,21 @@ namespace Crell\MiDy\PageTree;
 
 class ParsedFolder
 {
-    public string $parent {
-        get => dirname($this->logicalPath);
+    public LogicalPath $parent {
+        get => $this->logicalPath->parent;
+    }
+
+    public LogicalPath $logicalPath {
+        set(LogicalPath|string $value) => LogicalPath::create($value);
     }
 
     public function __construct(
-        public readonly string $logicalPath,
+        LogicalPath|string $logicalPath,
         public readonly string $physicalPath,
         public readonly int $mtime,
         public readonly bool $flatten,
         public readonly string $title,
-    ) {}
+    ) {
+        $this->logicalPath = $logicalPath;
+    }
 }

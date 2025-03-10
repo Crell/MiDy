@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\PageTree\BasicParsedFrontmatter;
+use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\ParsedFrontmatter;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
@@ -22,7 +23,7 @@ class LatteFileParser implements FileParser
         protected readonly Serde $serde = new SerdeCommon(),
     ) {}
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
+    public function map(\SplFileInfo $fileInfo, LogicalPath $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
         $frontmatter = $this->extractFrontMatter(file_get_contents($fileInfo->getPathname()));
 

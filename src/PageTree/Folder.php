@@ -15,12 +15,12 @@ class Folder implements \IteratorAggregate, Page
 {
     use FolderIndexPage;
 
-    public private(set) string $logicalPath {
+    public private(set) LogicalPath $logicalPath {
         get => $this->logicalPath ??= $this->parsedFolder->logicalPath;
     }
 
     public string $folder {
-        get => $this->logicalPath;
+        get => (string)$this->logicalPath;
     }
 
     public function __construct(
@@ -66,7 +66,7 @@ class Folder implements \IteratorAggregate, Page
 
     public function get(string $name): ?Page
     {
-        return $this->pageTree->page(rtrim($this->logicalPath, '/') . '/' . $name);
+        return $this->pageTree->page($this->logicalPath->concat($name));
     }
 
     public function filter(\Closure $filter, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Parser;
 
+use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\ParsedFrontmatter;
 
 class MultiplexedFileParser implements FileParser
@@ -24,7 +25,7 @@ class MultiplexedFileParser implements FileParser
         }
     }
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
+    public function map(\SplFileInfo $fileInfo, LogicalPath $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
         /** @var FileParser $parser */
         foreach ($this->parsers[$fileInfo->getExtension()] ?? [] as $parser) {

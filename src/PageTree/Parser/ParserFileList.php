@@ -33,7 +33,7 @@ class ParserFileList implements \IteratorAggregate
         if ($this->sortOrder === SortOrder::Desc) {
             $file->order *= -1;
         }
-        $this->files[$file->logicalPath][$file->ext] = $file;
+        $this->files[(string)$file->logicalPath][$file->ext] = $file;
     }
 
     public function getIterator(): \Generator

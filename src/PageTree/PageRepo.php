@@ -100,7 +100,7 @@ class PageRepo
         ])->execute();
     }
 
-    public function readFolder(string $logicalPath): ?ParsedFolder
+    public function readFolder(LogicalPath $logicalPath): ?ParsedFolder
     {
         $record = $this->conn->createCommand(self::ReadFolderSql)
             ->bindParam('logicalPath', $logicalPath)
@@ -116,7 +116,7 @@ class PageRepo
     /**
      * This will also delete records for any files in this folder.
      */
-    public function deleteFolder(string $logicalPath): void
+    public function deleteFolder(LogicalPath $logicalPath): void
     {
         $this->conn->createCommand()
             ->delete('folder', 'logicalPath = :logicalPath')
@@ -127,7 +127,7 @@ class PageRepo
     /**
      * @return array<ParsedFolder>
      */
-    public function childFolders(string $parentLogicalPath): array
+    public function childFolders(LogicalPath $parentLogicalPath): array
     {
         $result = $this->conn->createCommand('SELECT * FROM folder WHERE parent=:logicalPath AND NOT parent=logicalPath', [
             ':logicalPath' => $parentLogicalPath,
@@ -159,7 +159,7 @@ class PageRepo
         ])->execute();
     }
 
-    public function readPage(string $path): ?PageRecord
+    public function readPage(LogicalPath $path): ?PageRecord
     {
         $result = $this->conn
             ->createCommand("SELECT logicalPath, folder, files, title, summary, \"order\", hidden, routable, isFolder, publishDate, lastModifiedDate, tags FROM page WHERE logicalPath=:logicalPath")
@@ -174,7 +174,7 @@ class PageRepo
     }
 
     /**
-     * @param string|null $folder
+     * @param string|LogicalPath|null $folder
      * @param bool $deep
      * @param int $limit
      * @param int $offset
@@ -191,7 +191,7 @@ class PageRepo
      *      titleContains
      */
     public function queryPages(
-        ?string $folder = null,
+        string|LogicalPath|null $folder = null,
         bool $deep = false,
         bool $includeHidden = false,
         bool $routableOnly = true,
@@ -322,6 +322,7 @@ class PageRepo
 
         // SQLite gives back badly typed data, so we have to clean it up a bit.
         $record['flatten'] = (bool)$record['flatten'];
+
         return new ParsedFolder(...$record);
     }
 

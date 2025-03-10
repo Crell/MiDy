@@ -14,7 +14,7 @@ trait MakerUtils
 
         $defaults = [
             'physicalPath' => $args['physicalPath'],
-            'logicalPath' => $args['physicalPath'],
+            'logicalPath' => LogicalPath::create($args['physicalPath']),
             'mtime' => 0,
             'flatten' => false,
             'title' => $parts['basename'],

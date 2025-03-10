@@ -58,7 +58,7 @@ class PageData
     }
 
     public string $folder {
-        get => current($this->parsedFiles)->folder;
+        get => (string)current($this->parsedFiles)->folder;
     }
 
     public array $files {

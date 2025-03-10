@@ -6,6 +6,7 @@ namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\MarkdownDeserializer\MarkdownError;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
+use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\ParsedFrontmatter;
 
 class MarkdownLatteFileParser implements FileParser
@@ -16,7 +17,7 @@ class MarkdownLatteFileParser implements FileParser
         private MarkdownPageLoader $loader,
     ) {}
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
+    public function map(\SplFileInfo $fileInfo, LogicalPath $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
         $page = $this->loader->load($fileInfo->getPathname());
 

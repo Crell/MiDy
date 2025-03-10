@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Parser;
 
+use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\ParsedFile;
 use Crell\MiDy\PageTree\ParsedFolder;
@@ -24,7 +25,7 @@ class Parser
         private readonly Serde $serde = new SerdeCommon(),
     ) {}
 
-    public function parseFolder(string $physicalPath, string $logicalPath, array $mounts): bool
+    public function parseFolder(string $physicalPath, LogicalPath $logicalPath, array $mounts): bool
     {
         return $this->cache->inTransaction(function() use ($physicalPath, $logicalPath, $mounts) {
             $folderDef = $this->parseControlFile($physicalPath);
@@ -65,7 +66,7 @@ class Parser
                         $basename = trim($key, '/');
                     }
 
-                    $childLogicalPath = rtrim($logicalPath, '/') . '/' . $basename;
+                    $childLogicalPath = $logicalPath->concat($basename);
                     $childFolderDef = $this->parseControlFile($childPhysicalPath);
 
                     $childFolder = new ParsedFolder(
@@ -95,7 +96,7 @@ class Parser
         });
     }
 
-    public function parseFile(\SplFileInfo $file, string $folderLogicalPath, FolderDef $folderDef = new FolderDef(), ?int $orderOverride = null): ?ParsedFile
+    public function parseFile(\SplFileInfo $file, LogicalPath $folderLogicalPath, FolderDef $folderDef = new FolderDef(), ?int $orderOverride = null): ?ParsedFile
     {
         // SPL is so damned stupid...
         [$basename, $order] = $this->parseName($file->getBasename('.' . $file->getExtension()));

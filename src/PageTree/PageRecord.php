@@ -23,14 +23,18 @@ class PageRecord implements Page
         get => $this->activeFile->physicalPath;
     }
 
-    public string $path { get => $this->logicalPath; }
+    private(set) LogicalPath $logicalPath {
+        set(LogicalPath|string $value) => is_string($value) ? LogicalPath::create($value) : $value;
+    }
+
+    public string $path { get => (string)$this->logicalPath; }
 
     /**
      * @param array<string> $tags
      * @param array<string, File> $files
      */
     public function __construct(
-        private(set) string $logicalPath,
+        LogicalPath|string $logicalPath,
         private(set) string $folder,
         private(set) string $title,
         private(set) string $summary,
@@ -42,7 +46,9 @@ class PageRecord implements Page
         private(set) DateTimeImmutable $lastModifiedDate,
         private(set) array $tags,
         private(set) array $files,
-    ) {}
+    ) {
+        $this->logicalPath = $logicalPath;
+    }
 
     public function variants(): array
     {

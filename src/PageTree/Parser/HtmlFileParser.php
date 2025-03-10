@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\PageTree\BasicParsedFrontmatter;
+use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\ParsedFrontmatter;
 use Dom\HTMLDocument;
 
@@ -18,7 +19,7 @@ class HtmlFileParser implements FileParser
 {
     public private(set) array $supportedExtensions = ['html'];
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
+    public function map(\SplFileInfo $fileInfo, LogicalPath $parentLogicalPath, string $basename): ParsedFrontmatter|FileParserError
     {
         $html = HTMLDocument::createFromFile($fileInfo->getPathname(), LIBXML_NOERROR);
 

@@ -6,6 +6,7 @@ namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\ClassFinder;
 use Crell\MiDy\PageTree\Attributes\PageRoute;
+use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\ParsedFrontmatter;
 
 class PhpFileParser implements FileParser
@@ -16,7 +17,7 @@ class PhpFileParser implements FileParser
         private readonly ClassFinder $finder = new ClassFinder(),
     ) {}
 
-    public function map(\SplFileInfo $fileInfo, string $parentLogicalPath, string $basename): ParsedFrontmatter
+    public function map(\SplFileInfo $fileInfo, LogicalPath $parentLogicalPath, string $basename): ParsedFrontmatter
     {
         $physicalPath = $fileInfo->getPathname();
 

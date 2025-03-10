@@ -67,7 +67,7 @@ class PageRepoTest extends TestCase
         $folder = self::makeParsedFolder(physicalPath: '/foo');
         $cache->writeFolder($folder);
 
-        $newFolder = new ParsedFolder('/foo', '/foo', 123456, true, 'Foo2');
+        $newFolder = new ParsedFolder(LogicalPath::create('/foo'), '/foo', 123456, true, 'Foo2');
         $cache->writeFolder($newFolder);
 
         $record = $this->conn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
@@ -233,7 +233,7 @@ class PageRepoTest extends TestCase
 
         $pageRead = $cache->readPage($pagePath);
 
-        self::assertEquals('/foo/test', $pageRead->logicalPath);
+        self::assertEquals('/foo/test', $pageRead->path);
         self::assertEquals('/foo', $pageRead->folder);
         self::assertCount(count($files), $pageRead->files);
 
@@ -279,7 +279,7 @@ class PageRepoTest extends TestCase
             'expectedCount' => 2,
             'totalPages' => 2,
             'validator' => function (QueryResult $queryResult) {
-                $paths = array_column($queryResult->pages, 'logicalPath');
+                $paths = array_column($queryResult->pages, 'path');
                 self::assertContains('/foo/a', $paths);
                 self::assertContains('/foo/b', $paths);
             },
@@ -324,7 +324,7 @@ class PageRepoTest extends TestCase
             'expectedCount' => 3,
             'totalPages' => 3,
             'validator' => function (QueryResult $queryResult) {
-                $paths = array_column($queryResult->pages, 'logicalPath');
+                $paths = array_column($queryResult->pages, 'path');
                 self::assertContains('/foo/a', $paths);
                 self::assertContains('/foo/b', $paths);
                 self::assertContains('/foo/sub/y', $paths);
@@ -361,7 +361,7 @@ class PageRepoTest extends TestCase
             'expectedCount' => 2,
             'totalPages' => 2,
             'validator' => function (QueryResult $queryResult) {
-                $paths = array_column($queryResult->pages, 'logicalPath');
+                $paths = array_column($queryResult->pages, 'path');
                 self::assertNotContains('/foo/a', $paths);
                 self::assertContains('/foo/b', $paths);
                 self::assertNotContains('/foo/c', $paths);
@@ -382,7 +382,7 @@ class PageRepoTest extends TestCase
             'expectedCount' => 4,
             'totalPages' => 4,
             'validator' => function (QueryResult $queryResult) {
-                $paths = array_column($queryResult->pages, 'logicalPath');
+                $paths = array_column($queryResult->pages, 'path');
                 self::assertContains('/foo/a', $paths);
                 self::assertContains('/foo/b', $paths);
                 self::assertContains('/bar/c', $paths);
@@ -420,7 +420,7 @@ class PageRepoTest extends TestCase
             'expectedCount' => 2,
             'totalPages' => 2,
             'validator' => function (QueryResult $queryResult) {
-                $paths = array_column($queryResult->pages, 'logicalPath');
+                $paths = array_column($queryResult->pages, 'path');
                 self::assertNotContains('/foo/a', $paths);
                 self::assertContains('/foo/b', $paths);
                 self::assertNotContains('/foo/c', $paths);
@@ -441,7 +441,7 @@ class PageRepoTest extends TestCase
             'expectedCount' => 4,
             'totalPages' => 4,
             'validator' => function (QueryResult $queryResult) {
-                $paths = array_column($queryResult->pages, 'logicalPath');
+                $paths = array_column($queryResult->pages, 'path');
                 self::assertContains('/foo/a', $paths);
                 self::assertContains('/foo/b', $paths);
                 self::assertContains('/bar/c', $paths);
@@ -502,10 +502,6 @@ class PageRepoTest extends TestCase
                 ],
                 'expectedCount' => $settings['expectedCount'],
                 'totalPages' => $settings['expectedCount'],
-                'validator' => function (QueryResult $queryResult) {
-                    $paths = array_column($queryResult->pages, 'logicalPath');
-
-                },
             ];
         }
     }
@@ -620,7 +616,7 @@ class PageRepoTest extends TestCase
                 'expectedCount' => $expectedCount,
                 'totalPages' => 5,
                 'validator' => function (QueryResult $queryResult) {
-                    $paths = array_column($queryResult->pages, 'logicalPath');
+                    $paths = array_column($queryResult->pages, 'path');
                     foreach ($paths as $p) {
                         self::assertEquals('/foo', substr($p, 0, 4));
                     }
@@ -685,7 +681,7 @@ class PageRepoTest extends TestCase
                 'expectedCount' => $settings['expectedCount'],
                 'totalPages' => $settings['expectedCount'],
                 'validator' => function (QueryResult $queryResult) use ($settings) {
-                    $paths = array_column($queryResult->pages, 'logicalPath');
+                    $paths = array_column($queryResult->pages, 'path');
                     self::assertEquals($settings['expectedOrder'], $paths);
                 },
             ];
@@ -745,7 +741,7 @@ class PageRepoTest extends TestCase
                 'expectedCount' => $settings['expectedCount'],
                 'totalPages' => $settings['expectedCount'],
                 'validator' => function (QueryResult $queryResult) use ($settings) {
-                    $paths = array_column($queryResult->pages, 'logicalPath');
+                    $paths = array_column($queryResult->pages, 'path');
                     foreach ($settings['exclude'] as $excluded) {
                         self::assertNotContains($excluded, $paths);
                     }
@@ -761,7 +757,7 @@ class PageRepoTest extends TestCase
     #[DataProvider('query_pages_data_publication_date')]
     #[DataProvider('query_pages_data_tags_any')]
     #[DataProvider('query_pages_data_exclusions')]
-    public function query_pages(array $folders, array $pages, array $query, int $expectedCount, int $totalPages, \Closure $validator): void
+    public function query_pages(array $folders, array $pages, array $query, int $expectedCount, int $totalPages, ?\Closure $validator = null): void
     {
         $cache = new PageRepo($this->conn);
         $cache->reinitialize();
@@ -774,7 +770,9 @@ class PageRepoTest extends TestCase
         self::assertCount($expectedCount, $queryResult);
         self::assertEquals($totalPages, $queryResult->total);
 
-        $validator($queryResult);
+        if ($validator) {
+            $validator($queryResult);
+        }
     }
 
     #[Test]

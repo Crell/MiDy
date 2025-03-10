@@ -79,10 +79,11 @@ abstract class Path implements \Stringable
 
         $combinedSegments = [...$this->segments, ...$fragSegments];
 
-        return match ($this::class) {
-            PathFragment::class, AbsolutePath::class => $this::createFromSegments($combinedSegments),
-            StreamPath::class => static::createFromSegments($combinedSegments, $this->stream),
-        };
+        if ($this instanceof StreamPath) {
+            return static::createFromSegments($combinedSegments, $this->stream);
+        }
+
+        return static::createFromSegments($combinedSegments);
     }
 
     public function __toString(): string
