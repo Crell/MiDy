@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Router;
 
-use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Router\RouteResult;
 use Psr\Http\Message\ServerRequestInterface;
+use Crell\MiDy\PageTree\LogicalPath;
 
 class PageTreeRouter implements Router
 {
@@ -36,9 +36,9 @@ class PageTreeRouter implements Router
     {
         $method = $request->getMethod();
 
-        $requestPath = $request->getUri()->getPath();
+        $requestPath = LogicalPath::create($request->getUri()->getPath());
 
-        $page = $this->getPage($requestPath);
+        [$page, $trailing] = $this->getPage($requestPath);
 
         if ($page === null) {
             return new RouteNotFound();
@@ -47,8 +47,6 @@ class PageTreeRouter implements Router
         if (!$page->routable) {
             return new RouteNotFound();
         }
-
-        $trailing = $page->getTrailingPath($request->getUri()->getPath());
 
         $possibleMethods = [];
         foreach ($page->variants() as $ext => $file) {
@@ -77,20 +75,20 @@ class PageTreeRouter implements Router
     /**
      * Retrieves a page, taking trailing arguments into account.
      */
-    private function getPage(string $logicalPath): ?Page
+    private function getPage(LogicalPath $logicalPath): array
     {
-        $info = pathinfo($logicalPath);
-        if ($info['extension'] ?? false) {
-            $logicalPath = $info['dirname'] . $info['filename'];
-        }
-        do {
-            $page = $this->tree->page($logicalPath);
-            $logicalPath = dirname($logicalPath);
-        } while ($page === null && $logicalPath !== '/');
+        $path = $logicalPath;
 
-        if ($info['extension'] ?? false) {
-            return $page?->variant($info['extension']);
+        $tail = [];
+        do {
+            $page = $this->tree->page($path);
+        } while ($page === null && ($tail[] = $path->end) && $path = $path->parent);
+
+        $tail = array_reverse($tail);
+
+        if ($path->ext) {
+            return [$page?->variant($path->ext), $tail];
         }
-        return $page;
+        return [$page, $tail];
     }
 }
