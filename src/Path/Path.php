@@ -28,6 +28,8 @@ abstract class Path implements \Stringable
         get => $this->end ??= $this->segments[array_key_last($this->segments)] ?? '';
     }
 
+    protected bool $concatable = true;
+
     /**
      * Path itself cannot be constructed externally. Only via the static method.
      */
@@ -52,34 +54,29 @@ abstract class Path implements \Stringable
             return PathFragment::class;
         }
 
-        $class = PathFragment::class;
-        if (str_starts_with($path, '/')) {
-            $class = AbsolutePath::class;
-        }
-        if (str_contains($path, StreamPath::StreamSeparator)) {
-            $class = StreamPath::class;
-        }
-
-        return $class;
+        return match (true) {
+            str_starts_with($path, '/'), str_contains($path, AbsolutePath::StreamSeparator) => AbsolutePath::class,
+            default => PathFragment::class,
+        };
     }
 
-    public function concat(string|PathFragment $fragment): Path
+    public function concat(string|Path $fragment): Path
     {
         if ($this->isFile) {
             throw new \InvalidArgumentException('Cannot append a path fragment onto a path to a file.');
         }
 
-        if (self::getClass($fragment) === StreamPath::class) {
-            throw new \InvalidArgumentException('StreamPaths may not be used to append to an existing path');
+        if (is_string($fragment)) {
+            return $this->concat(self::create($fragment));
         }
 
-        $fragSegments = $fragment instanceof self
-            ? $fragment->segments
-            : array_filter(explode('/', $fragment));
+        if (! $fragment->concatable) {
+            throw new \InvalidArgumentException('Stream-based paths may not be used to append to an existing path');
+        }
 
-        $combinedSegments = [...$this->segments, ...$fragSegments];
+        $combinedSegments = [...$this->segments, ...$fragment->segments];
 
-        if ($this instanceof StreamPath) {
+        if ($this instanceof AbsolutePath) {
             return static::createFromSegments($combinedSegments, $this->stream);
         }
 
@@ -91,14 +88,5 @@ abstract class Path implements \Stringable
         return $this->path;
     }
 
-    protected function deriveParent(): static
-    {
-        $segments = $this->segments;
-        array_pop($segments);
-        if ($this instanceof StreamPath) {
-            return static::createFromSegments($segments, $this->stream);
-        }
-
-        return static::createFromSegments($segments);
-    }
+    abstract protected function deriveParent(): static;
 }

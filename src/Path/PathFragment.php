@@ -29,4 +29,11 @@ class PathFragment extends Path
 
         return $new;
     }
+
+    protected function deriveParent(): static
+    {
+        $segments = $this->segments;
+        array_pop($segments);
+        return static::createFromSegments($segments);
+    }
 }
