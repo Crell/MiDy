@@ -44,7 +44,7 @@ abstract class Path implements \Stringable
         return $class::createFromString($path);
     }
 
-    protected static abstract function createFromString(string $path);
+    abstract protected static function createFromString(string $path);
 
     protected static function getClass(string|PathFragment $path): string
     {

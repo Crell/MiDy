@@ -26,7 +26,7 @@ class ParserTest extends TestCase
         file_put_contents($this->routesPath . '/subdir/beep.html', 'Beep');
         file_put_contents($this->routesPath . '/subdir/folder.midy', 'order: "Desc"');
 
-        $this->parser->parseFolder($this->routesPath . '/subdir', '/subdir', []);
+        $this->parser->parseFolder($this->routesPath . '/subdir', LogicalPath::create('/subdir'), []);
 
         $records = $this->conn->createCommand("SELECT * FROM page WHERE logicalPath='/subdir/beep'")->queryAll();
         self::assertCount(1, $records);
@@ -157,7 +157,7 @@ class ParserTest extends TestCase
             clearstatcache(true, $filename);
         }
 
-        $parsedFile = $this->parser->parseFile(new \SplFileInfo($filename), '/');
+        $parsedFile = $this->parser->parseFile(new \SplFileInfo($filename), LogicalPath::create('/'));
 
         // We only want to check selected fields in each case, so rather than build
         // a complete expected ParsedFile object with pointless data, we just test
@@ -194,8 +194,8 @@ class ParserTest extends TestCase
             )
         );
 
-        $useDefaults = $this->parser->parseFile(new \SplFileInfo($this->routesPath . '/use-defaults.md'), '/', $folderDef);
-        $hasValues = $this->parser->parseFile(new \SplFileInfo($this->routesPath . '/has-values.md'), '/', $folderDef);
+        $useDefaults = $this->parser->parseFile(new \SplFileInfo($this->routesPath . '/use-defaults.md'), LogicalPath::create('/'), $folderDef);
+        $hasValues = $this->parser->parseFile(new \SplFileInfo($this->routesPath . '/has-values.md'), LogicalPath::create('/'), $folderDef);
 
         self::assertFalse($hasValues->hidden);
         self::assertEquals('Crell', $hasValues->other['author']);
