@@ -19,7 +19,11 @@ class LogicalPath extends AbsolutePath
         if ($path instanceof self) {
             return $path;
         }
-        return self::createFromString($path);
+        $new = self::createFromString($path);
+        if ($new->stream) {
+            throw new \InvalidArgumentException('A logical path may not make use of streams.');
+        }
+        return $new;
     }
 
     protected function derivePathWithoutExtension(): string
