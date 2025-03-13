@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Router;
 
+use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteNotFound;
 use Crell\MiDy\Router\Router;
 use Crell\MiDy\Router\RouteResult;
 use Psr\Http\Message\ServerRequestInterface;
-use Crell\MiDy\PageTree\LogicalPath;
 
 class PageTreeRouter implements Router
 {

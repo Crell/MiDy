@@ -7,7 +7,6 @@ namespace Crell\MiDy\Listeners;
 use Crell\MiDy\Config\TemplateVariables;
 use Crell\MiDy\Services\TemplatePreRender;
 use Crell\Tukio\Listener;
-use DI\Attribute\Inject;
 
 #[Listener]
 readonly class TemplateGlobalVariables
