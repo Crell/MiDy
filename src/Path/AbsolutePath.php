@@ -10,6 +10,19 @@ class AbsolutePath extends Path
 
     public readonly ?string $stream;
 
+    public bool $exists {
+        get => file_exists($this->path);
+    }
+
+    public private(set) \SplFileInfo $fileInfo {
+        get => $this->fileInfo ??= new \SplFileInfo($this->path);
+    }
+
+    public function contents(): string
+    {
+        return file_get_contents($this->path);
+    }
+
     protected static function createFromString(string $path)
     {
         $new = new static();

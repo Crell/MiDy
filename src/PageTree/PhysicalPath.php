@@ -12,14 +12,6 @@ class PhysicalPath extends AbsolutePath
         get => $this->withoutExtension ??= $this->derivePathWithoutExtension();
     }
 
-    public bool $exists {
-        get => file_exists($this->path);
-    }
-
-    public private(set) \SplFileInfo $fileInfo {
-        get => $this->fileInfo ??= new \SplFileInfo($this->path);
-    }
-
     public static function create(string|self $path): PhysicalPath
     {
         // This lets us easily handle "string or PhysicalPath" arguments by doing
@@ -29,11 +21,6 @@ class PhysicalPath extends AbsolutePath
         }
 
         return self::createFromString($path);
-    }
-
-    public function contents(): string
-    {
-        return file_get_contents($this->path);
     }
 
     protected function derivePathWithoutExtension(): string
