@@ -58,7 +58,7 @@ class ParsedFile
             $logicalPath = $folderLogicalPath;
             // The folder it should appear under is its folder's parent,
             // so that it "is" a child of that parent.
-            $folderLogicalPath = $logicalPath->parent;
+            $folderLogicalPath = $logicalPath->parent();
             // The pathName of the index page should be its folder's basename.
             $pathName = $folderLogicalPath->end;
             // And flag it as a file representing a folder.

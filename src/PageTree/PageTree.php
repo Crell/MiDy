@@ -47,7 +47,7 @@ class PageTree
         // We don't need the folder, but this ensures
         // the folder has been parsed so that the files
         // table is populated.
-        $this->folder($path->parent);
+        $this->folder($path->parent());
 
         $page = $this->cache->readPage($path);
 
@@ -150,7 +150,7 @@ class PageTree
         // path, so we know what to parse.  If the parent is not yet indexed,
         // it will get reindexed, too.
         $slug = $logicalPath->end;
-        $parent = $this->loadFolder($logicalPath->parent);
+        $parent = $this->loadFolder($logicalPath->parent());
         if (!$parent) {
             return null;
         }

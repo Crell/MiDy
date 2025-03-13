@@ -89,8 +89,8 @@ class PathTest extends TestCase
     {
         $obj = Path::create($path);
 
-        self::assertEquals($parent, $obj->parent);
-        self::assertInstanceOf($obj::class, $obj->parent);
+        self::assertEquals($parent, $obj->parent());
+        self::assertInstanceOf($obj::class, $obj->parent());
     }
 
     #[Test]

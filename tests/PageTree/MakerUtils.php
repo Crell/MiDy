@@ -35,7 +35,7 @@ trait MakerUtils
             'physicalPath' =>  PhysicalPath::create('/foo/bar.md'),
             'mtime' =>  123456,
             'title' =>  $args['physicalPath']->end,
-            'folder' =>  LogicalPath::fromPhysicalPath($args['physicalPath']->parent),
+            'folder' =>  LogicalPath::fromPhysicalPath($args['physicalPath']->parent()),
             'order' =>  0,
             'hidden' =>  false,
             'routable' =>  true,
@@ -54,12 +54,12 @@ trait MakerUtils
         // Cloned from Parser::parseFile();
         if ($args['logicalPath']->end === Parser::IndexPageName) {
             // The logical path of the index page is its parent folder's path.
-            $args['logicalPath'] = $args['logicalPath']->parent;
+            $args['logicalPath'] = $args['logicalPath']->parent();
             // The folder it should appear under is its folder's parent,
             // so that it "is" a child of that parent.
-            $args['folder'] = $args['folder']->parent;
+            $args['folder'] = $args['folder']->parent();
             // The pathName of the index page should be its folder's basename.
-            $args['pathName'] = $args['physicalPath']->parent->end;
+            $args['pathName'] = $args['physicalPath']->parent()->end;
             // And flag it as a file representing a folder.
             $args['isFolder'] = true;
         }

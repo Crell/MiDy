@@ -7,7 +7,7 @@ namespace Crell\MiDy\PageTree;
 class ParsedFolder
 {
     public LogicalPath $parent {
-        get => $this->logicalPath->parent;
+        get => $this->logicalPath->parent();
     }
 
     public LogicalPath $logicalPath {

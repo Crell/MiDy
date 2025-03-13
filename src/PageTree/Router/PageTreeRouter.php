@@ -82,7 +82,7 @@ class PageTreeRouter implements Router
         $tail = [];
         do {
             $page = $this->tree->page($path->withoutExtension);
-        } while ($page === null && ($tail[] = $path->end) && ($path = $path->parent) && $path != '/');
+        } while ($page === null && ($tail[] = $path->end) && ($path = $path->parent()) && $path != '/');
 
         $tail = array_reverse($tail);
 
