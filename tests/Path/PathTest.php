@@ -110,4 +110,15 @@ class PathTest extends TestCase
         $obj = Path::create($path);
         self::assertEquals($end, $obj->end);
     }
+
+    #[Test]
+    #[TestWith(['..'])]
+    #[TestWith(['../..'])]
+    #[TestWith(['/../..'])]
+    #[TestWith(['/foo/../bar'])]
+    public function disallowed_paths(string $path): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $obj = Path::create($path);
+    }
 }

@@ -35,6 +35,11 @@ abstract class Path implements \Stringable
 
     public static function create(string $path): Path
     {
+        if (str_contains($path, '..')) {
+            throw new \InvalidArgumentException('Paths containing ".." are not allowed');
+        }
+        // @todo Probably more security filtering here.
+
         $class = self::getClass($path);
         return $class::createFromString($path);
     }
