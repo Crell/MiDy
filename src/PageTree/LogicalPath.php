@@ -26,6 +26,18 @@ class LogicalPath extends AbsolutePath
         return $new;
     }
 
+    public static function fromPhysicalPath(PhysicalPath $physicalPath): LogicalPath
+    {
+        // This retains the path portion, but strips off the stream and extension, if any.
+        $segments = $physicalPath->segments;
+        if (str_contains($physicalPath->end, '.')) {
+            $end = array_pop($segments);
+            $segments[] = substr($end, 0, strpos($end, '.'));
+            $segments = array_values($segments);
+        }
+        return self::createFromSegments($segments);
+    }
+
     protected function derivePathWithoutExtension(): string
     {
         if (!$this->ext) {

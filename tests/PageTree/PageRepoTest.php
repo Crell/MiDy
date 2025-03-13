@@ -54,7 +54,7 @@ class PageRepoTest extends TestCase
         $cache->writeFolder($folder);
 
         $record = $this->conn->createCommand("SELECT * FROM folder WHERE logicalPath='/foo'")->queryOne();
-        self::assertEquals($folder->physicalPath, $record['physicalPath']);
+        self::assertEquals((string)$folder->physicalPath, $record['physicalPath']);
     }
 
     #[Test]
@@ -89,7 +89,7 @@ class PageRepoTest extends TestCase
 
         $savedFolder = $cache->readFolder(LogicalPath::create('/foo'));
 
-        self::assertEquals($folder->physicalPath, $savedFolder->physicalPath);
+        self::assertEquals((string)$folder->physicalPath, (string)$savedFolder->physicalPath);
         self::assertEquals($folder->mtime, $savedFolder->mtime);
         self::assertEquals($folder->flatten, $savedFolder->flatten);
         self::assertEquals($folder->title, $savedFolder->title);
@@ -712,7 +712,7 @@ class PageRepoTest extends TestCase
                     self::makeParsedFolder(physicalPath: '/bar'),
                 ],
                 'pages' => [
-                    new PageData('/foo/index', [
+                    new PageData('/foo', [
                         self::makeParsedFile(physicalPath: '/foo/index.md'),
                     ]),
                     new PageData('/foo/b', [
@@ -794,13 +794,15 @@ class PageRepoTest extends TestCase
         $cache->writePage(new PageData('/foo/bar/c.md', [
             self::makeParsedFile(physicalPath: '/foo/bar/c.md'),
         ]));
-        $cache->writePage(new PageData('/foo/bar/index', [
+        $cache->writePage(new PageData('/foo/bar', [
             self::makeParsedFile(physicalPath: '/foo/bar/index.latte'),
         ]));
 
+        // /foo/bar/index counts as a child of /foo.
         $queryResult = $cache->queryPages(folder: '/foo');
         self::assertCount(3, $queryResult);
 
+        // /foo/bar/index does not count as a child of /foo/bar.
         $queryResult = $cache->queryPages(folder: '/foo/bar');
         self::assertCount(1, $queryResult);
     }

@@ -37,8 +37,8 @@ class MockPage implements Page
     public string $path {
         get => $this->values[__PROPERTY__] ?? '';
     }
-    public string $physicalPath {
-        get => $this->values[__PROPERTY__] ?? '';
+    public PhysicalPath $physicalPath {
+        get => $this->values[__PROPERTY__] ?? throw new \InvalidArgumentException('No physical path defined.');
     }
     public string $folder {
         get => $this->values[__PROPERTY__] ?? '';

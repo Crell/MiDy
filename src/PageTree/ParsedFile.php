@@ -16,7 +16,7 @@ class ParsedFile
         // Derived from file system.
         public LogicalPath $logicalPath,
         public string $ext,
-        public string $physicalPath,
+        public PhysicalPath $physicalPath,
         public int $mtime,
         public int $order,
 
@@ -68,7 +68,7 @@ class ParsedFile
         return new self(
             logicalPath: $logicalPath,
             ext: $fileInfo->getExtension(),
-            physicalPath: $fileInfo->getPathname(),
+            physicalPath: PhysicalPath::create($fileInfo->getPathname()),
             mtime: $fileInfo->getMTime(),
             order: $order,
             publishDate: $frontmatter->publishDate ?? $folderDef->defaults->publishDate ?? new \DateTimeImmutable('@' . $fileInfo->getMTime()),

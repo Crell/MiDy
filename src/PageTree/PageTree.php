@@ -17,14 +17,14 @@ class PageTree
     public function __construct(
         private readonly PageRepo $cache,
         private readonly Parser $parser,
-        string $rootPhysicalPath,
+        string|PhysicalPath $rootPhysicalPath,
     ) {
-        $this->mount($rootPhysicalPath, '/');
+        $this->mount(PhysicalPath::create($rootPhysicalPath), '/');
     }
 
-    public function mount(string $physicalPath, string $logicalPath): void
+    public function mount(PhysicalPath|string $physicalPath, string|LogicalPath $logicalPath): void
     {
-        $this->mountPoints[$logicalPath] = $physicalPath;
+        $this->mountPoints[$logicalPath] = PhysicalPath::create($physicalPath);
     }
 
     /**
@@ -55,7 +55,7 @@ class PageTree
             return null;
         }
 
-        $needsReindex = array_any($page->files, static fn (File $file): bool => $file->mtime < filemtime($file->physicalPath));
+        $needsReindex = array_any($page->files, static fn (File $file): bool => $file->mtime < filemtime((string)$file->physicalPath));
         if ($needsReindex) {
             $this->reindexFolder(LogicalPath::create($page->folder));
             $page = $this->cache->readPage($path);
@@ -116,7 +116,7 @@ class PageTree
     {
         $folder = $this->cache->readFolder($logicalPath);
 
-        if (!$folder || $folder->mtime < filemtime($folder->physicalPath)) {
+        if (!$folder || $folder->mtime < filemtime((string)$folder->physicalPath)) {
             $folder = $this->reindexFolder($logicalPath);
         }
 
@@ -154,7 +154,7 @@ class PageTree
         if (!$parent) {
             return null;
         }
-        $ret = $this->parser->parseFolder($parent->physicalPath . '/' . $slug, $logicalPath, $this->mountPoints);
+        $ret = $this->parser->parseFolder($parent->physicalPath->concat($slug), $logicalPath, $this->mountPoints);
         // In case of parser error, fail here.
         if (!$ret) {
             return null;

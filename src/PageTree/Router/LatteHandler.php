@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Router;
 
 use Crell\MiDy\PageTree\Page;
+use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
@@ -35,10 +36,10 @@ class LatteHandler implements PageHandler
         );
     }
 
-    public function action(ServerRequestInterface $request, string $file, Page $page, array $query): ResponseInterface
+    public function action(ServerRequestInterface $request, PhysicalPath $file, Page $page, array $query): ResponseInterface
     {
-        return $this->builder->handleCacheableFileRequest($request, $file, function () use ($file, $query, $page) {
-            $result = $this->renderer->render($file, [
+        return $this->builder->handleCacheableFileRequest($request, (string)$file, function () use ($file, $query, $page) {
+            $result = $this->renderer->render((string)$file, [
                 'query' => new HttpQuery($query),
                 'currentPage' => $page,
             ]);

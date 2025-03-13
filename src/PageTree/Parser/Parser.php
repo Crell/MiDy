@@ -8,6 +8,7 @@ use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\ParsedFile;
 use Crell\MiDy\PageTree\ParsedFolder;
+use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 
@@ -25,18 +26,18 @@ class Parser
         private readonly Serde $serde = new SerdeCommon(),
     ) {}
 
-    public function parseFolder(string $physicalPath, LogicalPath $logicalPath, array $mounts): bool
+    public function parseFolder(PhysicalPath $physicalPath, LogicalPath $logicalPath, array $mounts): bool
     {
         return $this->cache->inTransaction(function() use ($physicalPath, $logicalPath, $mounts) {
             $folderDef = $this->parseControlFile($physicalPath);
 
-            if (!file_exists($physicalPath)) {
+            if (!$physicalPath->exists) {
                 return false;
             }
 
             // Rebuild the folder record.
             $this->cache->deleteFolder($logicalPath);
-            $folderInfo = new \SplFileInfo($physicalPath);
+            $folderInfo = $physicalPath->fileInfo;
             $folder = new ParsedFolder(
                 logicalPath: $logicalPath,
                 physicalPath: $physicalPath,
@@ -56,7 +57,7 @@ class Parser
                 } else {
                     // It's a directory.
                     [$basename, $order] = $this->parseName($file->getFilename());
-                    $childPhysicalPath = $file->getPathname();
+                    $childPhysicalPath = PhysicalPath::create($file->getPathname());
 
                     // I really dislike needing to pass the mounts list in here,
                     // but I don't know of another way to be able to get a logical
@@ -114,7 +115,7 @@ class Parser
         return ParsedFile::createFromParsedData($file, $frontmatter, $folderLogicalPath, $folderDef, $basename, $order);
     }
 
-    private function getIndexFile(string $folderPhysicalPath): ?\SplFileInfo
+    private function getIndexFile(PhysicalPath $folderPhysicalPath): ?\SplFileInfo
     {
         $indexFilter = static fn(\SplFileInfo $f) => $f->getBasename('.' . $f->getExtension()) === self::IndexPageName;
         $iter = new \CallbackFilterIterator($this->getChildIterator($folderPhysicalPath, false), $indexFilter);
@@ -127,7 +128,7 @@ class Parser
      *
      * @return iterable<\SplFileInfo>
      */
-    private function getChildIterator(string $physicalPath, bool $flatten): \Iterator
+    private function getChildIterator(PhysicalPath $physicalPath, bool $flatten): \Iterator
     {
         // @todo This approach has one limitation: The order of the skipped directories has no effect.
         //   If the files themselves have a logical ordering, that's no issue. If not, that could be
@@ -136,9 +137,13 @@ class Parser
         $flags = \FilesystemIterator::KEY_AS_PATHNAME|\FilesystemIterator::CURRENT_AS_FILEINFO|\FilesystemIterator::SKIP_DOTS;
         if ($flatten) {
             $filter = static fn(\SplFileInfo $f) => $f->isFile();
-            $iter = new \CallbackFilterIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($physicalPath, flags: $flags)), $filter);
+            $iter = new \CallbackFilterIterator(
+                new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator((string)$physicalPath, flags: $flags)
+                ), $filter,
+            );
         } else {
-            $iter = new \FilesystemIterator($physicalPath, flags: $flags);
+            $iter = new \FilesystemIterator((string)$physicalPath, flags: $flags);
         }
 
         // Never show the control file.
@@ -150,15 +155,14 @@ class Parser
     /**
      * Parse the control file for a directory, which tells us how to handle it.
      */
-    private function parseControlFile(string $physicalPath): FolderDef
+    private function parseControlFile(PhysicalPath $physicalPath): FolderDef
     {
-        $controlFile = $physicalPath . '/' . self::ControlFile;
-        if (!file_exists($controlFile)) {
+        $controlFile = $physicalPath->concat(self::ControlFile);
+        if (!$controlFile->exists) {
             return new FolderDef();
         }
 
-        $contents = file_get_contents($controlFile);
-        return $this->serde->deserialize($contents, from: 'yaml', to: FolderDef::class);
+        return $this->serde->deserialize($controlFile->contents(), from: 'yaml', to: FolderDef::class);
     }
 
     /**

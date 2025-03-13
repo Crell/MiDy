@@ -8,16 +8,16 @@ use Crell\MiDy\PageTree\Parser\Parser;
 
 trait MakerUtils
 {
-    private static function makeParsedFolder(...$args): ParsedFolder
+    private static function makeParsedFolder(PhysicalPath|string $physicalPath, ...$args): ParsedFolder
     {
-        $parts = pathinfo($args['physicalPath']);
+        $args['physicalPath'] = PhysicalPath::create($physicalPath);
 
         $defaults = [
             'physicalPath' => $args['physicalPath'],
-            'logicalPath' => LogicalPath::create($args['physicalPath']),
+            'logicalPath' => LogicalPath::fromPhysicalPath($args['physicalPath']),
             'mtime' => 0,
             'flatten' => false,
-            'title' => $parts['basename'],
+            'title' => $args['physicalPath']->end,
         ];
 
         $args += $defaults;
@@ -25,17 +25,17 @@ trait MakerUtils
         return new ParsedFolder(...$args);
     }
 
-    private static function makeParsedFile(...$args): ParsedFile
+    private static function makeParsedFile(PhysicalPath|string $physicalPath, ...$args): ParsedFile
     {
-        $parts = pathinfo($args['physicalPath']);
+        $args['physicalPath'] = PhysicalPath::create($physicalPath);
 
         $defaults = [
-            'logicalPath' => LogicalPath::create($parts['dirname'] . '/' . $parts['filename']),
-            'ext' =>  $parts['extension'],
-            'physicalPath' =>  '/foo/bar.md',
+            'logicalPath' => LogicalPath::fromPhysicalPath($args['physicalPath']),
+            'ext' =>  $args['physicalPath']->ext,
+            'physicalPath' =>  PhysicalPath::create('/foo/bar.md'),
             'mtime' =>  123456,
-            'title' =>  $parts['filename'],
-            'folder' =>  LogicalPath::create($parts['dirname']),
+            'title' =>  $args['physicalPath']->end,
+            'folder' =>  LogicalPath::fromPhysicalPath($args['physicalPath']->parent),
             'order' =>  0,
             'hidden' =>  false,
             'routable' =>  true,
@@ -45,22 +45,21 @@ trait MakerUtils
             'tags' => [],
             'summary' =>  '',
             'slug' => null,
-            'pathName' =>  $parts['filename'],
+            'pathName' =>  $args['physicalPath']->end,
             'isFolder' => false,
         ];
 
         $args += $defaults;
 
         // Cloned from Parser::parseFile();
-        if ($parts['filename'] === Parser::IndexPageName) {
+        if ($args['logicalPath']->end === Parser::IndexPageName) {
             // The logical path of the index page is its parent folder's path.
             $args['logicalPath'] = $args['logicalPath']->parent;
             // The folder it should appear under is its folder's parent,
             // so that it "is" a child of that parent.
             $args['folder'] = $args['folder']->parent;
             // The pathName of the index page should be its folder's basename.
-            $folderParts = \explode('/', $parts['dirname']);
-            $args['pathName'] = array_pop($folderParts);
+            $args['pathName'] = $args['physicalPath']->parent->end;
             // And flag it as a file representing a folder.
             $args['isFolder'] = true;
         }

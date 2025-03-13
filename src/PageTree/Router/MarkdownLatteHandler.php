@@ -8,6 +8,7 @@ use Crell\MiDy\Config\MarkdownLatteConfiguration;
 use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\PageTree\Page;
+use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseBuilder;
@@ -43,10 +44,10 @@ class MarkdownLatteHandler implements PageHandler
         );
     }
 
-    public function action(ServerRequestInterface $request, Page $page, string $file): ResponseInterface
+    public function action(ServerRequestInterface $request, Page $page, PhysicalPath $file): ResponseInterface
     {
-        return $this->builder->handleCacheableFileRequest($request, $file, function() use ($file, $page) {
-            $mdPage = $this->loader->load($file);
+        return $this->builder->handleCacheableFileRequest($request, (string)$file, function() use ($file, $page) {
+            $mdPage = $this->loader->load((string)$file);
 
             $template = $this->themeExtension->findTemplatePath($page->other['template'] ?? $this->config->defaultPageTemplate);
 

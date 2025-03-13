@@ -8,6 +8,7 @@ use Crell\MiDy\ClassFinder;
 use Crell\MiDy\PageTree\Attributes\PageRoute;
 use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\ParsedFrontmatter;
+use Crell\MiDy\PageTree\PhysicalPath;
 
 class PhpFileParser implements FileParser
 {
@@ -21,13 +22,13 @@ class PhpFileParser implements FileParser
     {
         $physicalPath = $fileInfo->getPathname();
 
-        return $this->extractFrontMatter($physicalPath);
+        return $this->extractFrontMatter(PhysicalPath::create($physicalPath));
     }
 
-    private function extractFrontMatter(string $physicalPath): PageRoute
+    private function extractFrontMatter(PhysicalPath $physicalPath): PageRoute
     {
         require_once $physicalPath;
-        $class = $this->finder->getClass($physicalPath);
+        $class = $this->finder->getClass((string)$physicalPath);
 
         if (!$class) {
             return new PageRoute();

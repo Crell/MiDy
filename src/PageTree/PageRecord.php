@@ -19,12 +19,12 @@ class PageRecord implements Page
         get => $this->activeFile->other;
     }
 
-    public string $physicalPath {
+    public PhysicalPath $physicalPath {
         get => $this->activeFile->physicalPath;
     }
 
     private(set) LogicalPath $logicalPath {
-        set(LogicalPath|string $value) => is_string($value) ? LogicalPath::create($value) : $value;
+        set(LogicalPath|string $value) => LogicalPath::create($value);
     }
 
     public string $path { get => (string)$this->logicalPath; }

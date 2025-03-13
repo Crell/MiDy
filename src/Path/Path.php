@@ -7,10 +7,7 @@ namespace Crell\MiDy\Path;
 abstract class Path implements \Stringable
 {
     /** @var array<string> */
-    protected protected(set) array $segments {
-        get => $this->segments;
-        set => $value;
-    }
+    protected protected(set) array $segments = [];
 
     public protected(set) readonly ?string $ext;
 
@@ -60,7 +57,7 @@ abstract class Path implements \Stringable
         };
     }
 
-    public function concat(string|Path $fragment): Path
+    public function concat(string|Path $fragment): static
     {
         if ($this->isFile) {
             throw new \InvalidArgumentException('Cannot append a path fragment onto a path to a file.');

@@ -29,7 +29,7 @@ trait FolderIndexPage
 
     public private(set) string $name { get => $this->name ??= $this->indexPage?->name ?? ''; }
     public private(set) array $other { get => $this->other ??= $this->indexPage?->other ?? []; }
-    public private(set) string $physicalPath { get => $this->physicalPath ??= $this->indexPage?->physicalPath ?? ''; }
+    public private(set) PhysicalPath $physicalPath { get => $this->physicalPath ??= $this->indexPage?->physicalPath ?? ''; }
     public private(set) DateTimeImmutable $publishDate { get => $this->publishDate ??= $this->indexPage?->publishDate; }
     public private(set) DateTimeImmutable $lastModifiedDate {
         get => $this->lastModifiedDate

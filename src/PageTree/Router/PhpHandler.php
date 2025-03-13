@@ -6,6 +6,7 @@ namespace Crell\MiDy\PageTree\Router;
 
 use Crell\MiDy\ClassFinder;
 use Crell\MiDy\PageTree\Page;
+use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
 use Crell\MiDy\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
@@ -55,10 +56,10 @@ class PhpHandler implements SupportsTrailingPath
         return new RouteMethodNotAllowed($allowedMethods);
     }
 
-    private function loadAction(string $file): object
+    private function loadAction(PhysicalPath $file): object
     {
         require_once $file;
-        $class = $this->finder->getClass($file);
+        $class = $this->finder->getClass((string)$file);
         // @todo Null/error handling.
         return $this->container->make($class);
     }

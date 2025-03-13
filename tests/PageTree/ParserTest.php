@@ -26,7 +26,7 @@ class ParserTest extends TestCase
         file_put_contents($this->routesPath . '/subdir/beep.html', 'Beep');
         file_put_contents($this->routesPath . '/subdir/folder.midy', 'order: "Desc"');
 
-        $this->parser->parseFolder($this->routesPath . '/subdir', LogicalPath::create('/subdir'), []);
+        $this->parser->parseFolder(PhysicalPath::create($this->routesPath)->concat('subdir'), LogicalPath::create('/subdir'), []);
 
         $records = $this->conn->createCommand("SELECT * FROM page WHERE logicalPath='/subdir/beep'")->queryAll();
         self::assertCount(1, $records);

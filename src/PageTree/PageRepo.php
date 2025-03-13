@@ -86,7 +86,7 @@ class PageRepo
     {
         $this->conn->createCommand()->upsert('folder', [
             'logicalPath' => $folder->logicalPath,
-            'physicalPath' => $folder->physicalPath,
+            'physicalPath' => (string)$folder->physicalPath,
             'parent' => $folder->parent,
             'flatten' => $folder->flatten,
             'mtime' => $folder->mtime,
