@@ -6,7 +6,7 @@
 
 A tool for building **Mi**ldly **Dy**namic websites, with more features than you would expect.
 
-MiDy is in alpha.  Most of it works, and it's in a state that people can play with it, but it's not yet production-ready.  Feedback welcome.
+MiDy is in alpha.  It works, and it's in a state that people can play with it, but it's not yet production-ready.  Feedback welcome.
 
 ## Who is this for
 
@@ -21,7 +21,6 @@ MiDy is built on the following assumptions:
 * Most pages on a site are boring, from a technical point of view.
 * The site editor can write HTML, and wants control over the layout of the site and individual pages, independently of each other.
 * Alternatively, Markdown is a comfortable format to use.
-* Client-side dynamism can be handled by HTMLX.  This is not a backend for React.  If you want that, go elsewhere.
 
 To that end, MiDy doesn't have "controllers" the way many frameworks do.  Instead, most pages are simply files within the `routes` folder, in a file tree.  A request to `/foo/bar/baz` will end up at `/foo/bar/baz.md`, for example, and that markdown page will be rendered.  If instead there is a `/foo/bar/baz.latte`, then the Latte template will be rendered.  You can do basically whatever you want in the template.
 
@@ -132,6 +131,11 @@ While the task list is long, here's the main things still on my radar before 1.0
 * This thing is almost a framework, by design.  Factor the framework out as well, including an extension mechanism.
 * Build a "skeleton" app, and move 99% of the code to composer packages used by that.  As little code as possible should be "in" a real site.
 * Flesh out the shell commands a lot better.  Like, use a real command framework.
+* Add support for redirection pages and link pages.
+* Better form handling.
+* Possibly switch to an event-based kernel rather than pure PSR-15 middlewares.
+* A proper install process using `composer create-project`.
+* Flesh out theme support better.
 * Way more detailed documentation.
 
 ## Feedback
