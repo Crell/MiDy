@@ -10,12 +10,12 @@ trait SetupRepo
 {
     use SetupDB;
 
-    private PageRepo $repo;
+    private YiiDbPageCache $repo;
 
     #[Before(priority: 15)]
     public function setupRepo(): void
     {
-        $this->repo ??= new PageRepo(conn: $this->conn);
+        $this->repo ??= new YiiDbPageCache(conn: $this->conn);
         $this->repo->reinitialize();
     }
 

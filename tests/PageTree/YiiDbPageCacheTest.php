@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class PageRepoTest extends TestCase
+class YiiDbPageCacheTest extends TestCase
 {
     use SetupFilesystem;
     use SetupDB;
@@ -19,7 +19,7 @@ class PageRepoTest extends TestCase
     #[Test, DoesNotPerformAssertions]
     public function reinitialize_creates_tables_if_they_dont_exist(): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
 
         $cache->reinitialize();
 
@@ -31,7 +31,7 @@ class PageRepoTest extends TestCase
     #[Test, DoesNotPerformAssertions]
     public function reinitialize_recreates_tables_if_they_do_exist(): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
 
         $this->conn->createCommand('CREATE TABLE IF NOT EXISTS folder(fake int)')->execute();
 
@@ -45,7 +45,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function can_write_new_folder(): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
 
         $cache->reinitialize();
 
@@ -60,7 +60,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function can_write_updated_folder(): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
 
         $cache->reinitialize();
 
@@ -80,7 +80,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function can_read_folder(): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
 
         $cache->reinitialize();
 
@@ -98,7 +98,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function returns_null_for_missing_folder(): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
 
         $cache->reinitialize();
 
@@ -110,7 +110,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function can_delete_folder(): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
         $cache->reinitialize();
 
         $folder = self::makeParsedFolder(physicalPath: '/foo');
@@ -221,7 +221,7 @@ class PageRepoTest extends TestCase
     #[Test, DataProvider('page_data')]
     public function page_save_and_load(ParsedFolder $folder, array $files, string $pagePath, \Closure $dbValidation, \Closure $validation): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
         $cache->reinitialize();
 
         $cache->writeFolder($folder);
@@ -243,7 +243,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function page_load_missing_page_returns_null(): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
         $cache->reinitialize();
 
         $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
@@ -759,7 +759,7 @@ class PageRepoTest extends TestCase
     #[DataProvider('query_pages_data_exclusions')]
     public function query_pages(array $folders, array $pages, array $query, int $expectedCount, int $totalPages, ?\Closure $validator = null): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
         $cache->reinitialize();
 
         array_map($cache->writeFolder(...), $folders);
@@ -778,7 +778,7 @@ class PageRepoTest extends TestCase
     #[Test]
     public function index_files_are_not_considered_children(): void
     {
-        $cache = new PageRepo($this->conn);
+        $cache = new YiiDbPageCache($this->conn);
         $cache->reinitialize();
 
         $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));

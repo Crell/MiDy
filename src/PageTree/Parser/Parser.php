@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Parser;
 
 use Crell\MiDy\PageTree\LogicalPath;
-use Crell\MiDy\PageTree\PageRepo;
+use Crell\MiDy\PageTree\YiiDbPageCache;
 use Crell\MiDy\PageTree\ParsedFile;
 use Crell\MiDy\PageTree\ParsedFolder;
 use Crell\MiDy\PageTree\PhysicalPath;
@@ -21,7 +21,7 @@ class Parser
     public const string IndexPageName = 'index';
 
     public function __construct(
-        private readonly PageRepo $cache,
+        private readonly YiiDbPageCache $cache,
         private readonly FileParser $fileParser,
         private readonly Serde $serde = new SerdeCommon(),
     ) {}

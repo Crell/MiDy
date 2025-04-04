@@ -8,7 +8,7 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\QueryBuilder\Condition\OrCondition;
 use Yiisoft\Db\Sqlite\Connection;
 
-class PageRepo implements PageCache
+class YiiDbPageCache implements PageCache
 {
     private const string FolderTableDdl = <<<END
         create table folder (
