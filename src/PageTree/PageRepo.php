@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\Serde\Serde;
-use Crell\Serde\SerdeCommon;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\QueryBuilder\Condition\OrCondition;
 use Yiisoft\Db\Sqlite\Connection;
@@ -52,7 +50,6 @@ class PageRepo implements PageCache
 
     public function __construct(
         private readonly Connection $conn,
-        private readonly Serde $serde = new SerdeCommon(),
     ) {
         $this->ensureTables();
     }
