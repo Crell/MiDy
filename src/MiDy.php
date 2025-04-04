@@ -26,6 +26,8 @@ use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RequestPathMiddleware;
 use Crell\MiDy\Middleware\RoutingMiddleware;
 use Crell\MiDy\PageTree\Latte\PageTreeExtension;
+use Crell\MiDy\PageTree\PageCache;
+use Crell\MiDy\PageTree\PageRepo;
 use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\PageTree\Parser\HtmlFileParser;
 use Crell\MiDy\PageTree\Parser\LatteFileParser;
@@ -233,6 +235,10 @@ class MiDy implements RequestHandlerInterface
             ,
             SapiEmitter::class => autowire(SapiEmitter::class),
             ActionInvoker::class => get(RuntimeActionInvoker::class),
+        ]);
+
+        $containerBuilder->addDefinitions([
+            PageCache::class => get(PageRepo::class),
         ]);
 
         // Routing

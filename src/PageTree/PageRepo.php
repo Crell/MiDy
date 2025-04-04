@@ -10,10 +10,8 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\QueryBuilder\Condition\OrCondition;
 use Yiisoft\Db\Sqlite\Connection;
 
-class PageRepo
+class PageRepo implements PageCache
 {
-    public const int DefaultPageSize = 10;
-
     private const string FolderTableDdl = <<<END
         create table folder (
             logicalPath  text               not null

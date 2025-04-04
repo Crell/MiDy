@@ -15,7 +15,7 @@ class PageTree
     private array $mountPoints = [];
 
     public function __construct(
-        private readonly PageRepo $cache,
+        private readonly PageCache $cache,
         private readonly Parser $parser,
         string|PhysicalPath $rootPhysicalPath,
     ) {
@@ -72,7 +72,7 @@ class PageTree
         array $anyTag = [],
         ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
         array $orderBy = [],
-        int $pageSize = PageRepo::DefaultPageSize,
+        int $pageSize = PageCache::DefaultPageSize,
         int $pageNum = 1,
         array $exclude = [],
     ): Pagination {

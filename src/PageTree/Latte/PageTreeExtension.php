@@ -6,7 +6,7 @@ namespace Crell\MiDy\PageTree\Latte;
 
 use Crell\MiDy\PageTree\Folder;
 use Crell\MiDy\PageTree\Page;
-use Crell\MiDy\PageTree\PageRepo;
+use Crell\MiDy\PageTree\PageCache;
 use Crell\MiDy\PageTree\PageTree;
 use Crell\MiDy\PageTree\Pagination;
 use Crell\MiDy\PageTree\Router\HttpQuery;
@@ -68,7 +68,7 @@ class PageTreeExtension extends Extension
         array $anyTag = [],
         ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
         array $orderBy = [],
-        int $pageSize = PageRepo::DefaultPageSize,
+        int $pageSize = PageCache::DefaultPageSize,
         int $pageNum = 1,
         array $exclude = [],
     ): Pagination {

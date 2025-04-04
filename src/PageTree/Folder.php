@@ -36,7 +36,7 @@ class Folder implements \IteratorAggregate, Page
         array $anyTag = [],
         ?\DateTimeInterface $publishedBefore = new \DateTimeImmutable(),
         array $orderBy = [],
-        int $pageSize = PageRepo::DefaultPageSize,
+        int $pageSize = PageCache::DefaultPageSize,
         int $pageNum = 1,
         array $exclude = [],
     ): Pagination {
@@ -69,7 +69,7 @@ class Folder implements \IteratorAggregate, Page
         return $this->pageTree->page($this->logicalPath->concat($name));
     }
 
-    public function filter(\Closure $filter, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination
+    public function filter(\Closure $filter, int $pageSize = PageCache::DefaultPageSize, int $pageNum = 1): Pagination
     {
         return $this
             ->children(pageSize: $pageSize, pageNum: $pageNum)
@@ -77,7 +77,7 @@ class Folder implements \IteratorAggregate, Page
             ->filter($filter, $pageSize, $pageNum);
     }
 
-    public function filterAnyTag(array $tags, int $pageSize = PageRepo::DefaultPageSize, int $pageNum = 1): Pagination
+    public function filterAnyTag(array $tags, int $pageSize = PageCache::DefaultPageSize, int $pageNum = 1): Pagination
     {
         return $this->children(anyTag: $tags, pageSize: $pageSize, pageNum: $pageNum);
     }
