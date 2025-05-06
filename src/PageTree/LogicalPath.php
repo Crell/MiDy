@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
-use Crell\MiDy\Path\AbsolutePath;
+use Crell\Path\AbsolutePath;
 
 class LogicalPath extends AbsolutePath
 {
