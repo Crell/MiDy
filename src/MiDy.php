@@ -10,6 +10,18 @@ use Crell\AttributeUtils\FuncAnalyzer;
 use Crell\AttributeUtils\FunctionAnalyzer;
 use Crell\AttributeUtils\MemoryCacheAnalyzer;
 use Crell\AttributeUtils\MemoryCacheFunctionAnalyzer;
+use Crell\Carica\Middleware\AdditionalMiddlewareMiddleware;
+use Crell\Carica\Middleware\DefaultContentTypeMiddleware;
+use Crell\Carica\Middleware\DeriveActionMetadataMiddleware;
+use Crell\Carica\Middleware\ExceptionCatcherMiddleware;
+use Crell\Carica\Middleware\GenericMethodNotAllowedMiddleware;
+use Crell\Carica\Middleware\GenericNotFoundMiddleware;
+use Crell\Carica\Middleware\NormalizeArgumentTypesMiddleware;
+use Crell\Carica\Middleware\ParsedBodyMiddleware;
+use Crell\Carica\ParsedBody;
+use Crell\Carica\Router\ActionDispatcher;
+use Crell\Carica\Router\RouterMiddleware;
+use Crell\Carica\SerdeBodyParser;
 use Crell\Config\ConfigLoader;
 use Crell\Config\IniFileSource;
 use Crell\Config\LayeredLoader;
@@ -20,7 +32,7 @@ use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
 use Crell\MiDy\Middleware\CacheHeaderMiddleware;
 use Crell\MiDy\Middleware\DeriveFormatMiddleware;
-use Crell\MiDy\Middleware\EnforceHeadMiddleware;
+use Crell\Carica\Middleware\EnforceHeadMiddleware;
 use Crell\MiDy\Middleware\LogMiddleware;
 use Crell\MiDy\Middleware\ParamConverterMiddleware;
 use Crell\MiDy\Middleware\RequestPathMiddleware;
@@ -37,16 +49,18 @@ use Crell\MiDy\PageTree\Parser\PhpFileParser;
 use Crell\MiDy\PageTree\Parser\StaticFileParser;
 use Crell\MiDy\PageTree\Router\LatteHandler;
 use Crell\MiDy\PageTree\Router\MarkdownLatteHandler;
+use Crell\MiDy\PageTree\Router\NotFoundErrorHandler;
 use Crell\MiDy\PageTree\Router\PageTreeRouter;
 use Crell\MiDy\PageTree\Router\PhpHandler;
 use Crell\MiDy\PageTree\Router\StaticFileHandler;
 use Crell\MiDy\PageTree\YiiDbPageCache;
-use Crell\MiDy\Router\DelegatingRouter;
+use Crell\Carica\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
-use Crell\MiDy\Router\Router;
+use Crell\Carica\Router\Router;
 use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\ResponseBuilder;
+use Crell\Carica\ResponseBuilder as CaricaResponseBuilder;
 use Crell\MiDy\Services\RuntimeActionInvoker;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
@@ -90,6 +104,7 @@ use Yiisoft\Db\Cache\SchemaCache;
 use Yiisoft\Db\Driver\Pdo\PdoDriverInterface;
 use Yiisoft\Db\Sqlite\Connection;
 use Yiisoft\Db\Sqlite\Driver;
+use Crell\Carica\StackMiddlewareKernel;
 
 use function DI\autowire;
 use function DI\env;
@@ -216,10 +231,64 @@ class MiDy implements RequestHandlerInterface
             ConfigLoader::class => get(SerializedFilesystemCache::class),
         ]);
 
+        $containerBuilder->addDefinitions([
+            // Register the middleware first.
+            AdditionalMiddlewareMiddleware::class => autowire(),
+            CacheHeaderMiddleware::class => autowire(),
+            DefaultContentTypeMiddleware::class => autowire(),
+            EnforceHeadMiddleware::class => autowire(),
+            DeriveActionMetadataMiddleware::class => autowire(),
+            ExceptionCatcherMiddleware::class => autowire()
+                ->constructorParameter('debug', true)
+            ,
+            GenericMethodNotAllowedMiddleware::class => autowire(),
+            GenericNotFoundMiddleware::class => autowire(),
+            NormalizeArgumentTypesMiddleware::class => autowire(),
+            ParsedBodyMiddleware::class => autowire()
+                ->constructorParameter('parsers', [get(SerdeBodyParser::class)])
+            ,
+            RouterMiddleware::class => autowire()
+                ->constructorParameter('notFoundHandler', get(NotFoundErrorHandler::class))
+            ,
+
+            // And the base dispatcher.
+            ActionDispatcher::class => autowire(),
+
+            // Error handlers.
+            NotFoundErrorHandler::class => autowire(),
+
+            // Body parser.
+            SerdeBodyParser::class => autowire(),
+
+            PageTreeRouter::class => autowire(),
+
+            Router::class => get(PageTreeRouter::class),
+
+            // The kernel.
+            StackMiddlewareKernel::class => autowire()
+                ->constructorParameter('baseHandler', get(ActionDispatcher::class))
+                ->constructorParameter('middleware', [
+                    get(ExceptionCatcherMiddleware::class),
+                    get(DefaultContentTypeMiddleware::class),
+                    get(CacheHeaderMiddleware::class),
+                    get(EnforceHeadMiddleware::class),
+                    get(RouterMiddleware::class),
+                    get(GenericNotFoundMiddleware::class),
+                    get(GenericMethodNotAllowedMiddleware::class),
+                    get(DeriveActionMetadataMiddleware::class),
+                    get(NormalizeArgumentTypesMiddleware::class),
+                    get(ParsedBodyMiddleware::class),
+                ])
+            ,
+
+            SapiEmitter::class => autowire(SapiEmitter::class),
+        ]);
+
+        /*
         // Core middleware and execution pipeline.
         $containerBuilder->addDefinitions([
             StackMiddlewareKernel::class => autowire(StackMiddlewareKernel::class)
-                ->constructor(baseHandler: get(ActionRunner::class))
+                ->constructor(baseHandler: get(ActionDispatcher::class))
                 // These will run last to first, ie, the earlier listed ones are "more inner."
                 // That makes interlacing request, response, and "both" middlewares tricky.
                 ->method('addMiddleware', get(ParamConverterMiddleware::class))
@@ -233,10 +302,10 @@ class MiDy implements RequestHandlerInterface
                 ->method('addMiddleware', get(EnforceHeadMiddleware::class))
                 ->method('addMiddleware', get(LogMiddleware::class))
             ,
-            SapiEmitter::class => autowire(SapiEmitter::class),
+
             ActionInvoker::class => get(RuntimeActionInvoker::class),
         ]);
-
+*/
         $containerBuilder->addDefinitions([
             PageCache::class => get(YiiDbPageCache::class),
         ]);
@@ -331,9 +400,11 @@ class MiDy implements RequestHandlerInterface
                     uploadedFileFactory: get(Psr17Factory::class),
                     streamFactory: get(StreamFactoryInterface::class),
                 ),
+            // Just temporarily, until the caching is moved elsewhere.
             ResponseBuilder::class => autowire()
                 ->constructorParameter('enableCache', env('ENABLE_CACHE', true))
             ,
+            CaricaResponseBuilder::class => get(ResponseBuilder::class),
         ]);
 
         // Commonmark

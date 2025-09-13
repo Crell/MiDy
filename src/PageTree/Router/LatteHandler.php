@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Router;
 
+use Crell\Carica\ExplicitActionMetadata;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
-use Crell\MiDy\Router\RouteResult;
-use Crell\MiDy\Router\RouteSuccess;
-use Crell\MiDy\Services\ResponseBuilder;
+use Crell\Carica\Router\RouteResult;
+use Crell\Carica\Router\RouteSuccess;
+use Crell\Carica\ResponseBuilder;
 use Crell\MiDy\Services\TemplateRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -27,12 +28,20 @@ class LatteHandler implements PageHandler
     {
         return new RouteSuccess(
             action: $this->action(...),
-            method: 'GET',
-            vars: [
+            arguments: [
                 'file' => $page->variant($ext)->physicalPath,
                 'page' => $page,
                 'query' =>  $request->getQueryParams(),
             ],
+            actionDef: new ExplicitActionMetadata(
+                parameterTypes: [
+                    'request' => ServerRequestInterface::class,
+                    'file' => PhysicalPath::class,
+                    'page' => Page::class,
+                    'query' => 'array',
+                ],
+                requestParameter: 'request',
+            ),
         );
     }
 

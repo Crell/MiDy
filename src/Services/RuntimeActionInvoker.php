@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Services;
 
-use Crell\MiDy\Router\RouteResult;
-use Crell\MiDy\Router\RouteSuccess;
+use Crell\Carica\Router\RouteResult;
+use Crell\Carica\Router\RouteSuccess;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

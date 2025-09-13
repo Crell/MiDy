@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Errors;
 
-use Crell\MiDy\Router\RouteResult;
+use Crell\Carica\Router\RouteResult;
 use Psr\Http\Message\ServerRequestInterface;
 
 readonly class NotFound implements Error

@@ -6,7 +6,7 @@ namespace Crell\MiDy;
 
 use Crell\MiDy\Events\ProcessActionResult;
 use Crell\MiDy\Services\ActionInvoker;
-use Crell\MiDy\Services\ResponseBuilder;
+use Crell\Carica\ResponseBuilder;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

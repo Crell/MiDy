@@ -22,6 +22,9 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
+use Crell\Carica\Router\RouteResult;
+use Crell\Carica\Router\RouteSuccess;
+use Crell\Carica\Router\RouteNotFound;
 
 class PageTreeRouterTest extends TestCase
 {
@@ -75,7 +78,7 @@ class PageTreeRouterTest extends TestCase
 
             public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
             {
-                return new RouteSuccess('action', 'GET', vars: ['a' => 1, 'b' => 2]);
+                return new RouteSuccess(fn() => 'action', arguments: ['a' => 1, 'b' => 2]);
             }
         });
 
@@ -86,8 +89,7 @@ class PageTreeRouterTest extends TestCase
         $result = $router->route($request);
 
         self::assertInstanceOf(RouteSuccess::class, $result);
-        self::assertEquals('action', $result->action);
-        self::assertEquals('GET', $result->method);
+        self::assertEquals('action', ($result->action)());
     }
 
     #[Test, RunInSeparateProcess]
@@ -107,7 +109,7 @@ class PageTreeRouterTest extends TestCase
 
             public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
             {
-                return new RouteSuccess('action', 'GET', vars: ['a' => 1, 'b' => 2]);
+                return new RouteSuccess(fn() => 'action', arguments: ['a' => 1, 'b' => 2]);
             }
         });
 
@@ -135,7 +137,7 @@ class PageTreeRouterTest extends TestCase
 
             public function handle(ServerRequestInterface $request, Page $page, string $ext, array $trailing = []): ?RouteResult
             {
-                return new RouteSuccess('action', 'GET', vars: ['trailing' => $trailing]);
+                return new RouteSuccess(fn() => 'action', arguments: ['trailing' => $trailing]);
             }
         });
 
@@ -146,8 +148,7 @@ class PageTreeRouterTest extends TestCase
         $result = $router->route($request);
 
         self::assertInstanceOf(RouteSuccess::class, $result);
-        self::assertEquals('action', $result->action);
-        self::assertEquals('GET', $result->method);
-        self::assertEquals(['trailing' => ['extra', 'here']], $result->vars);
+        self::assertEquals('action', ($result->action)());
+        self::assertEquals(['trailing' => ['extra', 'here']], $result->arguments);
     }
 }

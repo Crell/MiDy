@@ -7,9 +7,9 @@ namespace Crell\MiDy\PageTree\Router;
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
-use Crell\MiDy\Router\RouteResult;
-use Crell\MiDy\Router\RouteSuccess;
-use Crell\MiDy\Services\ResponseBuilder;
+use Crell\Carica\Router\RouteResult;
+use Crell\Carica\Router\RouteSuccess;
+use Crell\Midy\Services\ResponseBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -33,8 +33,7 @@ class StaticFileHandler implements PageHandler
 
         return new RouteSuccess(
             action: $this->action(...),
-            method: $request->getMethod(),
-            vars: [
+            arguments: [
                 'file' => $page->variant($ext)->physicalPath,
                 'contentType' => $contentType,
             ],

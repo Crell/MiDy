@@ -9,7 +9,7 @@ use Crell\MiDy\Config\General;
 use Crell\MiDy\Errors\NotFound;
 use Crell\MiDy\Events\HandleError;
 use Crell\MiDy\Router\Router;
-use Crell\MiDy\Router\RouteResult;
+use Crell\Carica\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\Tukio\Listener;
 use Psr\Http\Message\RequestFactoryInterface;

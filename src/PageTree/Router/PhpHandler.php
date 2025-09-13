@@ -8,8 +8,8 @@ use Crell\MiDy\ClassFinder;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\MiDy\Router\RouteMethodNotAllowed;
-use Crell\MiDy\Router\RouteResult;
-use Crell\MiDy\Router\RouteSuccess;
+use Crell\Carica\Router\RouteResult;
+use Crell\Carica\Router\RouteSuccess;
 use DI\FactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -39,8 +39,7 @@ class PhpHandler implements SupportsTrailingPath
         if (method_exists($actionObject, $method)) {
             return new RouteSuccess(
                 action: $actionObject->$method(...),
-                method: strtoupper($method),
-                vars: [
+                arguments: [
                     'file' => $page->variant($ext)->physicalPath,
                     'page' => $page,
                     'trailing' => $trailing,

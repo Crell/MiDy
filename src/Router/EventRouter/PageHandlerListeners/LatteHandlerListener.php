@@ -6,7 +6,7 @@ namespace Crell\MiDy\Router\EventRouter\PageHandlerListeners;
 
 use Crell\MiDy\Router\EventRouter\RouteResolution;
 use Crell\MiDy\Router\RouteSuccess;
-use Crell\MiDy\Services\ResponseBuilder;
+use Crell\Carica\ResponseBuilder;
 use Latte\Engine;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

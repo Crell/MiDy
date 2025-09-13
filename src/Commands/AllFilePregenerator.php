@@ -6,7 +6,7 @@ namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\PageTree\YiiDbPageCache;
-use Crell\MiDy\StackMiddlewareKernel;
+use Crell\Carica\StackMiddlewareKernel;
 use DI\Attribute\Inject;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Http\Message\ServerRequestInterface;

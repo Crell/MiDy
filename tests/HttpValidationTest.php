@@ -88,7 +88,8 @@ class HttpValidationTest extends TestCase
         ];
     }
 
-    #[Test, DataProvider('successGetRoutes'), RunInSeparateProcess]
+    #[Test, DataProvider('successGetRoutes')]
+    #[RunInSeparateProcess]
     public function basic_200_checks(string $path, string $contentType = 'text/html'): void
     {
         $serverRequest = $this->makeRequest($path);
@@ -100,7 +101,8 @@ class HttpValidationTest extends TestCase
         self::assertEquals($contentType, explode(';', $response->getHeaderLine('content-type'))[0]);
     }
 
-    #[Test, RunInSeparateProcess]
+    #[Test]
+    #[RunInSeparateProcess]
     public function not_found_handling(): void
     {
         $serverRequest = $this->makeRequest('/missing');

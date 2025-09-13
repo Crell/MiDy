@@ -9,9 +9,9 @@ use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
-use Crell\MiDy\Router\RouteResult;
-use Crell\MiDy\Router\RouteSuccess;
-use Crell\MiDy\Services\ResponseBuilder;
+use Crell\Carica\Router\RouteResult;
+use Crell\Carica\Router\RouteSuccess;
+use Crell\Carica\ResponseBuilder;
 use Crell\MiDy\Services\TemplateRenderer;
 use Latte\Runtime\Html;
 use League\CommonMark\ConverterInterface;
@@ -36,8 +36,7 @@ class MarkdownLatteHandler implements PageHandler
     {
         return new RouteSuccess(
             action: $this->action(...),
-            method: 'GET',
-            vars: [
+            arguments: [
                 'file' => $page->variant($ext)->physicalPath,
                 'page' => $page,
             ],

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Crell\MiDy\Services\ResponseBuilder;
+use Crell\Carica\ResponseBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

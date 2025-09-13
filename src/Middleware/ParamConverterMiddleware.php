@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Middleware;
 
-use Crell\MiDy\Router\RouteResult;
+use Crell\Carica\Router\RouteResult;
 use Crell\MiDy\Router\RouteSuccess;
 use Crell\MiDy\Services\ParamConverter;
 use Psr\Http\Message\ResponseInterface;
