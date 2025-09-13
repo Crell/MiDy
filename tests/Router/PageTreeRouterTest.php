@@ -55,7 +55,7 @@ class PageTreeRouterTest extends TestCase
         );
     }
 
-    #[Before(priority: 5)]
+    #[Before(5)]
     protected function makePageTree(): void
     {
         $this->pageTree = new PageTree($this->repo, $this->parser, $this->routesPath);

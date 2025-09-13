@@ -26,7 +26,7 @@ trait SetupFilesystem
      */
     protected string $cachePath;
 
-    #[Before(priority: 30)]
+    #[Before(30)]
     public function initFilesystem(): void
     {
         // This mess is because vfsstream doesn't let you create multiple streams

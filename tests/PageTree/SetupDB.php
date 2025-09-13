@@ -19,13 +19,13 @@ trait SetupDB
 
     private Connection $conn;
 
-    #[Before(priority: 20)]
+    #[Before(20)]
     public function setupMockDb(): void
     {
 //        return $this->db ??= new \PDO('sqlite::memory:');
     }
 
-    #[Before(priority: 20)]
+    #[Before(20)]
     public function setupconnectionAndDB(): void
     {
         // Dsn.

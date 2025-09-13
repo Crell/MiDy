@@ -21,7 +21,7 @@ trait SetupParser
 
     private Parser $parser;
 
-    #[Before(priority: 5)]
+    #[Before(5)]
     public function setupParser(): void
     {
         $fileParser = new MultiplexedFileParser();

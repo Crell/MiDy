@@ -12,7 +12,7 @@ trait SetupRepo
 
     private YiiDbPageCache $repo;
 
-    #[Before(priority: 15)]
+    #[Before(15)]
     public function setupRepo(): void
     {
         $this->repo ??= new YiiDbPageCache(conn: $this->conn);

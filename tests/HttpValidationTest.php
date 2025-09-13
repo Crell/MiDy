@@ -163,7 +163,7 @@ class HttpValidationTest extends TestCase
 
 
     #[Test, DataProvider('successGetRoutes'), RunInSeparateProcess]
-    public function cache_headers_etag(string $path): void
+    public function cache_headers_etag(string $path, string $contentType = 'text/html'): void
     {
         $serverRequest = $this->makeRequest($path);
 
