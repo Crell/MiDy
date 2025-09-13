@@ -22,17 +22,21 @@ function stop {
 }
 
 function restart {
-  stop
-  start
+    stop
+    start
 }
 
 function shell {
-  start
-  docker exec -it $(docker ps -q --filter="NAME=${project}-${appContainer}") bash
+    start
+    docker compose exec -u $(id -u):$(id -g) $appContainer bash
 }
 
 function default {
     start
+}
+
+function fixperms {
+    sudo chown crell:crell -R * .*
 }
 
 function help {
