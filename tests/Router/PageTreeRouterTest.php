@@ -82,9 +82,7 @@ class PageTreeRouterTest extends TestCase
             }
         });
 
-        $request = $this->makeRequest('/foo/bar')
-            ->withAttribute(RequestPath::class, new RequestPath('/foo/bar'))
-            ->withAttribute(RequestFormat::class, new RequestFormat('text/html', 'text/html'));
+        $request = $this->makeRequest('/foo/bar');
 
         $result = $router->route($request);
 
@@ -113,9 +111,7 @@ class PageTreeRouterTest extends TestCase
             }
         });
 
-        $request = $this->makeRequest('/afolder/sub1/sub2/sub3')
-            ->withAttribute(RequestPath::class, new RequestPath('/afolder/sub1/sub2/sub3'))
-            ->withAttribute(RequestFormat::class, new RequestFormat('text/html', 'text/html'));
+        $request = $this->makeRequest('/afolder/sub1/sub2/sub3');
 
         $result = $router->route($request);
 
@@ -141,9 +137,7 @@ class PageTreeRouterTest extends TestCase
             }
         });
 
-        $request = $this->makeRequest('/afolder2/sub1/test/extra/here')
-            ->withAttribute(RequestPath::class, new RequestPath('/afolder2/sub1/test/extra/here'))
-            ->withAttribute(RequestFormat::class, new RequestFormat('text/html', 'text/html'));
+        $request = $this->makeRequest('/afolder2/sub1/test/extra/here');
 
         $result = $router->route($request);
 

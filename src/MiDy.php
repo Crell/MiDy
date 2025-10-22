@@ -11,17 +11,22 @@ use Crell\AttributeUtils\FunctionAnalyzer;
 use Crell\AttributeUtils\MemoryCacheAnalyzer;
 use Crell\AttributeUtils\MemoryCacheFunctionAnalyzer;
 use Crell\Carica\Middleware\AdditionalMiddlewareMiddleware;
+use Crell\Carica\Middleware\CacheHeaderMiddleware;
 use Crell\Carica\Middleware\DefaultContentTypeMiddleware;
 use Crell\Carica\Middleware\DeriveActionMetadataMiddleware;
+use Crell\Carica\Middleware\EnforceHeadMiddleware;
 use Crell\Carica\Middleware\ExceptionCatcherMiddleware;
 use Crell\Carica\Middleware\GenericMethodNotAllowedMiddleware;
 use Crell\Carica\Middleware\GenericNotFoundMiddleware;
 use Crell\Carica\Middleware\NormalizeArgumentTypesMiddleware;
 use Crell\Carica\Middleware\ParsedBodyMiddleware;
-use Crell\Carica\ParsedBody;
+use Crell\Carica\ResponseBuilder as CaricaResponseBuilder;
 use Crell\Carica\Router\ActionDispatcher;
+use Crell\Carica\Router\DelegatingRouter;
+use Crell\Carica\Router\Router;
 use Crell\Carica\Router\RouterMiddleware;
 use Crell\Carica\SerdeBodyParser;
+use Crell\Carica\StackMiddlewareKernel;
 use Crell\Config\ConfigLoader;
 use Crell\Config\IniFileSource;
 use Crell\Config\LayeredLoader;
@@ -30,13 +35,6 @@ use Crell\Config\SerializedFilesystemCache;
 use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
-use Crell\Carica\Middleware\CacheHeaderMiddleware;
-use Crell\MiDy\Middleware\DeriveFormatMiddleware;
-use Crell\Carica\Middleware\EnforceHeadMiddleware;
-use Crell\MiDy\Middleware\LogMiddleware;
-use Crell\MiDy\Middleware\ParamConverterMiddleware;
-use Crell\MiDy\Middleware\RequestPathMiddleware;
-use Crell\MiDy\Middleware\RoutingMiddleware;
 use Crell\MiDy\PageTree\Latte\PageTreeExtension;
 use Crell\MiDy\PageTree\PageCache;
 use Crell\MiDy\PageTree\PageTree;
@@ -54,14 +52,9 @@ use Crell\MiDy\PageTree\Router\PageTreeRouter;
 use Crell\MiDy\PageTree\Router\PhpHandler;
 use Crell\MiDy\PageTree\Router\StaticFileHandler;
 use Crell\MiDy\PageTree\YiiDbPageCache;
-use Crell\Carica\Router\DelegatingRouter;
 use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
-use Crell\Carica\Router\Router;
-use Crell\MiDy\Services\ActionInvoker;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\ResponseBuilder;
-use Crell\Carica\ResponseBuilder as CaricaResponseBuilder;
-use Crell\MiDy\Services\RuntimeActionInvoker;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -104,7 +97,6 @@ use Yiisoft\Db\Cache\SchemaCache;
 use Yiisoft\Db\Driver\Pdo\PdoDriverInterface;
 use Yiisoft\Db\Sqlite\Connection;
 use Yiisoft\Db\Sqlite\Driver;
-use Crell\Carica\StackMiddlewareKernel;
 
 use function DI\autowire;
 use function DI\env;
@@ -476,13 +468,18 @@ class MiDy implements RequestHandlerInterface
 
     public function setupListeners(): void
     {
+        // Refactoring has removed all the built in listeners, surprisingly.
+        // @todo come back to this if that changes, or remove this method.
+        return;
+
+
         /** @var OrderedListenerProvider $provider */
         $provider = $this->container->get(OrderedListenerProvider::class);
         $finder = new ClassFinder();
 
         $listenerList = function () use ($finder) {
             //yield from $finder->find($this->appRoot . '/src/Router\EventRouter\PageHandlerListeners');
-            yield from $finder->find($this->appRoot . '/src/Listeners');
+//            yield from $finder->find($this->appRoot . '/src/Listeners');
         };
 
         foreach ($listenerList() as $class) {

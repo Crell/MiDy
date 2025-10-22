@@ -7,7 +7,7 @@ namespace Crell\MiDy\PageTree\Router;
 use Crell\MiDy\ClassFinder;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
-use Crell\MiDy\Router\RouteMethodNotAllowed;
+use Crell\Carica\Router\RouteMethodNotAllowed;
 use Crell\Carica\Router\RouteResult;
 use Crell\Carica\Router\RouteSuccess;
 use DI\FactoryInterface;
