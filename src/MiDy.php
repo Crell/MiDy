@@ -30,7 +30,7 @@ use Crell\Config\SerializedFilesystemCache;
 use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
-use Crell\MiDy\Middleware\CacheHeaderMiddleware;
+use Crell\Carica\Middleware\CacheHeaderMiddleware;
 use Crell\MiDy\Middleware\DeriveFormatMiddleware;
 use Crell\Carica\Middleware\EnforceHeadMiddleware;
 use Crell\MiDy\Middleware\LogMiddleware;
