@@ -62,7 +62,6 @@ use Crell\Tukio\Dispatcher;
 use Crell\Tukio\OrderedListenerProvider;
 use DI\ContainerBuilder;
 use HttpSoft\Emitter\SapiEmitter;
-use Latte\Bridges\Tracy\TracyExtension;
 use Latte\Engine;
 use League\CommonMark\ConverterInterface;
 use League\CommonMark\Environment\Environment;
@@ -147,18 +146,10 @@ class MiDy implements RequestHandlerInterface
         $this->templatesPath = $this->ensurePath($templatesPath, $_ENV['TEMPLATES_PATH'] ?? '/templates');
         $this->publicPath = $this->ensurePath($publicPath, $_ENV['PUBLIC_PATH'] ?? '/public');
 
+        $this->midyPath = $this->ensurePath(dirname(__FILE__) . '/..', '');
+
         $this->container = $this->buildContainer();
         $this->setupListeners();
-
-        // @todo Hacky.
-        // We can't actually do this, due to https://github.com/PHP-DI/PHP-DI/issues/900
-//        if (isset($_ENV['ENABLE_CACHE'])) {
-//            $_ENV['ENABLE_CACHE'] = in_array($_ENV['ENABLE_CACHE'], ['1', 'true', 'on'], false);
-//        }
-
-        if (class_exists(\Tracy\Debugger::class)) {
-//            \Tracy\Debugger::enable();
-        }
     }
 
     protected function ensurePath(?string $override, string $default): string
@@ -276,28 +267,6 @@ class MiDy implements RequestHandlerInterface
             SapiEmitter::class => autowire(SapiEmitter::class),
         ]);
 
-        /*
-        // Core middleware and execution pipeline.
-        $containerBuilder->addDefinitions([
-            StackMiddlewareKernel::class => autowire(StackMiddlewareKernel::class)
-                ->constructor(baseHandler: get(ActionDispatcher::class))
-                // These will run last to first, ie, the earlier listed ones are "more inner."
-                // That makes interlacing request, response, and "both" middlewares tricky.
-                ->method('addMiddleware', get(ParamConverterMiddleware::class))
-//        ->method('addMiddleware', get(AuthorizationMiddleware::class))
-                ->method('addMiddleware', get(RoutingMiddleware::class))
-                ->method('addMiddleware', get(RequestPathMiddleware::class))
-                ->method('addMiddleware', get(DeriveFormatMiddleware::class))
-//        ->method('addMiddleware', get(AuthenticationMiddleware::class))
-                ->method('addMiddleware', get(CacheHeaderMiddleware::class))
-//                ->method('addMiddleware', get(CacheMiddleware::class))
-                ->method('addMiddleware', get(EnforceHeadMiddleware::class))
-                ->method('addMiddleware', get(LogMiddleware::class))
-            ,
-
-            ActionInvoker::class => get(RuntimeActionInvoker::class),
-        ]);
-*/
         $containerBuilder->addDefinitions([
             PageCache::class => get(YiiDbPageCache::class),
         ]);
@@ -435,7 +404,6 @@ class MiDy implements RequestHandlerInterface
             Engine::class => autowire()
                 ->method('addExtension', get(CommonMarkExtension::class))
                 ->method('addExtension', get(PageTreeExtension::class))
-                ->method('addExtension', get(TracyExtension::class))
                 ->method('addExtension', get(LatteThemeExtension::class))
                 ->method('setTempDirectory', get('paths.cache.latte'))
             ,
