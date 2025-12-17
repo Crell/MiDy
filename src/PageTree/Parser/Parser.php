@@ -146,8 +146,11 @@ class Parser
             $iter = new \FilesystemIterator((string)$physicalPath, flags: $flags);
         }
 
-        // Never show the control file.
-        $iter = new \CallbackFilterIterator($iter, static fn(\SplFileInfo $f) => $f->getBasename() !== self::ControlFile);
+        // Never show the control file or any .git files.
+        $iter = new \CallbackFilterIterator($iter, static fn(\SplFileInfo $f)
+            => $f->getBasename() !== self::ControlFile
+                && !str_starts_with($f->getBasename(), '.git')
+        );
 
         return $iter;
     }
