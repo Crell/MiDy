@@ -20,7 +20,7 @@ readonly class TemplateRenderer
         $event = $this->dispatcher->dispatch(new TemplatePreRender($template, $args));
 
         // Latte doesn't offer an API to get the content type of the template.
-        // And it only send sit when you tell it to print the rendered output
+        // And it only sends it when you tell it to print the rendered output
         // itself.  So this is this least-bad way to capture the content type,
         // until/unless Latte provides a useful API.
         ob_start();
