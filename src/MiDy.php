@@ -115,6 +115,8 @@ class MiDy implements RequestHandlerInterface
     private readonly string $templatesPath;
     private readonly string $publicPath;
 
+    private readonly string $midyPath;
+
     /**
      * @param string $appRoot
      *   The source root of the application. The default assumes the running
@@ -138,7 +140,7 @@ class MiDy implements RequestHandlerInterface
         ?string $templatesPath = null,
         ?string $publicPath = null,
     ) {
-        $this->appRoot = realpath($appRoot);
+        $this->appRoot = realpath($appRoot) ?? '';
 
         $this->cachePath = $this->ensurePath($cachePath, $_ENV['CACHE_PATH'] ?? '/cache');
         $this->routePath = $this->ensurePath($routesPath, $_ENV['ROUTES_PATH'] ?? '/routes');
@@ -168,7 +170,7 @@ class MiDy implements RequestHandlerInterface
         $finder = new ClassFinder();
 
         $codePaths = [
-            $this->appRoot . '/src/',
+            $this->midyPath . '/src/',
         ];
 
         foreach ($codePaths as $path) {
@@ -412,13 +414,13 @@ class MiDy implements RequestHandlerInterface
             ,
             LatteThemeExtension::class => autowire()
                 ->constructorParameter('allowedRoot', value($this->appRoot))
-                ->constructorParameter('core', value($this->appRoot . '/src/templates'))
+                ->constructorParameter('core', value($this->midyPath . '/src/templates'))
                 ->constructorParameter('site', get('paths.templates'))
             ,
         ]);
 
         $configPaths = [
-            $this->appRoot . '/src/Config',
+            $this->midyPath . '/src/Config',
         ];
 
         foreach ($configPaths as $path) {
