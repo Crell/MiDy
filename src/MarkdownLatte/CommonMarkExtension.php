@@ -19,7 +19,7 @@ class CommonMarkExtension extends Extension
     public function getFilters(): array
     {
         return [
-            'markdown' => [$this, 'markdownFilter'],
+            'markdown' => $this->markdownFilter(...),
         ];
     }
 
