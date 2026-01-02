@@ -17,7 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class HttpValidationTest extends TestCase
 {
-    private Midy $app;
+    private MiDy $app;
 
     public function setUp(): void
     {
@@ -89,7 +89,6 @@ class HttpValidationTest extends TestCase
     }
 
     #[Test, DataProvider('successGetRoutes')]
-    #[RunInSeparateProcess]
     public function basic_200_checks(string $path, string $contentType = 'text/html'): void
     {
         $serverRequest = $this->makeRequest($path);
@@ -102,7 +101,6 @@ class HttpValidationTest extends TestCase
     }
 
     #[Test]
-    #[RunInSeparateProcess]
     public function not_found_handling(): void
     {
         $serverRequest = $this->makeRequest('/missing');
@@ -164,7 +162,7 @@ class HttpValidationTest extends TestCase
     //   Also make sure 404/403 pages are not cached.
 
 
-    #[Test, DataProvider('successGetRoutes'), RunInSeparateProcess]
+    #[Test, DataProvider('successGetRoutes')]
     public function cache_headers_etag(string $path, string $contentType = 'text/html'): void
     {
         $serverRequest = $this->makeRequest($path);
