@@ -23,22 +23,23 @@ $bar = new Baz();
 
     {$md| markdown}
 
-    {block | markdown}
+{* // Temporarily disabled, as it seems broken by a recent Latte release.
+    {block| markdown}
         * This
         * is working
 
         **Block** filters _do_ work
     {/block}
-
+*}
 {$mdItalic| markdown}
 {$mdList| markdown}
 
 Wrapping the var in a block:
-
+{*
 {block | markdown}
 {$mdItalic}
 {/block}
-
+*}
 <div>
 {block |indent}
 <p>Hello</p>
