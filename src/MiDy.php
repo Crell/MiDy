@@ -20,7 +20,7 @@ use Crell\Carica\Middleware\GenericMethodNotAllowedMiddleware;
 use Crell\Carica\Middleware\GenericNotFoundMiddleware;
 use Crell\Carica\Middleware\NormalizeArgumentTypesMiddleware;
 use Crell\Carica\Middleware\ParsedBodyMiddleware;
-use Crell\Carica\ResponseBuilder as CaricaResponseBuilder;
+use Crell\Carica\ResponseBuilder;
 use Crell\Carica\Router\ActionDispatcher;
 use Crell\Carica\Router\DelegatingRouter;
 use Crell\Carica\Router\Router;
@@ -53,7 +53,7 @@ use Crell\MiDy\PageTree\Router\PageTreeRouter;
 use Crell\MiDy\PageTree\Router\PhpHandler;
 use Crell\MiDy\PageTree\Router\StaticFileHandler;
 use Crell\MiDy\Services\PrintLogger;
-use Crell\MiDy\Services\ResponseBuilder;
+use Crell\MiDy\Services\ResponseCacher;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -359,11 +359,10 @@ class MiDy implements RequestHandlerInterface
                     uploadedFileFactory: get(Psr17Factory::class),
                     streamFactory: get(StreamFactoryInterface::class),
                 ),
-            // Just temporarily, until the caching is moved elsewhere.
-            ResponseBuilder::class => autowire()
+            ResponseCacher::class => autowire()
                 ->constructorParameter('enableCache', env('ENABLE_CACHE', true))
             ,
-            CaricaResponseBuilder::class => get(ResponseBuilder::class),
+            ResponseBuilder::class => autowire(),
         ]);
 
         // Commonmark

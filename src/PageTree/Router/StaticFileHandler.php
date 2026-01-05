@@ -4,24 +4,26 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Router;
 
+use Crell\Carica\ResponseBuilder;
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\Carica\Router\RouteResult;
 use Crell\Carica\Router\RouteSuccess;
-use Crell\MiDy\Services\ResponseBuilder;
+use Crell\MiDy\Services\ResponseCacher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
 class StaticFileHandler implements PageHandler
 {
-    public private(set) array $supportedMethods = ['GET'];
+    private(set) array $supportedMethods = ['GET'];
     public array $supportedExtensions {
         get => array_keys($this->config->allowedExtensions);
     }
 
     public function __construct(
+        private readonly ResponseCacher $cacher,
         private readonly ResponseBuilder $builder,
         private readonly StreamFactoryInterface $streamFactory,
         private readonly StaticRoutes $config,
@@ -42,7 +44,7 @@ class StaticFileHandler implements PageHandler
 
     public function action(ServerRequestInterface $request, PhysicalPath $file, string $contentType): ResponseInterface
     {
-        return $this->builder->handleCacheableFileRequest($request, (string)$file, function () use ($file, $contentType) {
+        return $this->cacher->handleCacheableFileRequest($request, (string)$file, function () use ($file, $contentType) {
             $stream = $this->streamFactory->createStreamFromFile((string)$file);
             $stream->rewind();
             return $this->builder->ok($stream, $contentType);

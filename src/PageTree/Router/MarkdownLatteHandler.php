@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Router;
 
+use Crell\Carica\ResponseBuilder;
 use Crell\MiDy\Config\MarkdownLatteConfiguration;
 use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
@@ -11,7 +12,7 @@ use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\Carica\Router\RouteResult;
 use Crell\Carica\Router\RouteSuccess;
-use Crell\Carica\ResponseBuilder;
+use Crell\MiDy\Services\ResponseCacher;
 use Crell\MiDy\Services\TemplateRenderer;
 use Latte\Runtime\Html;
 use League\CommonMark\ConverterInterface;
@@ -25,6 +26,7 @@ class MarkdownLatteHandler implements PageHandler
 
     public function __construct(
         private readonly ResponseBuilder $builder,
+        private readonly ResponseCacher $cacher,
         private readonly MarkdownPageLoader $loader,
         private readonly LatteThemeExtension $themeExtension,
         private readonly TemplateRenderer $renderer,
@@ -45,7 +47,7 @@ class MarkdownLatteHandler implements PageHandler
 
     public function action(ServerRequestInterface $request, Page $page, PhysicalPath $file): ResponseInterface
     {
-        return $this->builder->handleCacheableFileRequest($request, (string)$file, function() use ($file, $page) {
+        return $this->cacher->handleCacheableFileRequest($request, (string)$file, function() use ($file, $page) {
             $mdPage = $this->loader->load((string)$file);
 
             $template = $this->themeExtension->findTemplatePath($page->other['template'] ?? $this->config->defaultPageTemplate);

@@ -5,21 +5,23 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Router;
 
 use Crell\Carica\ExplicitActionMetadata;
+use Crell\Carica\ResponseBuilder;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\Carica\Router\RouteResult;
 use Crell\Carica\Router\RouteSuccess;
-use Crell\Carica\ResponseBuilder;
+use Crell\MiDy\Services\ResponseCacher;
 use Crell\MiDy\Services\TemplateRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class LatteHandler implements PageHandler
 {
-    public private(set) array $supportedMethods = ['GET'];
-    public private(set) array $supportedExtensions = ['latte'];
+    private(set) array $supportedMethods = ['GET'];
+    private(set) array $supportedExtensions = ['latte'];
 
     public function __construct(
+        private readonly ResponseCacher $cacher,
         private readonly ResponseBuilder $builder,
         private readonly TemplateRenderer $renderer,
     ) {}
@@ -45,9 +47,12 @@ class LatteHandler implements PageHandler
         );
     }
 
+    /**
+     * @param array<string, string|int|float> $query
+     */
     public function action(ServerRequestInterface $request, PhysicalPath $file, Page $page, array $query): ResponseInterface
     {
-        return $this->builder->handleCacheableFileRequest($request, (string)$file, function () use ($file, $query, $page) {
+        return $this->cacher->handleCacheableFileRequest($request, (string)$file, function () use ($file, $query, $page) {
             $result = $this->renderer->render((string)$file, [
                 'query' => new HttpQuery($query),
                 'currentPage' => $page,
