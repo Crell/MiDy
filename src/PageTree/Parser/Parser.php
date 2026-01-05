@@ -26,6 +26,9 @@ class Parser
         private readonly Serde $serde = new SerdeCommon(),
     ) {}
 
+    /**
+     * @param array<string, string> $mounts
+     */
     public function parseFolder(PhysicalPath $physicalPath, LogicalPath $logicalPath, array $mounts): bool
     {
         return $this->cache->inTransaction(function() use ($physicalPath, $logicalPath, $mounts) {
@@ -126,7 +129,7 @@ class Parser
     /**
      * Creates an iterator for the specified path and configuration.
      *
-     * @return iterable<\SplFileInfo>
+     * @return \Iterator<\SplFileInfo>
      */
     private function getChildIterator(PhysicalPath $physicalPath, bool $flatten): \Iterator
     {

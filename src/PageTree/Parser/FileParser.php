@@ -10,8 +10,9 @@ use Crell\MiDy\PageTree\ParsedFrontmatter;
 interface FileParser
 {
     /**
-     * @return array<string>
-     *     A list of supported file extensions.
+     * @var list<string>
+     *
+     * A list of supported file extensions.
      */
     public array $supportedExtensions { get; }
 

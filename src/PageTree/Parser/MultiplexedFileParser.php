@@ -14,7 +14,9 @@ class MultiplexedFileParser implements FileParser
     }
 
     /**
-     * @var FileParser
+     * @var array<string, array<FileParser>>
+     *
+     * A map from a file extension to a list of parsers that want to try parsing it.
      */
     private array $parsers = [];
 

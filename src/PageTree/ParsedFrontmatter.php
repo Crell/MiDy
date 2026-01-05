@@ -19,11 +19,19 @@ interface ParsedFrontmatter
 {
     public ?string $title { get; }
     public ?string $summary { get; }
+
+    /**
+     * @var list<string>|null
+     */
     public ?array $tags { get; }
     public ?string $slug { get; }
     public ?bool $hidden { get; }
     public ?bool $routable { get; }
     public ?DateTimeImmutable $publishDate { get; }
     public ?DateTimeImmutable $lastModifiedDate { get; }
+
+    /**
+     * @var array<string, mixed>
+     */
     public array $other { get; }
 }

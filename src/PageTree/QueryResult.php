@@ -6,6 +6,9 @@ namespace Crell\MiDy\PageTree;
 
 use Traversable;
 
+/**
+ * @implements \IteratorAggregate<PageRecord>
+ */
 readonly class QueryResult implements \Countable, \IteratorAggregate
 {
     /**

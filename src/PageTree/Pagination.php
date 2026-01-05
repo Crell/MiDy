@@ -6,6 +6,9 @@ namespace Crell\MiDy\PageTree;
 
 use Traversable;
 
+/**
+ * @implements \IteratorAggregate<Page>
+ */
 class Pagination implements \IteratorAggregate
 {
     public int $lastPageNum {
@@ -24,6 +27,9 @@ class Pagination implements \IteratorAggregate
             : null;
     }
 
+    /**
+     * @param PageSet<Page> $items
+     */
     public function __construct(
         public readonly int $total,
         public readonly int $pageSize,

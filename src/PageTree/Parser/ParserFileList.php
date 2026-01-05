@@ -10,6 +10,7 @@ use Crell\MiDy\PageTree\SortOrder;
 
 /**
  * @internal
+ * @implements \IteratorAggregate<PageData>
  */
 class ParserFileList implements \IteratorAggregate
 {

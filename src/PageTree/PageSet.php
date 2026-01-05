@@ -9,6 +9,8 @@ namespace Crell\MiDy\PageTree;
  *
  * When traversing with foreach(), implementations SHOULD use a reasonable default
  * filtering (eg, only show non-hidden pages).
+ *
+ * @extends \Traversable<Page>
  */
 interface PageSet extends \Countable, \Traversable
 {
@@ -29,12 +31,14 @@ interface PageSet extends \Countable, \Traversable
     /**
      * Filters the PageSet down to just those items that match the filter callback.
      *
-     * @param callable(Page $p): bool $filter
+     * @param \Closure(Page $p): bool $filter
      */
     public function filter(\Closure $filter, int $pageSize = PageCache::DefaultPageSize, int $pageNum = 1): Pagination;
 
     /**
      * Filters this page set to just those items that have at least one specified tag.
+     *
+     * @param list<string> $tags
      */
     public function filterAnyTag(array $tags, int $pageSize = PageCache::DefaultPageSize, int $pageNum = 1): Pagination;
 }
