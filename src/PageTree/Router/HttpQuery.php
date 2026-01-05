@@ -1,17 +1,22 @@
-<?php
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
 
 declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Router;
 
+use Stringable;
+
 /**
  * @todo This likely belongs in a different namespace.
  */
-readonly class HttpQuery implements \Stringable
+readonly class HttpQuery implements Stringable
 {
+    /**
+     * @param array<string, string|int|float|null> $params
+     */
     public function __construct(private array $params = []) {}
 
-    public function with(...$changes): HttpQuery
+    public function with(mixed ...$changes): self
     {
         return new self($changes + $this->params);
     }

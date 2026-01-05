@@ -15,8 +15,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class PhpHandler implements SupportsTrailingPath
 {
-    public private(set) array $supportedMethods = ['GET', 'POST', 'HEAD', 'PUT', 'DELETE'];
-    public private(set) array $supportedExtensions = ['php'];
+    private(set) array $supportedMethods = ['GET', 'POST', 'HEAD', 'PUT', 'DELETE'];
+    private(set) array $supportedExtensions = ['php'];
 
     /**
      * @param FactoryInterface $container
@@ -50,7 +50,7 @@ class PhpHandler implements SupportsTrailingPath
         // This is all error handling.
         $rAction = new \ReflectionObject($actionObject);
         $rMethods = $rAction->getMethods(\ReflectionMethod::IS_PUBLIC);
-        $methodNames = array_map(fn(\ReflectionMethod $m) => strtoupper($m->name), $rMethods);
+        $methodNames = array_map(static fn(\ReflectionMethod $m) => strtoupper($m->name), $rMethods);
         $allowedMethods = array_intersect($methodNames, $this->supportedMethods);
         return new RouteMethodNotAllowed($allowedMethods);
     }
