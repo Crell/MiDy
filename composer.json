@@ -11,6 +11,7 @@
         "crell/fp": "^1.0",
         "crell/path": "^0.1.2",
         "crell/tukio": "^2.0",
+        "doctrine/dbal": "^4.4",
         "httpsoft/http-emitter": "^1.1",
         "latte/latte": "^3.0",
         "league/commonmark": "^2.6",

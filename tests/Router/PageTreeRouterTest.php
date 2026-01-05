@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Router;
 
+use Crell\Carica\Router\RouteNotFound;
+use Crell\Carica\Router\RouteResult;
+use Crell\Carica\Router\RouteSuccess;
 use Crell\MiDy\MiDy;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageTree;
@@ -11,7 +14,6 @@ use Crell\MiDy\PageTree\Parser\Parser;
 use Crell\MiDy\PageTree\Router\PageHandler;
 use Crell\MiDy\PageTree\Router\PageTreeRouter;
 use Crell\MiDy\PageTree\Router\SupportsTrailingPath;
-use Crell\MiDy\PageTree\SetupDB;
 use Crell\MiDy\PageTree\SetupParser;
 use Crell\MiDy\PageTree\SetupRepo;
 use Crell\MiDy\SetupFilesystem;
@@ -22,14 +24,10 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
-use Crell\Carica\Router\RouteResult;
-use Crell\Carica\Router\RouteSuccess;
-use Crell\Carica\Router\RouteNotFound;
 
 class PageTreeRouterTest extends TestCase
 {
     use SetupFilesystem;
-    use SetupDB;
     use SetupRepo;
     use SetupParser;
 

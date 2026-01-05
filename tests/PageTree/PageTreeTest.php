@@ -286,7 +286,7 @@ class PageTreeTest extends TestCase
         $tree->reindexAll();
 
         // Every file above should be found here as a page.
-        $count = $this->conn->createCommand("SELECT COUNT(*) FROM page")->queryScalar();
+        $count = $this->conn->executeQuery("SELECT COUNT(*) FROM page")->fetchOne();
         self::assertEquals(10, $count);
     }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
-use Crell\MiDy\PageTree\YiiDbPageCache;
+use Crell\MiDy\PageTree\PageCache;
 use Crell\Carica\StackMiddlewareKernel;
 use DI\Attribute\Inject;
 use Nyholm\Psr7Server\ServerRequestCreator;
@@ -18,7 +18,7 @@ readonly class AllFilePregenerator
     private array $extensionLookup;
 
     public function __construct(
-        private YiiDbPageCache $cache,
+        private PageCache $cache,
         private StaticRoutes $staticRoutes,
         #[Inject('paths.public')]
         private string $publicPath,

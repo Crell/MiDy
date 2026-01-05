@@ -35,6 +35,7 @@ use Crell\Config\SerializedFilesystemCache;
 use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
+use Crell\MiDy\PageTree\DoctrinePageCache;
 use Crell\MiDy\PageTree\Latte\PageTreeExtension;
 use Crell\MiDy\PageTree\PageCache;
 use Crell\MiDy\PageTree\PageTree;
@@ -51,8 +52,6 @@ use Crell\MiDy\PageTree\Router\NotFoundErrorHandler;
 use Crell\MiDy\PageTree\Router\PageTreeRouter;
 use Crell\MiDy\PageTree\Router\PhpHandler;
 use Crell\MiDy\PageTree\Router\StaticFileHandler;
-use Crell\MiDy\PageTree\YiiDbPageCache;
-use Crell\MiDy\Router\EventRouter\PageHandlerListeners\MarkdownLatteHandlerListener;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\ResponseBuilder;
 use Crell\Serde\Serde;
@@ -61,6 +60,9 @@ use Crell\Tukio\DebugEventDispatcher;
 use Crell\Tukio\Dispatcher;
 use Crell\Tukio\OrderedListenerProvider;
 use DI\ContainerBuilder;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Tools\DsnParser;
 use HttpSoft\Emitter\SapiEmitter;
 use Latte\Engine;
 use League\CommonMark\ConverterInterface;
@@ -74,7 +76,6 @@ use League\CommonMark\MarkdownConverter;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
-use PDO;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
@@ -88,15 +89,8 @@ use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Psr\SimpleCache\CacheInterface;
 use Spatie\CommonMarkHighlighter\FencedCodeRenderer;
 use Spatie\CommonMarkHighlighter\IndentedCodeRenderer;
-use Yiisoft\Cache\File\FileCache;
-use Yiisoft\Db\Cache\SchemaCache;
-use Yiisoft\Db\Driver\Pdo\PdoDriverInterface;
-use Yiisoft\Db\Sqlite\Connection;
-use Yiisoft\Db\Sqlite\Driver;
-
 use function DI\autowire;
 use function DI\env;
 use function DI\factory;
@@ -161,6 +155,14 @@ class MiDy implements RequestHandlerInterface
         return ensure_dir($dir);
     }
 
+    protected function createDoctrine(): Connection
+    {
+        $dsnParser = new DsnParser();
+        $connectionParams = $dsnParser
+            ->parse("pdo-sqlite:///{$this->cachePath}/routes/routes.sqlite");
+        return DriverManager::getConnection($connectionParams);
+    }
+
     protected function buildContainer(): ContainerInterface
     {
         $containerBuilder = new ContainerBuilder();
@@ -194,7 +196,6 @@ class MiDy implements RequestHandlerInterface
             'paths.cache.routes' => value(ensure_dir($this->cachePath . '/routes')),
             'paths.cache.config' => value(ensure_dir($this->cachePath . '/config')),
             'paths.cache.latte' => value(ensure_dir($this->cachePath . '/latte')),
-            'paths.cache.yii' => value(ensure_dir($this->cachePath . '/yii')),
             'path.cache.routes.dsn' => value('sqlite:' . $this->cachePath . '/routes/routes.sq3'),
             'path.cache.routes.dbname' => value($this->cachePath . '/routes/routes.sq3'),
         ]);
@@ -270,7 +271,12 @@ class MiDy implements RequestHandlerInterface
         ]);
 
         $containerBuilder->addDefinitions([
-            PageCache::class => get(YiiDbPageCache::class),
+            PageCache::class => get(DoctrinePageCache::class),
+        ]);
+
+        // Doctrine
+        $containerBuilder->addDefinitions([
+            Connection::class => factory($this->createDoctrine(...)),
         ]);
 
         // Routing
@@ -279,16 +285,6 @@ class MiDy implements RequestHandlerInterface
                 ->constructorParameter('default', get(PageTreeRouter::class))
             ,
             Router::class => get(DelegatingRouter::class),
-
-            CacheInterface::class => autowire(FileCache::class)
-                ->constructor(get('paths.cache.yii'))
-            ,
-            SchemaCache::class => autowire(),
-            PdoDriverInterface::class => autowire(Driver::class)
-                ->constructorParameter('dsn', get('path.cache.routes.dsn'))
-                ->constructorParameter('attributes', [PDO::ATTR_STRINGIFY_FETCHES => false])
-            ,
-            Connection::class => autowire(),
 
             Parser::class => autowire()
                 ->constructorParameter('fileParser', get(MultiplexedFileParser::class))

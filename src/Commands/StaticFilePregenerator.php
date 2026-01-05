@@ -6,10 +6,9 @@ namespace Crell\MiDy\Commands;
 
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\PageTree\File;
-use Crell\MiDy\PageTree\YiiDbPageCache;
+use Crell\MiDy\PageTree\PageCache;
 use Crell\MiDy\PageTree\PageTree;
 use DI\Attribute\Inject;
-
 use function Crell\fp\itfilter;
 use function Crell\fp\itmap;
 use function Crell\fp\pipe;
@@ -19,7 +18,7 @@ readonly class StaticFilePregenerator
 {
     public function __construct(
         private PageTree $tree,
-        private YiiDbPageCache $cache,
+        private PageCache $cache,
         private StaticRoutes $staticRoutes,
         #[Inject('paths.public')]
         private string $publicPath,
