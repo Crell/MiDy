@@ -9,6 +9,10 @@ use DateTimeImmutable;
 
 class BasicParsedFrontmatter implements ParsedFrontmatter
 {
+    /**
+     * @param list<string> $tags
+     * @param array<string, string|int|float> $other
+     */
     public function __construct(
         public ?string $title = null,
         public ?string $summary = null,

@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * @noinspection PhpMultipleClassDeclarationsInspection
+ */
+
 declare(strict_types=1);
 
 namespace Crell\MiDy;
+
+use PhpToken;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
 
 class ClassFinder
 {
@@ -14,9 +23,9 @@ class ClassFinder
         // This should probably move to use a composer plugin to pre-build the index,
         // but this will do for now.
 
-        $dirIterator = new \RecursiveDirectoryIterator($directory);
-        $iterator = new \RecursiveIteratorIterator($dirIterator);
-        $files = new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH);
+        $dirIterator = new RecursiveDirectoryIterator($directory);
+        $iterator = new RecursiveIteratorIterator($dirIterator);
+        $files = new RegexIterator($iterator, '/^.+\.php$/i', RegexIterator::GET_MATCH);
 
         foreach ($files as $file) {
             if ($className = $this->getClass($file[0])) {
@@ -35,7 +44,7 @@ class ClassFinder
         $namespace = null;
         $className = null;
 
-        $tokens = \PhpToken::tokenize($body);
+        $tokens = PhpToken::tokenize($body);
         $count = count($tokens);
 
         for ($i = 2; $i < $count && !($namespace && $className); $i++) {
@@ -54,7 +63,7 @@ class ClassFinder
 
         if ($className) {
             if ($namespace) {
-                /** @var class-string $name */
+                /** @var class-string $className */
                 $className = $namespace . '\\' . $className;
             }
             return $className;

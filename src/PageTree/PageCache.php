@@ -32,11 +32,10 @@ interface PageCache
     public function readPage(LogicalPath $path): ?PageRecord;
 
     /**
-     * @param string|LogicalPath|null $folder
-     * @param bool $deep
-     * @param int $limit
-     * @param int $offset
-     * @param array $orderBy
+     * @param list<string> $anyTag
+     *   A list of tags for which to search.  A page will match if it has at least
+     *   one of these.
+     * @param array<string, int> $orderBy
      *   An associative array of properties to sort by. The key is the field name,
      *   the value is either SORT_ASC or SORT_DESC, as desired. Regardless of what
      *   is provided, the sort list will be appended with: order, title, path, to
@@ -65,6 +64,8 @@ interface PageCache
      * Returns a list of all paths that exist in the system.
      *
      * This is for the pre-generator logic.  Don't use it otherwise.
+     *
+     * @return iterable<string>
      */
     public function allPaths(): iterable;
 

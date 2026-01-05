@@ -30,6 +30,11 @@ class PageTreeExtension extends Extension
         ];
     }
 
+    /**
+     * @param Page $page
+     * @param array<string, string|int|float|null>|HttpQuery $query
+     * @return string
+     */
     public function pageUrl(Page $page, array|HttpQuery $query = []): string
     {
         if (is_array($query)) {
@@ -60,6 +65,19 @@ class PageTreeExtension extends Extension
         return sprintf('tag:%s,%s:%s', $parts['host'], $date, $parts['path']);
     }
 
+    /**
+     * @param list<string> $anyTag
+     *   A list of tags for which to search.  A page will match if it has at least
+     *   one of these.
+     * @param array<string, int> $orderBy
+     *   An associative array of properties to sort by. The key is the field name,
+     *   the value is either SORT_ASC or SORT_DESC, as desired. Regardless of what
+     *   is provided, the sort list will be appended with: order, title, path, to
+     *   ensure queries are always deterministic.
+     * @param string[] $exclude
+     *   An array of paths to ignore in the query results. This is mainly useful
+     *   for excluding the current page from listing pages other than an index page.
+     */
     public function pageQuery(
         ?string $folder = null,
         bool $deep = false,

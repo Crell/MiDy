@@ -49,6 +49,9 @@ class PageData
         get => substr($this->logicalPath, strrpos($this->logicalPath, '/') + 1);
     }
 
+    /**
+     * @var list<string>
+     */
     public array $tags {
         get => pipe(
             array_merge(...$this->values('tags')),
@@ -61,13 +64,14 @@ class PageData
         get => (string)current($this->parsedFiles)->folder;
     }
 
+    /**
+     * @var array<string, File>
+     */
     public array $files {
         get => array_map(static fn(ParsedFile $f) => $f->toFile(), $this->parsedFiles);
     }
 
     /**
-     * @param string $logicalPath
-     * @param string $folder
      * @param array<string, ParsedFile> $parsedFiles
      */
     public function __construct(
@@ -75,6 +79,9 @@ class PageData
         private array $parsedFiles,
     ) {}
 
+    /**
+     * @return mixed[]
+     */
     private function values(string $property): array
     {
         return array_column($this->parsedFiles, $property);

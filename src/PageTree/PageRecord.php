@@ -15,6 +15,9 @@ class PageRecord implements Page
 {
     private File $activeFile { get => $this->activeFile ??= array_values($this->files)[0]; }
 
+    /**
+     * @var array<string, string|int|float|array>
+     */
     public array $other {
         get => $this->activeFile->other;
     }
@@ -71,9 +74,12 @@ class PageRecord implements Page
         return $ret;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getTrailingPath(string $fullPath): array
     {
-        if (!str_starts_with($fullPath, $this->logicalPath)) {
+        if (!str_starts_with($fullPath, (string)$this->logicalPath)) {
             return [];
         }
 
@@ -83,7 +89,7 @@ class PageRecord implements Page
             return [];
         }
 
-        return array_values(array_filter(explode('/', substr($fullPath, strlen($this->logicalPath)))));
+        return array_values(array_filter(explode('/', substr($fullPath, strlen((string)$this->logicalPath)))));
     }
 
 }

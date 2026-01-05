@@ -12,6 +12,10 @@ use Crell\MiDy\PageTree\Parser\Parser;
  */
 class ParsedFile
 {
+    /**
+     * @param list<string> $tags
+     * @param array<string, string|int|float> $other
+     */
     public function __construct(
         // Derived from file system.
         public LogicalPath $logicalPath,
@@ -78,6 +82,7 @@ class ParsedFile
             folder: $folderLogicalPath,
             title: $frontmatter->title ?? $folderDef->defaults->title ?? '',
             summary: $frontmatter->summary ?? $folderDef->defaults->summary ?? '',
+            // @phpstan-ignore-next-line argument.templateType (PHPStan can't figure out the types used in built-in array functions)
             tags: array_values(array_unique(array_merge($frontmatter->tags, $folderDef->defaults->tags))),
             slug: $basename,
             hidden: $frontmatter->hidden ?? $folderDef->defaults->hidden ?? false,

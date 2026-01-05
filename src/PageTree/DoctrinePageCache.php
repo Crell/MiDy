@@ -301,6 +301,10 @@ class DoctrinePageCache implements PageCache
         return new PageRecord(...$record);
     }
 
+    /**
+     * @param array<string, mixed> $record
+     *   A DB record to upcast.
+     */
     private function instantiateFolder(array $record): ParsedFolder
     {
         // Parent isn't part of the constructor.  It's just a derived field,

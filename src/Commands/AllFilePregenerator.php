@@ -15,6 +15,10 @@ use function Crell\MiDy\ensure_dir;
 
 readonly class AllFilePregenerator
 {
+    /**
+     * @var array<string, string>
+     *   A map from a mime-type to the extension it implies.
+     */
     private array $extensionLookup;
 
     public function __construct(

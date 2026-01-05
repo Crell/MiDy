@@ -64,6 +64,19 @@ class PageTree
         return $page;
     }
 
+    /**
+     * @param list<string> $anyTag
+     *   A list of tags for which to search.  A page will match if it has at least
+     *   one of these.
+     * @param array<string, int> $orderBy
+     *   An associative array of properties to sort by. The key is the field name,
+     *   the value is either SORT_ASC or SORT_DESC, as desired. Regardless of what
+     *   is provided, the sort list will be appended with: order, title, path, to
+     *   ensure queries are always deterministic.
+     * @param string[] $exclude
+     *   An array of paths to ignore in the query results. This is mainly useful
+     *   for excluding the current page from listing pages other than an index page.
+     */
     public function queryPages(
         string|LogicalPath|null $folder = null,
         bool $deep = false,
@@ -130,7 +143,7 @@ class PageTree
     {
         // If it's one of the mount roots, just parse that directly.
         if (array_key_exists((string)$logicalPath, $this->mountPoints)) {
-            $ret = $this->parser->parseFolder($this->mountPoints[(string)$logicalPath], $logicalPath, $this->mountPoints);
+            $ret = $this->parser->parseFolder(PhysicalPath::create($this->mountPoints[(string)$logicalPath]), $logicalPath, $this->mountPoints);
             // In case of parser error, fail here.
             if (!$ret) {
                 return null;
@@ -169,6 +182,7 @@ class PageTree
      * for it, but it works for now.
      *
      * @param array<PageRecord> $pages
+     * @return array<Page>
      */
     private function upcastPages(array $pages): array
     {
