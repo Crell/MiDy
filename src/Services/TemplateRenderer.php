@@ -14,6 +14,9 @@ readonly class TemplateRenderer
         private EventDispatcherInterface $dispatcher,
     ) {}
 
+    /**
+     * @param object|array<string, mixed> $args
+     */
     public function render(string $template, object|array $args = []): TemplateResult
     {
         /** @var TemplatePreRender $event */

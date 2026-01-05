@@ -37,7 +37,7 @@ trait SetupFilesystem
         ];
 
         $this->vfs = vfsStream::setup('root', null, $structure);
-        $this->routesPath = $this->vfs->getChild('routes')?->url();
-        $this->cachePath = $this->vfs->getChild('cache')?->url();
+        $this->routesPath = $this->vfs->getChild('routes')->url();
+        $this->cachePath = $this->vfs->getChild('cache')->url();
     }
 }

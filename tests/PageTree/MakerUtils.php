@@ -8,7 +8,7 @@ use Crell\MiDy\PageTree\Parser\Parser;
 
 trait MakerUtils
 {
-    private static function makeParsedFolder(PhysicalPath|string $physicalPath, ...$args): ParsedFolder
+    private static function makeParsedFolder(PhysicalPath|string $physicalPath, mixed ...$args): ParsedFolder
     {
         $args['physicalPath'] = PhysicalPath::create($physicalPath);
 
@@ -25,7 +25,7 @@ trait MakerUtils
         return new ParsedFolder(...$args);
     }
 
-    private static function makeParsedFile(PhysicalPath|string $physicalPath, ...$args): ParsedFile
+    private static function makeParsedFile(PhysicalPath|string $physicalPath, mixed ...$args): ParsedFile
     {
         $args['physicalPath'] = PhysicalPath::create($physicalPath);
 

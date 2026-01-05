@@ -44,7 +44,7 @@ class MockPage implements Page
         get => $this->values[__PROPERTY__] ?? '';
     }
 
-    public function __construct(...$values)
+    public function __construct(mixed ...$values)
     {
         $this->values = $values;
     }
@@ -52,18 +52,18 @@ class MockPage implements Page
     /**
      * @inheritDoc
      */
-    public function variants(): array
+    public function variants(): never
     {
-        // TODO: Implement variants() method.
+        throw new \Exception('Not implemented.');
     }
 
-    public function variant(string $ext): ?Page
+    public function variant(string $ext): never
     {
-        // TODO: Implement variant() method.
+        throw new \Exception('Not implemented.');
     }
 
-    public function getTrailingPath(string $fullPath): array
+    public function getTrailingPath(string $fullPath): never
     {
-        // TODO: Implement getTrailingPath() method.
+        throw new \Exception('Not implemented.');
     }
 }

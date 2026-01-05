@@ -10,5 +10,9 @@ use Psr\Http\Message\ServerRequestInterface;
 
 interface SupportsTrailingPath extends PageHandler
 {
+    /**
+     * @param list<string> $trailing
+     *   The trailing path segments, if any.
+     */
     public function handle(ServerRequestInterface $request, Page $page, string $ext, array $trailing = []): ?RouteResult;
 }

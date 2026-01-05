@@ -13,6 +13,9 @@ readonly class Templates
         private string $templateDirectory,
     ) {}
 
+    /**
+     * @param object|array<string, mixed> $params
+     */
     public function render(string $name, object|array $params = [], ?string $block = null): string
     {
         $templateFile = "$this->templateDirectory/$name.latte";

@@ -9,6 +9,7 @@ use Crell\Carica\Router\RouteNotFound;
 use Crell\Carica\Router\Router;
 use Crell\Carica\Router\RouteResult;
 use Crell\MiDy\PageTree\LogicalPath;
+use Crell\MiDy\PageTree\PageRecord;
 use Crell\MiDy\PageTree\PageTree;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -19,7 +20,8 @@ class PageTreeRouter implements Router
     ) {}
 
     /**
-     * @var PageHandler
+     * @var array<string, array<string, PageHandler>>
+     *   A lookup table for the handlers, based on extension and method.
      */
     private array $handlerMap = [];
 
@@ -74,6 +76,8 @@ class PageTreeRouter implements Router
 
     /**
      * Retrieves a page, taking trailing arguments into account.
+     *
+     * @return array{0: ?PageRecord, 1: array<string>}
      */
     private function getPage(LogicalPath $logicalPath): array
     {

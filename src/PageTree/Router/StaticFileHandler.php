@@ -9,7 +9,7 @@ use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\Carica\Router\RouteResult;
 use Crell\Carica\Router\RouteSuccess;
-use Crell\Midy\Services\ResponseBuilder;
+use Crell\MiDy\Services\ResponseBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;

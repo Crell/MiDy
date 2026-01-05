@@ -32,7 +32,6 @@ class PageTreeRouterTest extends TestCase
     use SetupParser;
 
     private Midy $app;
-    private Parser $parser;
     protected PageTree $pageTree;
 
     public function setUp(): void
@@ -74,7 +73,7 @@ class PageTreeRouterTest extends TestCase
             public array $supportedMethods = ['GET'];
             public array $supportedExtensions = ['md'];
 
-            public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
+            public function handle(ServerRequestInterface $request, Page $page, string $ext): RouteResult
             {
                 return new RouteSuccess(fn() => 'action', arguments: ['a' => 1, 'b' => 2]);
             }
@@ -103,7 +102,7 @@ class PageTreeRouterTest extends TestCase
             public array $supportedMethods = ['GET'];
             public array $supportedExtensions = ['md'];
 
-            public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
+            public function handle(ServerRequestInterface $request, Page $page, string $ext): RouteResult
             {
                 return new RouteSuccess(fn() => 'action', arguments: ['a' => 1, 'b' => 2]);
             }
@@ -129,7 +128,7 @@ class PageTreeRouterTest extends TestCase
             public array $supportedMethods = ['GET'];
             public array $supportedExtensions = ['md'];
 
-            public function handle(ServerRequestInterface $request, Page $page, string $ext, array $trailing = []): ?RouteResult
+            public function handle(ServerRequestInterface $request, Page $page, string $ext, array $trailing = []): RouteResult
             {
                 return new RouteSuccess(fn() => 'action', arguments: ['trailing' => $trailing]);
             }
