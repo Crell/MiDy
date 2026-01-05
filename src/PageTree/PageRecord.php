@@ -16,7 +16,7 @@ class PageRecord implements Page
     private File $activeFile { get => $this->activeFile ??= array_values($this->files)[0]; }
 
     /**
-     * @var array<string, string|int|float|array>
+     * @var array<string, string|int|float|array<string, mixed>>
      */
     public array $other {
         get => $this->activeFile->other;
@@ -33,7 +33,7 @@ class PageRecord implements Page
     public string $path { get => (string)$this->logicalPath; }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      * @param array<string, File> $files
      */
     public function __construct(

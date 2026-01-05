@@ -28,7 +28,7 @@ interface Frontmatter
     public DateTimeImmutable $lastModifiedDate { get; }
 
     /**
-     * @var array<string, string|int|float|array>
+     * @var array<string, string|int|float|array<string, mixed>>
      */
     public array $other { get; }
 }

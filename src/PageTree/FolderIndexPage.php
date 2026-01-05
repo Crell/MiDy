@@ -14,24 +14,24 @@ use DateTimeImmutable;
  */
 trait FolderIndexPage
 {
-    public private(set) string $title {
+    private(set) string $title {
         get => $this->title ??=
             $this->indexPage?->title
-            ?? ucfirst(pathinfo($this->logicalPath, PATHINFO_FILENAME));
+            ?? ucfirst(pathinfo((string)$this->logicalPath, PATHINFO_FILENAME));
     }
-    public private(set) string $summary { get => $this->summary ??= $this->indexPage?->summary ?? ''; }
-    public private(set) array $tags { get => $this->tags ??= $this->indexPage?->tags ?? []; }
-    public private(set) string $slug { get => $this->slug ??= $this->indexPage?->slug ?? ''; }
-    public private(set) bool $hidden { get => $this->hidden ??= $this->indexPage?->hidden ?? true; }
+    private(set) string $summary { get => $this->summary ??= $this->indexPage?->summary ?? ''; }
+    private(set) array $tags { get => $this->tags ??= $this->indexPage?->tags ?? []; }
+    private(set) string $slug { get => $this->slug ??= $this->indexPage?->slug ?? ''; }
+    private(set) bool $hidden { get => $this->hidden ??= $this->indexPage?->hidden ?? true; }
 
     public bool $routable { get => $this->indexPage !== null; }
-    public private(set) string $path { get => $this->path ??= str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }
+    private(set) string $path { get => $this->path ??= str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }
 
-    public private(set) string $name { get => $this->name ??= $this->indexPage?->name ?? ''; }
-    public private(set) array $other { get => $this->other ??= $this->indexPage?->other ?? []; }
-    public private(set) PhysicalPath $physicalPath { get => $this->physicalPath ??= $this->indexPage?->physicalPath ?? ''; }
-    public private(set) DateTimeImmutable $publishDate { get => $this->publishDate ??= $this->indexPage?->publishDate; }
-    public private(set) DateTimeImmutable $lastModifiedDate {
+    private(set) string $name { get => $this->name ??= $this->indexPage?->name ?? ''; }
+    private(set) array $other { get => $this->other ??= $this->indexPage?->other ?? []; }
+    private(set) PhysicalPath $physicalPath { get => $this->physicalPath ??= $this->indexPage?->physicalPath ?? ''; }
+    private(set) DateTimeImmutable $publishDate { get => $this->publishDate ??= $this->indexPage?->publishDate; }
+    private(set) DateTimeImmutable $lastModifiedDate {
         get => $this->lastModifiedDate
             ??= $this->indexPage?->lastModifiedDate
             ?? new DateTimeImmutable('@' . $this->parsedFolder->mtime);

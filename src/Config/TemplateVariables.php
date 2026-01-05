@@ -10,6 +10,9 @@ use Crell\Serde\Attributes\Field;
 #[Config('template-variables')]
 readonly class TemplateVariables
 {
+    /**
+     * @param array<string, string|int|float> $variables
+     */
     public function __construct(
         #[Field(flatten: true)]
         public array $variables = [],

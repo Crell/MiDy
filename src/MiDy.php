@@ -134,7 +134,7 @@ class MiDy implements RequestHandlerInterface
         ?string $templatesPath = null,
         ?string $publicPath = null,
     ) {
-        $this->appRoot = realpath($appRoot) ?? '';
+        $this->appRoot = realpath($appRoot) ?: '';
 
         $this->cachePath = $this->ensurePath($cachePath, $_ENV['CACHE_PATH'] ?? '/cache');
         $this->routePath = $this->ensurePath($routesPath, $_ENV['ROUTES_PATH'] ?? '/routes');
@@ -339,7 +339,6 @@ class MiDy implements RequestHandlerInterface
         $containerBuilder->addDefinitions([
             NullLogger::class => autowire(),
             PrintLogger::class => autowire(),
-            ConsoleLogger::class => autowire(),
             LoggerInterface::class => get(NullLogger::class),
         ]);
 
@@ -389,8 +388,6 @@ class MiDy implements RequestHandlerInterface
 
         // MarkdownLatteHandler related stuff
         $containerBuilder->addDefinitions([
-            MarkdownLatteHandlerListener::class => autowire()
-                ->constructorParameter('templateRoot', get('paths.templates')),
             // Because the file name it gets passed will already be absolute.
             MarkdownPageLoader::class => autowire()
                 ->constructorParameter('root', '/')
@@ -439,6 +436,7 @@ class MiDy implements RequestHandlerInterface
 
 
         /** @var OrderedListenerProvider $provider */
+        // @phpstan-ignore-next-line deadCode.unreachable
         $provider = $this->container->get(OrderedListenerProvider::class);
         $finder = new ClassFinder();
 

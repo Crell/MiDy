@@ -40,7 +40,7 @@ class CommonMarkExtension extends Extension
     private function dedent(string $str): string
     {
         $lines = explode("\n", $str);
-        $parts = array_filter($lines, static fn(string $part): string => trim($part));
+        $parts = array_filter($lines, fn(string $part): bool => (bool)trim($part));
         $spaces = min(array_map(static function(string $part) {
             preg_match('#^ *#', $part, $matches);
             return strlen($matches[0]);

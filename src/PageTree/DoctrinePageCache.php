@@ -171,6 +171,19 @@ class DoctrinePageCache implements PageCache
         return $this->instantiatePage($result);
     }
 
+    /**
+     * @param list<string> $anyTag
+     *   A list of tags for which to search.  A page will match if it has at least
+     *   one of these.
+     * @param array<string, int> $orderBy
+     *   An associative array of properties to sort by. The key is the field name,
+     *   the value is either SORT_ASC or SORT_DESC, as desired. Regardless of what
+     *   is provided, the sort list will be appended with: order, title, path, to
+     *   ensure queries are always deterministic.
+     * @param string[] $exclude
+     *   An array of paths to ignore in the query results. This is mainly useful
+     *   for excluding the current page from listing pages other than an index page.
+     */
     public function queryPages(
         string|LogicalPath|null $folder = null,
         bool $deep = false,
@@ -284,6 +297,10 @@ class DoctrinePageCache implements PageCache
         }
     }
 
+    /**
+     * @param array<string, mixed> $record
+     *   A DB record
+     */
     private function instantiatePage(array $record): PageRecord
     {
         $files = json_decode($record['files'], true, 512, JSON_THROW_ON_ERROR);
@@ -317,6 +334,10 @@ class DoctrinePageCache implements PageCache
         return new ParsedFolder(...$record);
     }
 
+    /**
+     * @param array<string, mixed> $record
+     *   A DB record to upcast.
+     */
     private function instantiateFile(array $record): File
     {
         return new File(...$record);
@@ -324,6 +345,7 @@ class DoctrinePageCache implements PageCache
 
     public function inTransaction(\Closure $closure): mixed
     {
+        // @phpstan-ignore-next-line argument.templateType (Passing through the generic is fussy. Get back to this.)
         return $this->conn->transactional($closure);
     }
 }

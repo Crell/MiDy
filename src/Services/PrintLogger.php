@@ -13,7 +13,7 @@ class PrintLogger implements LoggerInterface
 
     public function log($level, \Stringable|string $message, array $context = []): void
     {
-        $context = array_filter($context, fn($val) => is_string($val) || is_numeric($val));
+        $context = array_filter($context, static fn($val) => is_string($val) || is_numeric($val));
 
         $find = array_map(fn(string $key) => '{' . $key . '}', array_keys($context));
         $msg = str_replace($find, array_values($context), $message);

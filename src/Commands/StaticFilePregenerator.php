@@ -40,7 +40,7 @@ readonly class StaticFilePregenerator
     {
         $dest = $this->publicPath . $file->physicalPath . '.' . $file->ext;
         ensure_dir(pathinfo($dest, PATHINFO_DIRNAME));
-        copy($file->physicalPath, $dest);
+        copy((string)$file->physicalPath, $dest);
     }
 
     private function filterStatic(File $file): bool

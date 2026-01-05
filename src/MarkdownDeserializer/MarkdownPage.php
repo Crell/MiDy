@@ -16,6 +16,10 @@ class MarkdownPage implements ParsedFrontmatter
     private const SummaryOpenTag = '<!--summary-->';
     private const SummaryCloseTag = '<!--/summary-->';
 
+    /**
+     * @param list<string> $tags
+     * @param array<string, string|int|float|array<string, mixed>> $other
+     */
     public function __construct(
         #[Content]
         public(set) readonly string $content,
@@ -32,13 +36,16 @@ class MarkdownPage implements ParsedFrontmatter
         public array $other = [],
     ) {}
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTemplateParameters(): array
     {
         $out = $this->other;
         $out += [
             'content' => $this->content,
             'title' => $this->title,
-            'template' => $this->template,
+            'template' => $this->other['template'] ?? '',
         ];
         return $out;
     }

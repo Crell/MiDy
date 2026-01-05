@@ -13,6 +13,9 @@ class File implements \JsonSerializable
         set(PhysicalPath|string $value) => PhysicalPath::create($value);
     }
 
+    /**
+     * @param array<string, mixed> $other
+     */
     public function __construct(
         PhysicalPath|string $physicalPath,
         public string $ext,
