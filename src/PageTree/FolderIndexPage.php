@@ -16,24 +16,24 @@ trait FolderIndexPage
 {
     private(set) string $title {
         get => $this->title ??=
-            $this->indexPage?->title
+            $this->indexPage->title
             ?? ucfirst(pathinfo((string)$this->logicalPath, PATHINFO_FILENAME));
     }
-    private(set) string $summary { get => $this->summary ??= $this->indexPage?->summary ?? ''; }
-    private(set) array $tags { get => $this->tags ??= $this->indexPage?->tags ?? []; }
-    private(set) string $slug { get => $this->slug ??= $this->indexPage?->slug ?? ''; }
-    private(set) bool $hidden { get => $this->hidden ??= $this->indexPage?->hidden ?? true; }
+    private(set) string $summary { get => $this->summary ??= $this->indexPage->summary ?? ''; }
+    private(set) array $tags { get => $this->tags ??= $this->indexPage->tags ?? []; }
+    private(set) string $slug { get => $this->slug ??= $this->indexPage->slug ?? ''; }
+    private(set) bool $hidden { get => $this->hidden ??= $this->indexPage->hidden ?? true; }
 
     public bool $routable { get => $this->indexPage !== null; }
-    private(set) string $path { get => $this->path ??= str_replace('/index', '', $this->indexPage?->path ?? $this->logicalPath); }
+    private(set) string $path { get => $this->path ??= str_replace('/index', '', $this->indexPage->path ?? $this->logicalPath); }
 
-    private(set) string $name { get => $this->name ??= $this->indexPage?->name ?? ''; }
-    private(set) array $other { get => $this->other ??= $this->indexPage?->other ?? []; }
-    private(set) PhysicalPath $physicalPath { get => $this->physicalPath ??= $this->indexPage?->physicalPath ?? ''; }
+    private(set) string $name { get => $this->name ??= $this->indexPage->name ?? ''; }
+    private(set) array $other { get => $this->other ??= $this->indexPage->other ?? []; }
+    private(set) PhysicalPath $physicalPath { get => $this->physicalPath ??= $this->indexPage->physicalPath ?? ''; }
     private(set) DateTimeImmutable $publishDate { get => $this->publishDate ??= $this->indexPage?->publishDate; }
     private(set) DateTimeImmutable $lastModifiedDate {
         get => $this->lastModifiedDate
-            ??= $this->indexPage?->lastModifiedDate
+            ??= $this->indexPage->lastModifiedDate
             ?? new DateTimeImmutable('@' . $this->parsedFolder->mtime);
     }
 
