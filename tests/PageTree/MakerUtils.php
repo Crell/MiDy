@@ -8,6 +8,30 @@ use Crell\MiDy\PageTree\Parser\Parser;
 
 trait MakerUtils
 {
+    private static function makePageRecord(LogicalPath|string $logicalPath, mixed ...$args): PageRecord
+    {
+        $logicalPath = LogicalPath::create($logicalPath);
+
+        $defaults = [
+            'logicalPath' => $logicalPath,
+            'folder' => (string) $logicalPath->parent(),
+            'title' => $logicalPath->end,
+            'summary' => '',
+            'order' => 0,
+            'hidden' => false,
+            'routable' => true,
+            'isFolder' => false,
+            'publishDate' => new \DateTimeImmutable('2024-10-31'),
+            'lastModifiedDate' => new \DateTimeImmutable('2024-10-31'),
+            'tags' => [],
+            'files' => [],
+        ];
+
+        $args += $defaults;
+
+        return new PageRecord(...$args);
+    }
+
     private static function makeParsedFolder(PhysicalPath|string $physicalPath, mixed ...$args): ParsedFolder
     {
         $args['physicalPath'] = PhysicalPath::create($physicalPath);

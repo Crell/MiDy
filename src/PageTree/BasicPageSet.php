@@ -59,7 +59,7 @@ class BasicPageSet implements PageSet, IteratorAggregate
      */
     public function limit(int $limit): PageSet
     {
-        if (count($this->pages) <= $limit) {
+        if (count($this->materializedPages) <= $limit) {
             return $this;
         }
 
@@ -109,7 +109,7 @@ class BasicPageSet implements PageSet, IteratorAggregate
         $info = pathinfo($name);
 
         // @todo This is probably stupidly slow.
-        $key = array_find_key($this->materializedPages, static fn(Page $p) => $p->name === $name);
+        $key = array_find_key($this->materializedPages, static fn(Page $p) => $p->title === $name);
         $page = $this->materializedPages[$key] ?? null;
 
         if ($info['extension'] ?? false) {

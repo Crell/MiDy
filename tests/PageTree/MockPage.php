@@ -49,6 +49,11 @@ class MockPage implements Page
         $this->values = $values;
     }
 
+    public function hasAnyTag(string ...$tags): bool
+    {
+        return count(array_intersect($tags, $this->tags)) > 0;
+    }
+
     /**
      * @inheritDoc
      */

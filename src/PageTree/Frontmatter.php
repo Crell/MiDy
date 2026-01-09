@@ -31,4 +31,6 @@ interface Frontmatter
      * @var array<string, string|int|float|array<string, mixed>>
      */
     public array $other { get; }
+
+    public function hasAnyTag(string ...$tags): bool;
 }

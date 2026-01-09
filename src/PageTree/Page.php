@@ -16,7 +16,6 @@ interface Page extends Frontmatter
      */
     public function variants(): array;
     public function variant(string $ext): ?Page;
-    //
 
     /**
      * Still not a huge fan of this, but...

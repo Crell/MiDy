@@ -53,6 +53,11 @@ class PageRecord implements Page
         $this->logicalPath = $logicalPath;
     }
 
+    public function hasAnyTag(string ...$tags): bool
+    {
+        return count(array_intersect($tags, $this->tags)) > 0;
+    }
+
     public function variants(): array
     {
         // We need to preserve keys, which array_map() doesn't do.
