@@ -11,6 +11,10 @@ use DateTimeImmutable;
 #[\Attribute]
 readonly class PageRoute implements ParsedFrontmatter
 {
+    /**
+     * @param list<string> $tags
+     * @param array<string, string|int|float|array<string, mixed>> $other
+     */
     public function __construct(
         public ?string $title = null,
         public ?string $summary = null,

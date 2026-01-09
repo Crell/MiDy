@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use ArrayIterator;
+use CallbackFilterIterator;
+use Closure;
+use IteratorAggregate;
+use IteratorIterator;
+use Traversable;
+
 /**
  * Possibly the only type of page set, but we need it separate from the interface for flexibility.
+ *
+ * @implements IteratorAggregate<Page>
  */
-class BasicPageSet implements PageSet, \IteratorAggregate
+class BasicPageSet implements PageSet, IteratorAggregate
 {
     /**
      * @var array<Page>
@@ -17,7 +26,7 @@ class BasicPageSet implements PageSet, \IteratorAggregate
     }
 
     /**
-     * @param array<string, Page> $pages
+     * @param iterable<Page> $pages
      */
     public function __construct(
         private readonly iterable $pages,
@@ -31,14 +40,17 @@ class BasicPageSet implements PageSet, \IteratorAggregate
     /**
      * Iterates just the visible (non-hidden) children.
      */
-    public function getIterator(): \Traversable
+    public function getIterator(): Traversable
     {
-        return $this->pages instanceof \Traversable ? $this->pages : new \ArrayIterator($this->pages);
+        return $this->pages instanceof Traversable ? $this->pages : new ArrayIterator($this->pages);
     }
 
-    public function all(): \Traversable
+    /**
+     * @return Traversable<Page>
+     */
+    public function all(): Traversable
     {
-        return is_array($this->pages) ? new \ArrayIterator($this->pages) : $this;
+        return is_array($this->pages) ? new ArrayIterator($this->pages) : $this;
     }
 
     /**
@@ -53,9 +65,15 @@ class BasicPageSet implements PageSet, \IteratorAggregate
 
         $limitedChildren = array_chunk($this->materializedPages, $limit, preserve_keys: true);
 
-        return new BasicPageSet($limitedChildren);
+        return new BasicPageSet($limitedChildren[0]);
     }
 
+    /**
+     * @param array<Page> $pages
+     * @param int $pageSize
+     * @param int $pageNum
+     * @return Pagination
+     */
     private function paginateBuilder(array $pages, int $pageSize, int $pageNum = 1): Pagination
     {
         // @todo This likely won't scale well, but works for the moment.
@@ -72,12 +90,15 @@ class BasicPageSet implements PageSet, \IteratorAggregate
         );
     }
 
-    public function filter(\Closure $filter, int $pageSize = PageCache::DefaultPageSize, int $pageNum = 1): Pagination
+    public function filter(Closure $filter, int $pageSize = PageCache::DefaultPageSize, int $pageNum = 1): Pagination
     {
-        $pages = new \CallbackFilterIterator(new \IteratorIterator($this), $filter);
+        $pages = new CallbackFilterIterator(new IteratorIterator($this), $filter);
         return $this->paginateBuilder(iterator_to_array($pages), $pageSize, $pageNum);
     }
 
+    /**
+     * @param list<string> $tags
+     */
     public function filterAnyTag(array $tags, int $pageSize = PageCache::DefaultPageSize, int $pageNum = 1): Pagination
     {
         return $this->filter(static fn (Page $p) => $p->hasAnyTag(...$tags), $pageSize, $pageNum);

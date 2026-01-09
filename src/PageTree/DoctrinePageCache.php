@@ -345,6 +345,7 @@ class DoctrinePageCache implements PageCache
 
     public function inTransaction(\Closure $closure): mixed
     {
+
         // @phpstan-ignore-next-line argument.templateType (Passing through the generic is fussy. Get back to this.)
         return $this->conn->transactional($closure);
     }
