@@ -34,7 +34,8 @@ class PageTreeRouterTest extends TestCase
     private Midy $app;
     protected PageTree $pageTree;
 
-    public function setUp(): void
+    #[Before(10)]
+    protected function makeApp(): void
     {
         $this->app = new MiDy('.');
     }
@@ -61,7 +62,8 @@ class PageTreeRouterTest extends TestCase
         $this->pageTree = new PageTree($this->repo, $this->parser, $this->routesPath);
     }
 
-    #[Test, RunInSeparateProcess]
+    #[Test]
+    #[RunInSeparateProcess]
     public function basic(): void
     {
         mkdir($this->routesPath . '/foo');
@@ -87,7 +89,8 @@ class PageTreeRouterTest extends TestCase
         self::assertEquals('action', ($result->action)());
     }
 
-    #[Test, RunInSeparateProcess]
+    #[Test]
+    #[RunInSeparateProcess]
     public function trailing_path_skips_non_trailing_handlers(): void
     {
         mkdir($this->routesPath . '/afolder');
@@ -115,7 +118,8 @@ class PageTreeRouterTest extends TestCase
         self::assertInstanceOf(RouteNotFound::class, $result);
     }
 
-    #[Test, RunInSeparateProcess]
+    #[Test]
+    #[RunInSeparateProcess]
     public function trailing_path_works_on_trailing_handler(): void
     {
         mkdir($this->routesPath . '/afolder2');
