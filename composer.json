@@ -57,7 +57,7 @@
         "benchmarks": "vendor/bin/phpbench run benchmarks --report=aggregate",
         "test": "phpunit",
         "phpstan": "phpstan",
-        "coverage": "php -dextension=pcov.so -dpcov.enabled=1 -dpcov.directory=src vendor/bin/phpunit --coverage-text",
+        "coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-text --coverage-html=\"build/coverage\"",
         "all-checks": [
             "phpunit",
             "phpstan"
