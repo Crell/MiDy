@@ -6,6 +6,9 @@ namespace Crell\MiDy\Config;
 
 use Crell\Config\Config;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Config('markdown-latte')]
 readonly class MarkdownLatteConfiguration
 {

@@ -7,6 +7,9 @@ namespace Crell\MiDy\Config;
 use Crell\Config\Config;
 use Crell\Serde\Attributes\Field;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Config('template-variables')]
 readonly class TemplateVariables
 {

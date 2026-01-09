@@ -6,6 +6,9 @@ namespace Crell\MiDy\Config;
 
 use Crell\Config\Config;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Config('static-routes')]
 readonly class StaticRoutes
 {
