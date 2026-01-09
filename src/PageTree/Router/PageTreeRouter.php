@@ -9,7 +9,7 @@ use Crell\Carica\Router\RouteNotFound;
 use Crell\Carica\Router\Router;
 use Crell\Carica\Router\RouteResult;
 use Crell\MiDy\PageTree\LogicalPath;
-use Crell\MiDy\PageTree\PageRecord;
+use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageTree;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -77,7 +77,7 @@ class PageTreeRouter implements Router
     /**
      * Retrieves a page, taking trailing arguments into account.
      *
-     * @return array{0: ?PageRecord, 1: array<string>}
+     * @return array{0: ?Page, 1: list<string>}
      */
     private function getPage(LogicalPath $logicalPath): array
     {
@@ -86,6 +86,7 @@ class PageTreeRouter implements Router
         $tail = [];
         do {
             $page = $this->tree->page($path->withoutExtension);
+        // @phpstan-ignore-next-line booleanAnd.rightAlwaysTrue (We're using the while clause to assign values, which is always true by definition)
         } while ($page === null && ($tail[] = $path->end) && ($path = $path->parent()) && $path != '/');
 
         $tail = array_reverse($tail);
