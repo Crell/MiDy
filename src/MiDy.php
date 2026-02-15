@@ -423,9 +423,14 @@ class MiDy implements RequestHandlerInterface
             }
         }
 
-        $containerBuilder->addDefinitions([]);
+        $this->extendContainer($containerBuilder);
 
         return $containerBuilder->build();
+    }
+
+    protected function extendContainer(ContainerBuilder $containerBuilder): void
+    {
+
     }
 
     public function setupListeners(): void
