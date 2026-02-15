@@ -91,6 +91,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Spatie\CommonMarkHighlighter\FencedCodeRenderer;
 use Spatie\CommonMarkHighlighter\IndentedCodeRenderer;
+use Symfony\Component\Dotenv\Dotenv;
 use function DI\autowire;
 use function DI\env;
 use function DI\factory;
@@ -136,6 +137,8 @@ class MiDy implements RequestHandlerInterface
     ) {
         $this->appRoot = realpath($appRoot) ?: '';
 
+        $this->loadEnvironment();
+
         $this->cachePath = $this->ensurePath($cachePath, $_ENV['CACHE_PATH'] ?? '/cache');
         $this->routePath = $this->ensurePath($routesPath, $_ENV['ROUTES_PATH'] ?? '/routes');
         $this->configPath = $this->ensurePath($configPath, $_ENV['CONFIG_PATH'] ?? '/configuration');
@@ -146,6 +149,15 @@ class MiDy implements RequestHandlerInterface
 
         $this->container = $this->buildContainer();
         $this->setupListeners();
+    }
+
+    protected function loadEnvironment(): void
+    {
+        $dotenv = new Dotenv();
+        $envFile = $this->appRoot . '/.env';
+        if (file_exists($envFile)) {
+            $dotenv->loadEnv($envFile);
+        }
     }
 
     protected function ensurePath(?string $override, string $default): string
@@ -460,5 +472,13 @@ class MiDy implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->container->get(StackMiddlewareKernel::class)->handle($request);
+    }
+
+    public function run(): void
+    {
+        $serverRequest = $this->container->get(ServerRequestCreator::class)->fromGlobals();
+        $response = $this->handle($serverRequest);
+
+        $this->container->get(SapiEmitter::class)->emit($response);
     }
 }
