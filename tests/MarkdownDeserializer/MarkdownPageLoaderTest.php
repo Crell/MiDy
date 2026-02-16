@@ -77,8 +77,8 @@ class MarkdownPageLoaderTest extends TestCase
             'expected' => New MarkdownPage(
                 content: "Here",
                 title: "Stuff",
-                slug: null,
                 summary: '',
+                slug: null,
             ),
         ];
 
@@ -94,8 +94,30 @@ class MarkdownPageLoaderTest extends TestCase
             'expected' => New MarkdownPage(
                 content: "Here",
                 title: "Stuff",
-                slug: 'test',
                 summary: '',
+                slug: 'test',
+            ),
+        ];
+        yield 'header and a --- character inside the body' => [
+            'filename' => 'dashes.md',
+            'content' => <<<END
+            ---
+            slug: test
+            ---
+            # Stuff
+            Here
+            ---
+            Stuff after an hr here.
+            END,
+            'expected' => New MarkdownPage(
+                content: <<<END
+                Here
+                ---
+                Stuff after an hr here.
+                END,
+                title: "Stuff",
+                summary: '',
+                slug: 'test',
             ),
         ];
     }

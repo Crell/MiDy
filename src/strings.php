@@ -20,16 +20,16 @@ namespace Crell\MiDy;
  */
 function str_extract_between(string $string, string $startDelim, string $endDelim): ?string
 {
-    $patternDelimiter = '#';
-
-    $startDelim = preg_quote($startDelim, $patternDelimiter);
-    $endDelim = preg_quote($endDelim, $patternDelimiter);
-
-    $pattern = "{$patternDelimiter}{$startDelim}(.*){$endDelim}{$patternDelimiter}ms";
-
-    preg_match($pattern, $string, $matches);
-
-    return $matches[1] ?? null;
+    $first = strpos($string, $startDelim);
+    if ($first === false) {
+        return null;
+    }
+    $first += strlen($startDelim);
+    $end = strpos($string, $endDelim, $first);
+    if ($end === false) {
+        return null;
+    }
+    return substr($string, $first, $end - $first);
 }
 
 /**
