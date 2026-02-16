@@ -1,0 +1,17 @@
+#!/bin/php
+<?php
+
+declare(strict_types=1);
+
+namespace Crell\Midy;
+use Crell\MiDy\Commands\Reindex;
+use Crell\MiDy\MiDy;
+
+include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
+
+$app = new MiDy('.');
+
+/** @var Reindex $cmd */
+$cmd = $app->container->get(Reindex::class);
+
+$cmd->run();
