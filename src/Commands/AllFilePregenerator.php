@@ -55,7 +55,7 @@ readonly class AllFilePregenerator
 
         $contentType = $response->getHeader('content-type')[0] ?? null;
         print "Generating $path\n";
-        if ($contentType === 'text/html') {
+        if (str_contains($contentType, 'text/html')) {
             // Generate an index.html file for every page, so it looks like there are no extensions,
             // just like when the page is built dynamically.
             $dest = $this->publicPath . $path . '/index.html';
