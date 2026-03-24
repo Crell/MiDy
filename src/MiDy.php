@@ -458,19 +458,13 @@ class MiDy implements RequestHandlerInterface
 
     public function setupListeners(): void
     {
-        // Refactoring has removed all the built in listeners, surprisingly.
-        // @todo come back to this if that changes, or remove this method.
-        return;
-
-
         /** @var OrderedListenerProvider $provider */
         // @phpstan-ignore-next-line deadCode.unreachable
         $provider = $this->container->get(OrderedListenerProvider::class);
         $finder = new ClassFinder();
 
         $listenerList = function () use ($finder) {
-            //yield from $finder->find($this->appRoot . '/src/Router\EventRouter\PageHandlerListeners');
-//            yield from $finder->find($this->appRoot . '/src/Listeners');
+            yield from $finder->find($this->appRoot . '/src/Listeners');
         };
 
         foreach ($listenerList() as $class) {
