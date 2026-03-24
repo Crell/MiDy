@@ -453,18 +453,18 @@ class MiDy implements RequestHandlerInterface
 
     protected function extendContainer(ContainerBuilder $containerBuilder): void
     {
-
+        // Left open for extension by individual apps.
     }
 
     public function setupListeners(): void
     {
         /** @var OrderedListenerProvider $provider */
-        // @phpstan-ignore-next-line deadCode.unreachable
         $provider = $this->container->get(OrderedListenerProvider::class);
         $finder = new ClassFinder();
 
         $listenerList = function () use ($finder) {
-            yield from $finder->find($this->appRoot . '/src/Listeners');
+            // Built-in listeners.
+            yield from $finder->find($this->midyPath . '/src/Listeners');
         };
 
         foreach ($listenerList() as $class) {
@@ -472,6 +472,13 @@ class MiDy implements RequestHandlerInterface
             // We can optimize later with a compiled provider.
             $provider->listenerService($class);
         }
+
+        $this->registerListeners($provider, $finder);
+    }
+
+    protected function registerListeners(OrderedListenerProvider $provider, ClassFinder $finder): void
+    {
+        // Left open for extension by individual apps.
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
