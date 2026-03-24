@@ -32,6 +32,7 @@ class MarkdownLatteHandler implements PageHandler
         private readonly TemplateRenderer $renderer,
         private readonly MarkdownLatteConfiguration $config,
         private readonly ConverterInterface $converter,
+        private readonly string $baseUrl,
     ) {}
 
     public function handle(ServerRequestInterface $request, Page $page, string $ext): ?RouteResult
@@ -56,7 +57,7 @@ class MarkdownLatteHandler implements PageHandler
             // Pre-render the Content rather than making the template do it.
             $args['content'] = new Html($this->converter->convert($mdPage->content));
 
-            $args['extraStyles'][] = sprintf('%s', $this->config->codeThemeStyles);
+            $args['extraStyles'][] = sprintf('%s%s', rtrim($this->baseUrl, '/'), $this->config->codeThemeStyles);
 
             $result = $this->renderer->render($template, $args);
 

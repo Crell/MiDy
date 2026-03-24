@@ -112,6 +112,8 @@ class MiDy implements RequestHandlerInterface
 
     private readonly string $midyPath;
 
+    private readonly string $baseUrl;
+
     /**
      * @param string $appRoot
      *   The source root of the application. The default assumes the running
@@ -134,6 +136,7 @@ class MiDy implements RequestHandlerInterface
         ?string $configPath = null,
         ?string $templatesPath = null,
         ?string $publicPath = null,
+        ?string $baseUrl = null,
     ) {
         $this->appRoot = realpath($appRoot) ?: '';
 
@@ -146,6 +149,13 @@ class MiDy implements RequestHandlerInterface
         $this->publicPath = $this->ensurePath($publicPath, $_ENV['PUBLIC_PATH'] ?? '/public');
 
         $this->midyPath = $this->ensurePath(dirname(__FILE__) . '/..', '');
+
+        // The base URL is currently hard coded site-wide, as a security measure.
+        // That way, an incoming request cannot poison the generated URLs.
+        // However, it would be better to have an allow-list and then derive
+        // details off of the request, like Symfony does.
+        // @TODO Derive baseUrl off of an allow list and the request.
+        $this->baseUrl = $baseUrl ?? $_ENV['BASE_URL'] ?? 'https://localhost/';
 
         $this->container = $this->buildContainer();
         $this->setupListeners();
@@ -315,6 +325,7 @@ class MiDy implements RequestHandlerInterface
                 ->method('addHandler', get(PhpHandler::class))
             ,
             MarkdownLatteHandler::class => autowire()
+                ->constructorParameter('baseUrl', value($this->baseUrl))
             ,
             PageTree::class => autowire()
                 ->constructorParameter('rootPhysicalPath', get('paths.routes'))
@@ -414,7 +425,7 @@ class MiDy implements RequestHandlerInterface
                 ->method('setTempDirectory', get('paths.cache.latte'))
             ,
             PageTreeExtension::class => autowire()
-                ->constructorParameter('baseUrl', env('BASE_URL', 'http://localhost/'))
+                ->constructorParameter('baseUrl', value($this->baseUrl))
             ,
             LatteThemeExtension::class => autowire()
                 ->constructorParameter('allowedRoot', value($this->appRoot))
