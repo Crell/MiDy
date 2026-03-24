@@ -27,14 +27,14 @@ title: Test Page
         <h3><a href="{$page->path}">{$page->title}</a></h3>
         <p>Posted: <time>{$page->publishDate|date:'j F Y'}</time></p>
         <div>{$page->summary}</div>
-        <ul class="tag-list" n:foreach="$page->tags as $tag">
-            <li><a href="{pageUrl($currentPage, ['tag' => $tag])}">{$tag}</a></li>
+        <ul class="tag-list">
+            <li n:foreach="$page->tags as $tag"><a href="{pageUrl($currentPage, ['tag' => $tag])}">{$tag}</a></li>
         </ul>
     </article>
 
     <div>Showing page {$pagination->pageNum} of {$pagination->pageCount}</div>
 
-    <ul class="paginator" n:foreach="range(1, $pagination->pageCount) as $i">
-        <li><a href="{pageUrl($currentPage, $query->with(page: $i))}">{$i}</a></li>
+    <ul class="paginator">
+        <li n:foreach="range(1, $pagination->pageCount) as $i"><a href="{pageUrl($currentPage, $query->with(page: $i))}">{$i}</a></li>
     </ul>
 {/block}
