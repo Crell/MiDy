@@ -7,9 +7,11 @@ namespace Crell\MiDy\MarkdownDeserializer;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+#[Medium]
 class MarkdownPageLoaderTest extends TestCase
 {
     protected vfsStreamDirectory $vfs;

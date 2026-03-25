@@ -8,18 +8,23 @@ use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Large;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
+#[Large]
 class HttpValidationTest extends TestCase
 {
     private MiDy $app;
 
-    public function setUp(): void
+    #[Before]
+    public function setupFilesystem(): void
     {
         $root = vfsStream::setup('root', structure: [
             'routes' => [],
@@ -46,6 +51,9 @@ class HttpValidationTest extends TestCase
         $this->clearDirectory('./cache/config');
     }
 
+    /**
+     * Wipe out existing files in the virtual file system.
+     */
     protected function clearDirectory(string $path): void
     {
         $files = glob($path . '/*');
@@ -57,6 +65,9 @@ class HttpValidationTest extends TestCase
         }
     }
 
+    /**
+     * Constructs a request for testing purposes.
+     */
     protected function makeRequest(string $path, string $method = 'GET'): ServerRequestInterface
     {
         /** @var ServerRequestCreatorInterface $creator */
@@ -90,6 +101,7 @@ class HttpValidationTest extends TestCase
     }
 
     #[Test, DataProvider('successGetRoutes')]
+    #[TestDox('Requests to $path with content type $contentType succeed with the right content type')]
     public function basic_200_checks(string $path, string $contentType = 'text/html'): void
     {
         $serverRequest = $this->makeRequest($path);
@@ -102,6 +114,7 @@ class HttpValidationTest extends TestCase
     }
 
     #[Test]
+    #[TestDox('An undefined path returns a 404 with error page.')]
     public function not_found_handling(): void
     {
         $serverRequest = $this->makeRequest('/missing');
@@ -114,6 +127,7 @@ class HttpValidationTest extends TestCase
     }
 
     #[Test, RunInSeparateProcess]
+    #[TestDox('Pages are returned ordered by their prefix number.')]
     public function tree_ordering(): void
     {
         $app = $this->app;
@@ -137,6 +151,7 @@ class HttpValidationTest extends TestCase
     }
 
     #[Test, RunInSeparateProcess]
+    #[TestDox('Pages are returned ordered by their prefix number in reverse if specified by folder.midy.')]
     public function tree_ordering_reversed(): void
     {
         $app = $this->app;
@@ -164,6 +179,7 @@ class HttpValidationTest extends TestCase
 
 
     #[Test, DataProvider('successGetRoutes')]
+    #[TestDox('Requests to $path return the correct cache headers, and a 304 if they have not changed')]
     public function cache_headers_etag(string $path, string $contentType = 'text/html'): void
     {
         $serverRequest = $this->makeRequest($path);
@@ -188,6 +204,7 @@ class HttpValidationTest extends TestCase
     #[Test]
     #[TestWith(['/pubdate-override-latte'])]
     #[TestWith(['/pubdate-override-md'])]
+    #[TestDox('A custom date on $path is used instead of the file date.')]
     public function dates_are_respected_and_displayed(string $path): void
     {
         $serverRequest = $this->makeRequest($path);
@@ -198,5 +215,4 @@ class HttpValidationTest extends TestCase
         self::assertStringContainsString('<p>Published: 31 October 2024</p>', $body);
         self::assertStringContainsString('<p>Updated: 25 December 2024</p>', $body);
     }
-
 }
