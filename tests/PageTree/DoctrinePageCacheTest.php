@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 #[IgnoreDeprecations]
@@ -814,6 +815,23 @@ class DoctrinePageCacheTest extends TestCase
         // /foo/bar/index does not count as a child of /foo/bar.
         $queryResult = $cache->queryPages(folder: '/foo/bar');
         self::assertCount(1, $queryResult);
+    }
+
+    #[Test, TestDox('A meaningful error message is thrown when the orderBy query field is used incorrectly.')]
+    public function bad_order_query(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $cache = new DoctrinePageCache($this->conn);
+        $cache->reinitialize();
+
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
+        $cache->writePage(new PageData('/foo/a', [
+            '/foo/a.md' => self::makeParsedFile(physicalPath: '/foo/a.md'),
+            '/foo/a.txt' => self::makeParsedFile(physicalPath: '/foo/a.txt'),
+        ]));
+
+        // This is an incorrect query, and should throw.
+        $cache->queryPages(folder: '/foo', orderBy: ['title']);
     }
 
     /**
