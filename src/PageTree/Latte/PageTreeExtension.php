@@ -14,10 +14,15 @@ use Latte\Extension;
 
 class PageTreeExtension extends Extension
 {
+    private readonly string $basePath;
+
     public function __construct(
         private readonly string $baseUrl,
         private readonly PageTree $pageTree,
-    ) {}
+    )
+    {
+        $this->basePath = parse_url($this->baseUrl, PHP_URL_PATH) ?? '';
+    }
 
     public function getFunctions(): array
     {
@@ -32,16 +37,23 @@ class PageTreeExtension extends Extension
 
     /**
      * @param Page $page
+     *   The page object to which to link
      * @param array<string, string|int|float|null>|HttpQuery $query
+     *   Any query arguments to include in the link.
+     * @param bool $full
+     *   True to generate a complete link from https://.  False
+     *   to only include the path.
      * @return string
      */
-    public function pageUrl(Page $page, array|HttpQuery $query = []): string
+    public function pageUrl(Page $page, array|HttpQuery $query = [], bool $full = false): string
     {
         if (is_array($query)) {
             $query = new HttpQuery($query);
         }
 
-        return sprintf("%s%s%s", rtrim($this->baseUrl, '/'), $page->path, $query);
+        $base = $full ? $this->baseUrl : $this->basePath;
+
+        return sprintf("%s%s%s", rtrim($base, '/'), $page->path, $query);
     }
 
     /**
@@ -53,7 +65,7 @@ class PageTreeExtension extends Extension
      */
     public function atomId(Page $page): string
     {
-        $url = $this->pageUrl($page);
+        $url = $this->pageUrl($page, full: true);
         $parts = parse_url($url);
 
         if (isset($parts['fragment'])) {

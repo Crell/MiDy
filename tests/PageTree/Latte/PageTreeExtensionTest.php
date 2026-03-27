@@ -14,11 +14,15 @@ use PHPUnit\Framework\TestCase;
 class PageTreeExtensionTest extends TestCase
 {
     #[Test]
-    #[TestWith(['http://www.example.com/', '/foo/bar', 'http://www.example.com/foo/bar'])]
-    #[TestWith(['http://www.example.com', '/foo/bar', 'http://www.example.com/foo/bar'])]
-    #[TestWith(['http://www.example.com:8080', '/foo/bar', 'http://www.example.com:8080/foo/bar'])]
-    #[TestWith(['http://www.example.com', '/foo/bar', 'http://www.example.com/foo/bar?q=something', ['q' => 'something']])]
-    public function base_path_applied(string $base, string $path, string $expected, array $query = []): void
+    #[TestWith(['http://www.example.com/', '/foo/bar', '/foo/bar'])]
+    #[TestWith(['http://www.example.com', '/foo/bar', '/foo/bar'])]
+    #[TestWith(['http://www.example.com:8080', '/foo/bar', '/foo/bar'])]
+    #[TestWith(['http://www.example.com', '/foo/bar', '/foo/bar?q=something', ['q' => 'something']])]
+    #[TestWith(['http://www.example.com/', '/foo/bar', 'http://www.example.com/foo/bar', [], true])]
+    #[TestWith(['http://www.example.com', '/foo/bar', 'http://www.example.com/foo/bar', [], true])]
+    #[TestWith(['http://www.example.com:8080', '/foo/bar', 'http://www.example.com:8080/foo/bar', [], true])]
+    #[TestWith(['http://www.example.com', '/foo/bar', 'http://www.example.com/foo/bar?q=something', ['q' => 'something'], true])]
+    public function base_path_applied(string $base, string $path, string $expected, array $query = [], bool $full = false): void
     {
         $mockPage = new MockPage(path: $path);
 
@@ -28,7 +32,7 @@ class PageTreeExtensionTest extends TestCase
         };
 
         $ext = new PageTreeExtension($base, $pageTree);
-        $result = $ext->pageUrl($mockPage, $query);
+        $result = $ext->pageUrl($mockPage, $query, full: $full);
 
         self::assertEquals($expected, $result);
     }
