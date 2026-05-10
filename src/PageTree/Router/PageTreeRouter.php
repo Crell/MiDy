@@ -12,11 +12,13 @@ use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageTree;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 
 class PageTreeRouter implements Router
 {
     public function __construct(
         private readonly PageTree $tree,
+        private readonly ?LoggerInterface $logger = null,
     ) {}
 
     /**
@@ -71,6 +73,11 @@ class PageTreeRouter implements Router
         // There was a candidate, so it's not unfound. But
         // nothing handled it, which means nothing could deal with
         // that file type and method.  So we'll call that a method error.
+        $this->logger?->info('Routes found, but no valid methods supported.', [
+            'path' => $request->getUri()->getPath(),
+            'pageRecord' => $page,
+        ]);
+
         return new RouteMethodNotAllowed(array_keys($possibleMethods));
     }
 
