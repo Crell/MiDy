@@ -12,6 +12,7 @@ use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 
+use Psr\Log\LoggerInterface;
 use function Crell\fp\amap;
 
 class Parser
@@ -24,6 +25,7 @@ class Parser
         private readonly PageCache $cache,
         private readonly FileParser $fileParser,
         private readonly Serde $serde = new SerdeCommon(),
+        private readonly ?LoggerInterface $logger = null,
     ) {}
 
     /**
@@ -107,7 +109,7 @@ class Parser
 
         $frontmatter = $this->fileParser->map($file, $folderLogicalPath, $basename);
         if ($frontmatter instanceof FileParserError) {
-            // @todo Log or something?
+            $this->logger?->info($frontmatter->message(), ['file' => $file->getPath()]);
             return null;
         }
 
