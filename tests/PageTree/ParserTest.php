@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use Crell\MiDy\PageTree\Parser\FileParserError;
 use Crell\MiDy\PageTree\Parser\FolderDef;
 use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -166,6 +167,40 @@ class ParserTest extends TestCase
         self::assertEquals($filename, $parsedFile->physicalPath);
         foreach ($expected as $field => $value) {
             self::assertEquals($value, $parsedFile->$field);
+        }
+    }
+
+
+    public static function parser_invalid_data_examples(): iterable
+    {
+        $halloween = new \DateTimeImmutable('2024-10-31');
+        $halloweenStamp = $halloween->getTimestamp();
+
+        yield 'Unsupported file type' => [
+            'file' => '/foo.gribble',
+            'content' => 'ABC 123',
+            'expectedLogs' => [
+                'info' => [FileParserError::FileNotSupported->message()],
+            ],
+        ];
+    }
+
+    #[Test, DataProvider('parser_invalid_data_examples')]
+    public function parse_error(string $file, string $content, ?int $mtime = null, ?array $expectedLogs = []): void
+    {
+        $filename = $this->routesPath . $file;
+
+        file_put_contents($filename, $content);
+        if ($mtime) {
+            touch($filename, $mtime);
+            clearstatcache(true, $filename);
+        }
+
+        $parsedFile = $this->parser->parseFile(new \SplFileInfo($filename), LogicalPath::create('/'));
+
+        self::assertNull($parsedFile);
+        foreach ($expectedLogs['info'] as $msg) {
+            self::assertTrue($this->logger->hasInfo($msg));
         }
     }
 

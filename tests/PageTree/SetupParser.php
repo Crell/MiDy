@@ -14,16 +14,20 @@ use Crell\MiDy\PageTree\Parser\Parser;
 use Crell\MiDy\PageTree\Parser\PhpFileParser;
 use Crell\MiDy\PageTree\Parser\StaticFileParser;
 use PHPUnit\Framework\Attributes\Before;
+use Psr\Log\Test\TestLogger;
 
 trait SetupParser
 {
     use SetupRepo;
 
     private Parser $parser;
+    private TestLogger $logger;
 
     #[Before(5)]
     public function setupParser(): void
     {
+        $this->logger = new TestLogger();
+
         $fileParser = new MultiplexedFileParser();
         $fileParser->addParser(new HtmlFileParser());
         $fileParser->addParser(new StaticFileParser(new StaticRoutes()));
@@ -31,6 +35,6 @@ trait SetupParser
         $fileParser->addParser(new LatteFileParser());
         $fileParser->addParser(new MarkdownLatteFileParser(new MarkdownPageLoader()));
 
-        $this->parser = new Parser($this->repo, $fileParser);
+        $this->parser = new Parser($this->repo, $fileParser, logger: $this->logger);
     }
 }
