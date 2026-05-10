@@ -26,10 +26,11 @@
         "symfony/yaml": "^7.4.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^13.0.2",
+        "fig/log-test": "^1.2",
+        "mikey179/vfsstream": "^1.6.12",
         "phpbench/phpbench": "^1.4.3",
         "phpstan/phpstan": "^2.1.39",
-        "mikey179/vfsstream": "^1.6.12",
+        "phpunit/phpunit": "^13.0.2",
         "tracy/tracy": "^2.11.1"
     },
     "autoload": {
