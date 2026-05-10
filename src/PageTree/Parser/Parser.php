@@ -58,7 +58,9 @@ class Parser
             /** @var \SplFileInfo $file */
             foreach ($this->getChildIterator($physicalPath, $folderDef->flatten) as $file) {
                 if ($file->isFile()) {
-                    $children->addParsedFile($this->parseFile($file, $logicalPath, $folderDef));
+                    if ($parsed = $this->parseFile($file, $logicalPath, $folderDef)) {
+                        $children->addParsedFile($parsed);
+                    }
                 } else {
                     // It's a directory.
                     [$basename, $order] = $this->parseName($file->getFilename());
