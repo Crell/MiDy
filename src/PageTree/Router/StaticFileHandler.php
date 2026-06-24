@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Router;
 
 use Crell\Carica\ResponseBuilder;
+use Crell\Carica\Router\RouteResult;
+use Crell\Carica\Router\RouteSuccess;
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
-use Crell\Carica\Router\RouteResult;
-use Crell\Carica\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseCacher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

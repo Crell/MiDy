@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\Commands;
 
+use Crell\Carica\StackMiddlewareKernel;
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\PageTree\PageCache;
-use Crell\Carica\StackMiddlewareKernel;
 use DI\Attribute\Inject;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Http\Message\ServerRequestInterface;
-
 use function Crell\MiDy\ensure_dir;
 
 readonly class AllFilePregenerator

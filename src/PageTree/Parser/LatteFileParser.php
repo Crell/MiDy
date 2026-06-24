@@ -9,7 +9,6 @@ use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\ParsedFrontmatter;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
-
 use function Crell\MiDy\str_extract_between;
 
 class LatteFileParser implements FileParser

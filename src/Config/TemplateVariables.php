@@ -6,7 +6,6 @@ namespace Crell\MiDy\Config;
 
 use Crell\Config\Config;
 use Crell\Serde\Attributes\Field;
-use Exception;
 use Traversable;
 
 /**

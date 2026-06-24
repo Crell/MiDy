@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Parser;
 
-use Crell\MiDy\PageTree\BasicParsedFrontmatter;
 use Crell\MiDy\PageTree\LinkFrontmatter;
 use Crell\MiDy\PageTree\LogicalPath;
 use Crell\MiDy\PageTree\ParsedFrontmatter;

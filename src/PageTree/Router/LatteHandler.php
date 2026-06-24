@@ -6,10 +6,10 @@ namespace Crell\MiDy\PageTree\Router;
 
 use Crell\Carica\ExplicitActionMetadata;
 use Crell\Carica\ResponseBuilder;
-use Crell\MiDy\PageTree\Page;
-use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\Carica\Router\RouteResult;
 use Crell\Carica\Router\RouteSuccess;
+use Crell\MiDy\PageTree\Page;
+use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\MiDy\Services\ResponseCacher;
 use Crell\MiDy\Services\TemplateRenderer;
 use Psr\Http\Message\ResponseInterface;

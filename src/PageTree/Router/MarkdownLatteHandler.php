@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Crell\MiDy\PageTree\Router;
 
 use Crell\Carica\ResponseBuilder;
+use Crell\Carica\Router\RouteResult;
+use Crell\Carica\Router\RouteSuccess;
 use Crell\MiDy\Config\MarkdownLatteConfiguration;
 use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
-use Crell\Carica\Router\RouteResult;
-use Crell\Carica\Router\RouteSuccess;
 use Crell\MiDy\Services\ResponseCacher;
 use Crell\MiDy\Services\TemplateRenderer;
 use Latte\Runtime\Html;

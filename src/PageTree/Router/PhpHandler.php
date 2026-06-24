@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Router;
 
-use Crell\MiDy\ClassFinder;
-use Crell\MiDy\PageTree\Page;
-use Crell\MiDy\PageTree\PhysicalPath;
 use Crell\Carica\Router\RouteMethodNotAllowed;
 use Crell\Carica\Router\RouteResult;
 use Crell\Carica\Router\RouteSuccess;
+use Crell\MiDy\ClassFinder;
+use Crell\MiDy\PageTree\Page;
+use Crell\MiDy\PageTree\PhysicalPath;
 use DI\FactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

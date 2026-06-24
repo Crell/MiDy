@@ -8,7 +8,6 @@ use Crell\MiDy\MarkdownDeserializer\Attributes\Content;
 use Crell\MiDy\PageTree\ParsedFrontmatter;
 use Crell\Serde\Attributes\Field;
 use DateTimeImmutable;
-
 use function Crell\MiDy\str_extract_between;
 
 class MarkdownPage implements ParsedFrontmatter

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Router;
 
-use Crell\MiDy\PageTree\Page;
 use Crell\Carica\Router\RouteResult;
+use Crell\MiDy\PageTree\Page;
 use Psr\Http\Message\ServerRequestInterface;
 
 interface PageHandler

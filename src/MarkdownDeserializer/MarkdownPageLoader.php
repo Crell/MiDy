@@ -11,7 +11,6 @@ use Crell\AttributeUtils\MemoryCacheAnalyzer;
 use Crell\MiDy\MarkdownDeserializer\Attributes\MarkdownDocument;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
-
 use function Crell\MiDy\str_extract_between;
 
 class MarkdownPageLoader
