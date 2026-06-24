@@ -45,12 +45,14 @@ use Crell\MiDy\PageTree\Parser\MarkdownLatteFileParser;
 use Crell\MiDy\PageTree\Parser\MultiplexedFileParser;
 use Crell\MiDy\PageTree\Parser\Parser;
 use Crell\MiDy\PageTree\Parser\PhpFileParser;
+use Crell\MiDy\PageTree\Parser\LinkFileParser;
 use Crell\MiDy\PageTree\Parser\StaticFileParser;
 use Crell\MiDy\PageTree\Router\LatteHandler;
 use Crell\MiDy\PageTree\Router\MarkdownLatteHandler;
 use Crell\MiDy\PageTree\Router\NotFoundErrorHandler;
 use Crell\MiDy\PageTree\Router\PageTreeRouter;
 use Crell\MiDy\PageTree\Router\PhpHandler;
+use Crell\MiDy\PageTree\Router\LinkFileHandler;
 use Crell\MiDy\PageTree\Router\StaticFileHandler;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\ResponseCacher;
@@ -317,12 +319,14 @@ class MiDy implements RequestHandlerInterface
                 ->method('addParser', get(LatteFileParser::class))
                 ->method('addParser', get(MarkdownLatteFileParser::class))
                 ->method('addParser', get(PhpFileParser::class))
+                ->method('addParser', get(LinkFileParser::class))
             ,
             PageTreeRouter::class => autowire()
                 ->method('addHandler', get(StaticFileHandler::class))
                 ->method('addHandler', get(LatteHandler::class))
                 ->method('addHandler', get(MarkdownLatteHandler::class))
                 ->method('addHandler', get(PhpHandler::class))
+                ->method('addHandler', get(LinkFileHandler::class))
             ,
             MarkdownLatteHandler::class => autowire()
                 ->constructorParameter('baseUrl', value($this->baseUrl))

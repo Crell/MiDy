@@ -24,12 +24,13 @@ MiDy is built on the following assumptions:
 
 To that end, MiDy doesn't have "controllers" the way many frameworks do.  Instead, most pages are simply files within the `routes` folder, in a file tree.  A request to `/foo/bar/baz` will end up at `/foo/bar/baz.md`, for example, and that markdown page will be rendered.  If instead there is a `/foo/bar/baz.latte`, then the Latte template will be rendered.  You can do basically whatever you want in the template.
 
-MiDy supports four "page handlers":
+MiDy supports five "page handlers":
 
 1. Static files.  A list of supported static files is provided by default, but can be easily overridden.  These files will simply be served as-is.
 2. Latte template files.  These files will be rendered and the output send back as a page.
 3. Markdown files, rendered through Latte.  Markdown files will be rendered as Markdown, and the result passed to a standard Latte template, which will then be rendered.
 4. PHP files.  For when you really do need dynamic behavior (eg, form submission), a route can be a PHP class.  Every HTTP method that is supported maps to a method of the same name.  So if you want to support `PUT`, have a `put()` method.  If not, omit it.
+5. Link files. For when you want a path that just sends a redirect to somewhere.  The file itself is very simple YAML.  By default, they won't show in the page tree, but you can easily set `hidden: false` in the file and it will show like any other page.  (Remember to set a `title`.) 
 
 Additionally, the paths on disk don't have to 100% match the paths in the URL.  A sorting prefix, either date or arbitrary number, will be stripped from the URL.  So this page tree:
 

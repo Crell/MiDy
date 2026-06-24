@@ -113,6 +113,27 @@ class HttpValidationTest extends TestCase
         self::assertEquals($contentType, explode(';', $response->getHeaderLine('content-type'))[0]);
     }
 
+    public static function redirectRoutes(): iterable
+    {
+        return [
+            'permanent redirect' => ['/permanent-redirect', 308, '/go/to/permanent'],
+            'temporary redirect' => ['/temporary-redirect', 307, '/go/to/temporary'],
+            'default redirect' => ['/default-redirect', 308, '/go/to/default'],
+        ];
+    }
+
+    #[Test, DataProvider('redirectRoutes')]
+    #[TestDox('A request for $_dataName returns a $expectedCode to $expectedLocation')]
+    public function redirect_checks(string $path, int $expectedCode, string $expectedLocation): void
+    {
+        $serverRequest = $this->makeRequest($path);
+
+        $response = $this->app->handle($serverRequest);
+
+        self::assertEquals($expectedCode, $response->getStatusCode());
+        self::assertEquals($expectedLocation, $response->getHeader('location')[0]);
+    }
+
     #[Test]
     #[TestDox('An undefined path returns a 404 with error page.')]
     public function not_found_handling(): void
