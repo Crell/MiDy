@@ -67,6 +67,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
 use HttpSoft\Emitter\SapiEmitter;
 use Latte\Engine;
+use Latte\Feature;
 use League\CommonMark\ConverterInterface;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Environment\EnvironmentInterface;
@@ -423,6 +424,7 @@ class MiDy implements RequestHandlerInterface
         // Latte templates
         $containerBuilder->addDefinitions([
             Engine::class => autowire()
+                ->method('setFeature', Feature::StrictTypes, false) // Not entirely sure why this is needed, but the CommonMarkExtension behaves weirdly without it.
                 ->method('addExtension', get(CommonMarkExtension::class))
                 ->method('addExtension', get(PageTreeExtension::class))
                 ->method('addExtension', get(LatteThemeExtension::class))
