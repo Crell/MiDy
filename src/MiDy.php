@@ -54,6 +54,7 @@ use Crell\MiDy\PageTree\Router\NotFoundErrorHandler;
 use Crell\MiDy\PageTree\Router\PageTreeRouter;
 use Crell\MiDy\PageTree\Router\PhpHandler;
 use Crell\MiDy\PageTree\Router\StaticFileHandler;
+use Crell\MiDy\Services\HeaderBrandingMiddleware;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\ResponseCacher;
 use Crell\Serde\Serde;
@@ -294,6 +295,7 @@ class MiDy implements RequestHandlerInterface
                 ->constructorParameter('middleware', [
                     get(ExceptionCatcherMiddleware::class),
                     get(DefaultContentTypeMiddleware::class),
+                    get(HeaderBrandingMiddleware::class),
                     get(CacheHeaderMiddleware::class),
                     get(EnforceHeadMiddleware::class),
                     get(RouterMiddleware::class),
