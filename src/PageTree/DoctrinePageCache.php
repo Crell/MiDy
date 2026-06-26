@@ -296,7 +296,7 @@ class DoctrinePageCache implements PageCache
         $filesLines = $this->conn->executeQuery("SELECT files from page")->fetchFirstColumn();
         foreach ($filesLines as $result) {
             $records = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
-            yield from array_map($this->instantiateFile(...), $records);
+            yield from array_map($this->instantiateFile(...), array_values($records));
         }
     }
 
