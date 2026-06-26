@@ -3,13 +3,12 @@
 
 declare(strict_types=1);
 
-namespace Crell\Midy;
+namespace Crell\MiDy;
 use Crell\MiDy\Commands\AllFilePregenerator;
-use Crell\MiDy\MiDy;
 
 include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
 
-$app = new MiDy('.');
+$app = new MiDy();
 
 /** @var AllFilePregenerator $cmd */
 $cmd = $app->container->get(AllFilePregenerator::class);

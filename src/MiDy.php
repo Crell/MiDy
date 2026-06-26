@@ -118,7 +118,7 @@ class MiDy implements RequestHandlerInterface
     private readonly string $baseUrl;
 
     /**
-     * @param string $appRoot
+     * @param string|null $appRoot
      *   The source root of the application. The default assumes the running
      *   script is one level down from the source root, in a public folder.
      * @param string|null $routesPath
@@ -133,7 +133,7 @@ class MiDy implements RequestHandlerInterface
      *   The root of the public (web-accessible) folder.
      */
     public function __construct(
-        string $appRoot = '..',
+        ?string $appRoot = null,
         ?string $routesPath = null,
         ?string $cachePath = null,
         ?string $configPath = null,
@@ -141,7 +141,7 @@ class MiDy implements RequestHandlerInterface
         ?string $publicPath = null,
         ?string $baseUrl = null,
     ) {
-        $this->appRoot = realpath($appRoot) ?: '';
+        $this->appRoot = $appRoot ?? $this->deriveProjectRoot();
 
         $this->loadEnvironment();
 
@@ -162,6 +162,19 @@ class MiDy implements RequestHandlerInterface
 
         $this->container = $this->buildContainer();
         $this->setupListeners();
+    }
+
+    /**
+     * Determines the project root, from which all other paths are derived.
+     *
+     * This is a seriously screwy way of doing it, but somehow it works.
+     * This particular class out of Composer is always exactly 3 directories
+     * deep from the project root, so we can use it as a pivot to find the
+     * root relative to it.
+     */
+    protected function deriveProjectRoot(): string
+    {
+        return dirname(new \ReflectionClass(\Composer\Autoload\ClassLoader::class)->getFileName(), 3);
     }
 
     protected function loadEnvironment(): void

@@ -3,13 +3,12 @@
 
 declare(strict_types=1);
 
-namespace Crell\Midy;
+namespace Crell\MiDy;
 use Crell\MiDy\Commands\CleanGeneratedFiles;
-use Crell\MiDy\MiDy;
 
 include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
 
-$app = new MiDy('.');
+$app = new MiDy();
 
 /** @var CleanGeneratedFiles $cmd */
 $cmd = $app->container->get(CleanGeneratedFiles::class);
