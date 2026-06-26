@@ -9,8 +9,8 @@ use Crell\MiDy\PageTree\File;
 use Crell\MiDy\PageTree\PageCache;
 use Crell\MiDy\PageTree\PageTree;
 use DI\Attribute\Inject;
+use function Crell\fp\amap;
 use function Crell\fp\itfilter;
-use function Crell\fp\itmap;
 use function Crell\fp\pipe;
 use function Crell\MiDy\ensure_dir;
 
@@ -32,7 +32,7 @@ readonly class StaticFilePregenerator
         // Now get every single page in the index, and copy it to the target path.
         pipe($this->cache->allFiles(),
             itfilter($this->filterStatic(...)),
-            itmap($this->copyFile(...))
+            amap($this->copyFile(...))
         );
     }
 
