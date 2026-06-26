@@ -52,8 +52,20 @@ readonly class AllFilePregenerator
     {
         $response = $this->kernel->handle($baseRequest->withUri($baseRequest->getUri()->withPath($path)));
 
+        // A missing content-type header is most likely due to a redirect page.
+        // In that case we simply skip it.
         $contentType = $response->getHeader('content-type')[0] ?? null;
-        print "Generating $path\n";
+        if ($contentType === null) {
+            return;
+        }
+
+        // It would be nice to have output here, but if there is any output
+        // then it runs afoul of Latte's broken handling of content types that
+        // we have to hack around.  It still tries to generate the header, so we
+        // have to catch it, but if there's already been output then it will error
+        // when generating the header from the template.  This is a Latte problem.
+        // @see TemplateRenderer::render() for more.
+        // print "Generating $path\n";
         if (str_contains($contentType, 'text/html')) {
             // Generate an index.html file for every page, so it looks like there are no extensions,
             // just like when the page is built dynamically.
@@ -65,7 +77,7 @@ readonly class AllFilePregenerator
         }
 
         ensure_dir(dirname($dest));
-        file_put_contents($dest, $response->getBody()->getContents());
+        file_put_contents($dest, (string) $response->getBody());
     }
 
     protected function makeRequest(): ServerRequestInterface
