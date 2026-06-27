@@ -6,6 +6,8 @@ namespace Crell\MiDy\PageTree;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use function Crell\fp\amap;
+use function Crell\fp\pipe;
 
 class DoctrinePageCache implements PageCache
 {
@@ -289,14 +291,18 @@ class DoctrinePageCache implements PageCache
      *
      * This is for the pre-generator logic.  Don't use it otherwise.
      *
-     * @return iterable<File>
+     * @return iterable<string, list<File>>
      */
     public function allFiles(): iterable
     {
-        $filesLines = $this->conn->executeQuery("SELECT files from page")->fetchFirstColumn();
-        foreach ($filesLines as $result) {
-            $records = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
-            yield from array_map($this->instantiateFile(...), array_values($records));
+        $filesLines = $this->conn->executeQuery("SELECT logicalPath, files from page");
+        foreach ($filesLines->iterateAssociative() as $record) {
+            $files = pipe(
+                json_decode($record['files'], true, 512, JSON_THROW_ON_ERROR),
+                array_values(...),
+                amap($this->instantiateFile(...))
+            );
+            yield $record['logicalPath'] => $files;
         }
     }
 

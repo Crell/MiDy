@@ -9,9 +9,6 @@ use Crell\MiDy\PageTree\File;
 use Crell\MiDy\PageTree\PageCache;
 use Crell\MiDy\PageTree\PageTree;
 use DI\Attribute\Inject;
-use function Crell\fp\amap;
-use function Crell\fp\itfilter;
-use function Crell\fp\pipe;
 use function Crell\MiDy\ensure_dir;
 
 readonly class StaticFilePregenerator
@@ -29,16 +26,19 @@ readonly class StaticFilePregenerator
         // First, ensure the index is fully up to date.
         $this->tree->reindexAll();
 
-        // Now get every single page in the index, and copy it to the target path.
-        pipe($this->cache->allFiles(),
-            itfilter($this->filterStatic(...)),
-            amap($this->copyFile(...))
-        );
+        $pages = $this->cache->allFiles();
+        foreach ($pages as $logicalPath => $files) {
+            foreach ($files as $file) {
+                if (array_key_exists($file->ext, $this->staticRoutes->allowedExtensions)) {
+                    $this->copyFile($file, $logicalPath);
+                }
+            }
+        }
     }
 
-    private function copyFile(File $file): void
+    private function copyFile(File $file, string $logicalPath): void
     {
-        $dest = $this->publicPath . $file->physicalPath . '.' . $file->ext;
+        $dest = $this->publicPath . $logicalPath. '.' . $file->ext;
         ensure_dir(pathinfo($dest, PATHINFO_DIRNAME));
         copy((string)$file->physicalPath, $dest);
     }
