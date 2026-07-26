@@ -38,7 +38,7 @@ class HttpValidationTest extends TestCase
         // @phpstan-ignore-next-line argument.type (This is right out of the vfsStream docs, I think, but PHPStan complains about a type mismatch that causes no issues. I don't care enough to figure it out.)
         vfsStream::copyFromFileSystem(__DIR__ . '/test-routes', $root->getChild('routes'));
 
-        $this->app = new MiDy('.',
+        $this->app = new MiDy(
             routesPath: $root->getChild('routes')->url(),
         );
     }

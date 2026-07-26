@@ -345,7 +345,6 @@ class MiDy implements RequestHandlerInterface
                 ->method('addHandler', get(LinkFileHandler::class))
             ,
             MarkdownLatteHandler::class => autowire()
-                ->constructorParameter('baseUrl', value($this->baseUrl))
             ,
             PageTree::class => autowire()
                 ->constructorParameter('rootPhysicalPath', get('paths.routes'))
