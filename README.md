@@ -6,11 +6,11 @@
 
 A tool for building **Mi**ldly **Dy**namic websites, with more features than you would expect.
 
-MiDy is in alpha.  It works, and it's in a state that people can play with it, but it's not yet production-ready.  Feedback welcome.
+MiDy is in beta.  It's fairly stable and usable for small sites, but please don't trust it to anything enterprise-grade or mission-critical yet.  For a personal blog or small company site, it's ready.  Feedback welcome.
 
 ## Who is this for
 
-MiDy sits between static site generators and full CMSes and frameworks.  It's for sites that are mostly static, and only "mildly dynamic."  Some listings are auto-generated, there's a few forms, etc.  It's for sites that would be a static site generator, except for that one annoying page where you can't quite do everything at compile time...
+MiDy sits between static site generators and full CMSes and frameworks.  It's for sites that are mostly static, and only "mildly dynamic."  Some listings are auto-generated, there are a few forms, etc.  It's for sites that would be a static site generator, except for that one annoying page where you can't quite do everything at compile time...
 
 In practice, it can also be used as a Latte-and-Markdown-based static site generator.  Or a little of each, which is where the real power comes from.
 
@@ -26,11 +26,11 @@ To that end, MiDy doesn't have "controllers" the way many frameworks do.  Instea
 
 MiDy supports five "page handlers":
 
-1. Static files.  A list of supported static files is provided by default, but can be easily overridden.  These files will simply be served as-is.
-2. Latte template files.  These files will be rendered and the output send back as a page.
+1. Static files.  A list of supported static files is provided by default but can be easily overridden.  These files will simply be served as-is.
+2. Latte template files.  These files will be rendered and the output sent back as a page.
 3. Markdown files, rendered through Latte.  Markdown files will be rendered as Markdown, and the result passed to a standard Latte template, which will then be rendered.
 4. PHP files.  For when you really do need dynamic behavior (eg, form submission), a route can be a PHP class.  Every HTTP method that is supported maps to a method of the same name.  So if you want to support `PUT`, have a `put()` method.  If not, omit it.
-5. Link files. For when you want a path that just sends a redirect to somewhere.  The file itself is very simple YAML.  By default, they won't show in the page tree, but you can easily set `hidden: false` in the file and it will show like any other page.  (Remember to set a `title`.) 
+5. Link files. For when you want a path that just sends a redirect to somewhere.  The file itself is very simple YAML.  By default, they won't show in the page tree, but you can easily set `hidden: false` in the file, and it will show like any other page.  (Remember to set a `title`.) 
 
 Additionally, the paths on disk don't have to 100% match the paths in the URL.  A sorting prefix, either date or arbitrary number, will be stripped from the URL.  So this page tree:
 
@@ -50,7 +50,19 @@ The `index.md` file in the above example will be used as the "file" representati
 
 ## Running
 
-MiDy requires PHP 8.4.  The easiest way to try it out is
+MiDy requires PHP 8.5 and SQLite.  It needs no other services or extensions.
+
+The best way to use MiDy is to use the starter skeleton, available on Packagist:
+
+```shell
+composer create-project crell/midy-skeleton mysite
+```
+
+That will create a new empty project with almost no files in it, just a starter skeleton.  All of MiDy itself is included as a composer dependency, making future upgrades easier.
+
+## Contributing
+
+To file PRs against MiDy, you can run this repository locally:
 
 1. Clone this repository
 2. Run `docker compose build && docker compose up -d`
@@ -108,40 +120,27 @@ This function returns a `Folder` object.  It is similar to a `Page` object, and 
 
 ## Shell commands
 
-These commands are still a bit rough, but provide useful site management tasks.
+A few basic management commands are included as composer executables.
 
-### `php clean.php`
+### `vendor/bin/midy-clean`
 
-Deletes all cache files.
+Deletes all cache files and generated static files.
 
-### `php pregenerate-static.php`
+### `vendor/bin/midy-reindex`
+
+Rebuilds the SQLite index of the entire site.  This is built incrementally by default, but if you can build it in advance, that will be faster.
+
+### `vendor/bin/midy-build-static`
 
 Pre-renders all static files (images, JS, CSS, etc.) to the `public` directory, so they can be served directly by the web server without going through PHP.
 
-### `php staticify.php`
+### `vendor/bin/midy-build-all`
 
 Pre-generates the entire site, excluding PHP pages.  If there are no PHP pages, then the result is a `public` directory that you can upload on its own somewhere as a fully static site.  (Though probably remove the `index.php` file first.)
 
-## Plans
-
-While the task list is long, here's the main things still on my radar before 1.0:
-
-* Gobs of performance improvements.  It's already pretty fast, but for instance it's rebuilding the container every request still.  That obviously can be improved.
-* Make routing more flexible, including possibly argument path segments.
-* Split most major components out to their own stand-alone LGPLv3 libraries.
-* This thing is almost a framework, by design.  Factor the framework out as well, including an extension mechanism.
-* Build a "skeleton" app, and move 99% of the code to composer packages used by that.  As little code as possible should be "in" a real site.
-* Flesh out the shell commands a lot better.  Like, use a real command framework.
-* Add support for redirection pages and link pages.
-* Better form handling.
-* Possibly switch to an event-based kernel rather than pure PSR-15 middlewares.
-* A proper install process using `composer create-project`.
-* Flesh out theme support better.
-* Way more detailed documentation.
-
 ## Feedback
 
-MiDy is still in active development and is not ready for production use, but it is stable enough to experiment with.  Please try it out, poke around, kick the tires, and otherwise see how it could be made better.  If you have suggestions, please either open an issue or reach out to me on the [PHPC Discord](https://phpc.chat/) server.
+MiDy is still in active development.  Please try it out, poke around, kick the tires, and otherwise see how it could be made better.  If you have suggestions, please either open an issue or reach out to me on the [PHPC Discord](https://phpc.chat/) server.
 
 ## Contributing
 
@@ -149,7 +148,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) and [CODE_OF_CONDUCT](CODE_OF_CONDUCT
 
 ## Security
 
-If you discover any security related issues, please use the [GitHub security reporting form](https://github.com/Crell/MiDy/security) rather than the issue queue.
+If you discover any security-related issues, please use the [GitHub security reporting form](https://github.com/Crell/MiDy/security) rather than the issue queue.
 
 ## Credits
 
@@ -158,7 +157,9 @@ If you discover any security related issues, please use the [GitHub security rep
 
 ## License
 
-The GPL version 3 or later. Please see [License File](LICENSE.md) for more information.
+The AGPL version 3 or later. Please see [License File](LICENSE.md) for more information.
+
+Note, however, that any content or templates you use with MiDy are explicitly exempt from license coverage, regardless of whether they could technically be covered.  Your content belongs to you.  MiDy belongs to the world.
 
 [ico-version]: https://img.shields.io/packagist/v/Crell/MiDy.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/License-GPLv3-green.svg?style=flat-square
