@@ -3,7 +3,7 @@
     "description": "A tool for building static or Mildly Dynamic websites",
     "license": "GPL-3.0-or-later",
     "require": {
-        "php": "~8.4",
+        "php": "~8.5",
         "ext-dom": "*",
         "ext-pdo": "*",
         "crell/carica": "^0.4.3",
@@ -28,9 +28,9 @@
     "require-dev": {
         "fig/log-test": "^1.2",
         "mikey179/vfsstream": "^1.6.12",
-        "phpbench/phpbench": "^1.4.3",
+        "phpbench/phpbench": "^1.7.0",
         "phpstan/phpstan": "^2.1.39",
-        "phpunit/phpunit": "^13.0.2",
+        "phpunit/phpunit": "^13.3.5",
         "tracy/tracy": "^2.11.1"
     },
     "autoload": {
