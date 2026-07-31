@@ -471,6 +471,7 @@ class MiDy implements RequestHandlerInterface
         return $containerBuilder->build();
     }
 
+    // @phpstan-ignore-next-line mssingType.generics No idea what ContainerBuilder would even want here.
     protected function extendContainer(ContainerBuilder $containerBuilder): void
     {
         // Left open for extension by individual apps.

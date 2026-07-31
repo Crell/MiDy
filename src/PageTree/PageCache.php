@@ -74,7 +74,7 @@ interface PageCache
      *
      * This is for the pre-generator logic.  Don't use it otherwise.
      *
-     * @return iterable<File>
+     * @return iterable<string, list<File>>
      */
     public function allFiles(): iterable;
 

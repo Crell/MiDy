@@ -216,6 +216,7 @@ class DoctrinePageCache implements PageCache
         ];
 
         foreach ($orderBy as $field => $sortOrder) {
+            // @phpstan-ignore-next-line function.alreadyNarrowedType This should be true, but because doctype types aren't enforced, people can still do it wrong.  We need to give them a good error.
             if (!is_string($field)) {
                 throw new \InvalidArgumentException(sprintf('Invalid Ordering clause in page query.  The ordering array must use fields for the array key, and either SORT_ASC or SORT_DESC for the value.'));
             }

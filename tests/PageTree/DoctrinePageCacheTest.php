@@ -831,6 +831,7 @@ class DoctrinePageCacheTest extends TestCase
         ]));
 
         // This is an incorrect query, and should throw.
+        // @phpstan-ignore-next-line argument.type We know this is an valid query. That's the point.
         $cache->queryPages(folder: '/foo', orderBy: ['title']);
     }
 

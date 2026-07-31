@@ -42,9 +42,4 @@ readonly class StaticFilePregenerator
         ensure_dir(pathinfo($dest, PATHINFO_DIRNAME));
         copy((string)$file->physicalPath, $dest);
     }
-
-    private function filterStatic(File $file): bool
-    {
-        return array_key_exists($file->ext, $this->staticRoutes->allowedExtensions);
-    }
 }

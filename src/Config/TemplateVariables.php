@@ -10,6 +10,8 @@ use Traversable;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @implements \IteratorAggregate<string, string|int|float>
  */
 #[Config('template-variables')]
 readonly class TemplateVariables implements \IteratorAggregate
