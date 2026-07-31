@@ -298,11 +298,10 @@ class DoctrinePageCache implements PageCache
     {
         $filesLines = $this->conn->executeQuery("SELECT logicalPath, files from page");
         foreach ($filesLines->iterateAssociative() as $record) {
-            $files = pipe(
-                json_decode($record['files'], true, 512, JSON_THROW_ON_ERROR),
-                array_values(...),
-                amap($this->instantiateFile(...))
-            );
+            $files = json_decode($record['files'], true, 512, JSON_THROW_ON_ERROR)
+                |> array_values(...)
+                |> amap($this->instantiateFile(...))
+            ;
             yield $record['logicalPath'] => $files;
         }
     }

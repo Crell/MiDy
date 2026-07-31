@@ -53,11 +53,10 @@ class PageData
      * @var list<string>
      */
     public array $tags {
-        get => pipe(
-            array_merge(...$this->values('tags')),
-            array_unique(...),
-            array_values(...),
-        );
+        get => array_merge(...$this->values('tags'))
+            |> array_unique(...)
+            |> array_values(...)
+        ;
     }
 
     public string $folder {
