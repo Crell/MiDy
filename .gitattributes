@@ -19,3 +19,8 @@
 /docker-compose.yml export-ignore
 /phpbench.json      export-ignore
 /profile.php        export-ignore
+
+## These are mostly for development, and so should be excluded from sites using MiDy.
+/configuration      export-ignore
+/public             export-ignore
+/templates          export-ignore
