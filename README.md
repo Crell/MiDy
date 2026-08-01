@@ -4,6 +4,8 @@
 [![Software License][ico-license]](LICENSE.md)
 [![Total Downloads][ico-downloads]][link-downloads]
 
+![Coded by humans](by-humans.png)
+
 A tool for building **Mi**ldly **Dy**namic websites, with more features than you would expect.
 
 MiDy is in beta.  It's fairly stable and usable for small sites, but please don't trust it to anything enterprise-grade or mission-critical yet.  For a personal blog or small company site, it's ready.  Feedback welcome.
