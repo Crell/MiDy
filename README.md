@@ -82,7 +82,7 @@ The cache directory will need to be writeable by the web server.  The others may
 
 All configuration files are optional and are pretty small.  The only really necessary one is `template-variables.ini`, which allows you to specify arbitrary additional values to be made available to all templates.  Here's where you'd include, say, `siteName = Your Site Name`, to make that available to templates.
 
-All configuration files are based off of classes and map to them exactly.  They can all be found in the `src/Config` directory (or `vendor/crell/midy/src/Config` if you're using the skelton as recommended).  At this time only `.ini` files are supported, but if there is demand that could very easily be expanded to other formats.
+All configuration files are based off of classes and map to them exactly.  They can all be found in the [`src/Config`](src/Config) directory (or `vendor/crell/midy/src/Config` if you're using the skelton as recommended).  At this time only `.ini` files are supported, but if there is demand that could very easily be expanded to other formats.
 
 ### Content
 
@@ -96,24 +96,30 @@ For Markdown files, it's a typical YAML header:
 
 `example.md`:
 ```markdown
-\`\`\`
+---
 title: The page title.
 summary: An optional "short summary" of the page.
-publishDate: The date and optionally time this page is published. `YYYY-MM-DD H:i:s` format.  If not specified, the file's creation date on the file system will be used.
-lastUpdatedDate: The date and optionally time this page was last updated. `YYYY-MM-DD H:i:s` format.  If not specified, the file's modification date on the file system will be used.
+publishDate: The date and optionally time this page is published.
+lastModifiedDate: The date and optionally time this page was last updated.
 tags: A YAML array of tag strings for this page.
 hidden: `true` or `false`.  Defaults to false.  If true, this page will not be shown in menu listings by default but may still be linked to directly.
 routable: `true` or `false`.  Defaults to true.  If false, this file will not be accessible at all.
-`\`\`\
+---
 
 # An H1 here is interpreted as a title, but overridden by a frontmatter title.
 
 <!--summary-->
-Content in the page that is between these two comments will be part of the page content, but also used as the `summary` property.  If you want the summary to be different from the start of the page, use the `summary` frontmatter property.  If both are specified, the frontmatter header wins.
+Content in the page that is between these two comments will be part of the page
+content, but also used as the `summary` property.  If you want the summary to be
+different from the start of the page, use the `summary` frontmatter property.  If both
+are specified, the frontmatter header wins.
 <!--/summary-->
 
 The rest of your Markdown here.
 ```
+
+For `publishDate` and `lastModifiedDate`, any format readable by PHP's date and time handling is acceptable though `YYYY-MM-DD H:i:s` is strongly recommended.  If not specified, `publishDate` defaults to the file's creation date/time on the file system, and `lastModifiedDate` defaults to the file's last-modified date/time on the file system.
+
 #### Latte
 
 For Latte template files, the same YAML header is made available in a comment:
@@ -146,7 +152,7 @@ location: /go/to/temporary
 code: 307
 ```
 
-Supported codes are 307 (A temporary redirect) and 308 (permanent redirect), both of which will redirect to the value of `location`.
+Any 3xx code is allowed, though 307 (A temporary redirect) and 308 (permanent redirect) are recommended.  The default is 308 (permanent).  The redirect will be to the value of `location`.
 
 #### PHP
 
@@ -276,7 +282,14 @@ So, for example:
   /2026/2026-07-04_happy-4th.md
 ```
 
-If `flatten` is `true` in `blog/folder.midy`, then the resulting URLs will be `/blog/site-launch`, `/blog/now-hiring` `/blog/happy-valentines-day`, `/blog/happy-4th`, etc.
+If `flatten` is `true` in `blog/folder.midy`, then the resulting URLs will be:
+
+* `/blog/site-launch.md`
+* `/blog/now-hiring.md`
+* `/blog/merry-christmas.md`
+* `/blog/happy-valentines-day.md`
+* `/blog/happy-ides-of-march.md`
+* `/blog/happy-4th.md`
 
 Finally, the `defaults` block replicates the same front-matter as pages themselves, and provides fallback default values for any file in that folder (or its descendants if `flatten` is enabled).  The most useful default property is `template`, which specifies which page template to use for Markdown files after they've been rendered.  However, it can also be used to set a tag across all files in a given page, for example.
 
