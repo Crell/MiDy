@@ -7,12 +7,18 @@ namespace Crell\MiDy\PageTree\Parser;
 use Crell\MiDy\PageTree\BasicParsedFrontmatter;
 use Crell\MiDy\PageTree\SortOrder;
 
-readonly class FolderDef
+class FolderDef
 {
+    public SortOrder $order = SortOrder::Asc {
+        set(SortOrder|string $value) => is_string($value) ? SortOrder::fromString($value) : $value;
+    }
+
     public function __construct(
-        public SortOrder $order = SortOrder::Asc,
-        public bool $flatten = false,
-        public bool $hidden = false,
-        public BasicParsedFrontmatter $defaults = new BasicParsedFrontmatter(),
-    ) {}
+        SortOrder|string $order = SortOrder::Asc,
+        public readonly bool $flatten = false,
+        public readonly bool $hidden = false,
+        public readonly BasicParsedFrontmatter $defaults = new BasicParsedFrontmatter(),
+    ) {
+        $this->order = $order;
+    }
 }
