@@ -311,7 +311,15 @@ title: Title of the page.
 {/block}
 ```
 
-There are two other important functions included.
+There are a few other important functions included.
+
+### `page('/foo/bar')`
+
+This function returns the `Page` object for whatever page is at the specified path.
+
+### `folder('/foo/bar')`
+
+This function returns a `Folder` object.  It is similar to a `Page` object, and if that folder has an index file it can be treated as one, but it can also be iterated to get a list of all the pages in that folder.
 
 ### `pageQuery()`
 
@@ -321,9 +329,13 @@ This function allows read (but not write!) access to the cached index of pages. 
 
 The return value of `pageQuery()` is a [`Pagination`](src/PageTree/Pagination.php) object.  It contains all necessary information about the pagination, as well as a collection of `Page` objects that matched the query.
 
-### `folder()`
+### `pageUrl(Page $page)`
 
-This function returns a `Folder` object.  It is similar to a `Page` object, and if that folder has an index file it can be treated as one, but it can also be iterated to get a list of all the pages in that folder.
+This function accepts a `Page` object and returns its full URL as a string.  Two optional arguments are `query` (to provide a list of query parameters to add) and `full` (to force the URL to include the complete URL including `https://...`).
+
+### `atomId(Page $page)`
+
+This function generates a unique ID for a given page following the format required for Atom feeds.  See [RFC 4151](https://datatracker.ietf.org/doc/html/rfc4151) for details, or just use this function when builiding an Atom feed and ignore the details.
 
 ## Shell commands
 
