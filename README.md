@@ -60,20 +60,227 @@ composer create-project crell/midy-skeleton mysite
 
 That will create a new empty project with almost no files in it, just a starter skeleton.  All of MiDy itself is included as a composer dependency, making future upgrades easier.
 
-## Contributing
+## Setup
 
-To file PRs against MiDy, you can run this repository locally:
+MiDy should be usable right out of the box, but many parts may be reconfigured.
 
-1. Clone this repository
-2. Run `docker compose build && docker compose up -d`
-3. Run `./Taskfile shell` to open a shell on the fpm container.
-4. Run `composer install`
-5. Go to `http://localhost:30000` in your browser and get a 404 page. :-)
-6. Now start populating the `/routes` folder with your content!
+There are five paths that matter, all of which have a reasonable default but may be overridden by an environment variable if desired:
 
-See the [`tests/test-routes`](tests/test-routes) folder for many examples.  (That's the fixture used for integration tests.)
+| Directory                       | Default         | Env Var override |
+| ------------------------------- | --------------- | ---------------- |
+| Caches                          | ./cache         | CACHE_PATH       |
+| Routes and pages (your content) | ./routes        | ROUTES_PATH      |
+| Configuration files             | ./configuration | CONFIG_PATH      |
+| Site Templates                  | ./templates     | TEMPLATES_PATH   |
+| Public web pages                | ./public        | PUBLIC_PATH      |
 
-## Templating
+Support is also included for using a `.env` file to specify the environment variables.  However, in 99% of cases you should not need to change these.
+
+The cache directory will need to be writeable by the web server.  The others may be readonly in production if you are using a Git deployment approach.  If you'd rather just edit the content directly on the production server, that will need to be writeable as well.
+
+### Configuration
+
+All configuration files are optional and are pretty small.  The only really necessary one is `template-variables.ini`, which allows you to specify arbitrary additional values to be made available to all templates.  Here's where you'd include, say, `siteName = Your Site Name`, to make that available to templates.
+
+All configuration files are based off of classes and map to them exactly.  They can all be found in the `src/Config` directory (or `vendor/crell/midy/src/Config` if you're using the skelton as recommended).  At this time only `.ini` files are supported, but if there is demand that could very easily be expanded to other formats.
+
+### Content
+
+All of your content lives in the `routes` path.  By default, it maps 1:1 to the URL path for that file, minus the file extension.  So a file named `routes/foo/bar/baz.md` will have a URL path of `/foo/bar/baz`.
+
+All files (except static) have available frontmatter, though the format varies slightly with each file type.  All are generally optional, though many are recommended.  The Markdown example below shows all the first-class supported properties.
+
+#### Markdown
+
+For Markdown files, it's a typical YAML header:
+
+`example.md`:
+```markdown
+\`\`\`
+title: The page title.
+summary: An optional "short summary" of the page.
+publishDate: The date and optionally time this page is published. `YYYY-MM-DD H:i:s` format.  If not specified, the file's creation date on the file system will be used.
+lastUpdatedDate: The date and optionally time this page was last updated. `YYYY-MM-DD H:i:s` format.  If not specified, the file's modification date on the file system will be used.
+tags: A YAML array of tag strings for this page.
+hidden: `true` or `false`.  Defaults to false.  If true, this page will not be shown in menu listings by default but may still be linked to directly.
+routable: `true` or `false`.  Defaults to true.  If false, this file will not be accessible at all.
+`\`\`\
+
+# An H1 here is interpreted as a title, but overridden by a frontmatter title.
+
+<!--summary-->
+Content in the page that is between these two comments will be part of the page content, but also used as the `summary` property.  If you want the summary to be different from the start of the page, use the `summary` frontmatter property.  If both are specified, the frontmatter header wins.
+<!--/summary-->
+
+The rest of your Markdown here.
+```
+#### Latte
+
+For Latte template files, the same YAML header is made available in a comment:
+
+`example.latte`:
+```latte
+{layout template('layout.latte')}
+{* Type-specify the parameters the template is expected to get, for type hinting. *}
+{varType \Crell\MiDy\PageTree\Page $currentPage}
+
+{*---
+title: Test Page
+other properties here
+---*}
+
+{define title}{$currentPage->title}{/define}
+
+{block content}
+The rest of your Latte template here.
+{block content}
+```
+#### Link
+
+Link pages are just a YAML file, with two additional properties:
+
+`example.link`:
+```yaml
+title: The page title.
+location: /go/to/temporary
+code: 307
+```
+
+Supported codes are 307 (A temporary redirect) and 308 (permanent redirect), both of which will redirect to the value of `location`.
+
+#### PHP
+
+For PHP pages, there is an attribute available instead.
+
+`example.php`:
+```php
+use Crell\MiDy\PageTree\Attributes\PageRoute;
+
+#[PageRoute(title: 'The page title here')]
+class DoesntMatter
+{
+    public function __construct(
+        private readonly ResponseBuilder $builder
+    ) {}
+
+    public function get(ServerRequestInterface $request): ResponseInterface
+    {
+        // Your logic here.
+    }
+
+    public function post(ServerRequestInterface $request): ResponseInterface
+    {
+        $form = $request->getParsedBody();
+        return $this->builder->ok("POST received: " . $form['name']);
+    }
+}
+```
+
+Note that the class name and namespace of a PHP route file are entirely irrelevant.  It will be loaded on the fly and the necessary dependencies injected into the constructor automatically.  As long as the name is unique across the site, you're fine.
+
+#### Static
+
+Static pages (such as images) do not have frontmatter, and are by default routable and hidden (so you can link to them, but they don't appear in listings).
+
+The exception is a file that ends in `.html`.  In that case, the page's `<title>` tag will be parsed out and used as the page title.
+
+#### Other frontmatter
+
+In the PHP attribute, there is an `other` array that can accept arbitrary key/value pairs.  For all other frontmatter formats, arbitrary additional properties can simply be listed alongside the others.  They will still be pulled into the `other` property on the page, and made available in the template for use however you'd like.
+
+For example, to have a completely separate open graph description in addition to the summary, one could do:
+
+```yaml
+title: My page
+summmary: Some long description
+og_description: A short description
+```
+
+```latte
+{* In the page template that renders that file... *}
+{varType \Crell\MiDy\PageTree\Page $currentPage}
+
+{block links}
+    {include parent}
+
+    <meta property="og:description" content="{$currentPage->other['og_description'] ?? $currentPage->summary}">
+    {* ... *}
+{/block}
+```
+
+### Advanced content
+
+Beyond just creating content, there are many ways to organize it.
+
+#### Ordering by prefix
+
+By default, all listings will list pages ordered alphabetically by their title, then by their path.  However, the file name may also include ordering information.
+
+If a page file begins with any number followed by a `_`, that will be taken as an order value and stripped off of the path name.  Leading zeros are ignored, as are `-` in the number, so that dates may be allowed.
+
+So for example:
+
+```text
+/foo
+  /01_contact.md
+  /02_beliefs.md
+  /04_demo.md
+  /04_about.md
+/blog
+  /2026-02-14_happy-valentines-day.md
+  /2026-03-15_happy-ides-of-march.md
+  /2026-07-04_happy-4th.md
+```
+
+That will result in paths of:
+
+* `/foo/contact`
+* `/foo/beliefs`
+* `/foo/demo`
+* `/foo/about`
+* `/blog/happy-valentines-day`
+* `/blog/happy-ides-of-march`
+* `/blog/happy-4th`
+
+And listing queries in a template will order them in the order above first, before alphabetical.
+
+#### `folder.midy`
+
+This file may be placed in any content directory.  It will always be hidden but allows setting configuration for files in that directory.
+
+```yaml
+hidden: false
+order: Asc
+flatten: false
+defaults:
+    title: 'Testing'
+    template: 'blog-page.latte'
+```
+
+The `hidden` property applies to the directory.  If `true`, the directory itself will be hidden from listings by default.  It defaults to `false`.
+
+The `order` property may be either `Asc` or `Desc` (case-insensitive).  If `Desc`, then the ordering logic described above is reversed.  That is particularly useful when listing events or posts in reverse chronological order.
+
+The `flatten` property, if set to `true` (default is `false`), will cause all paths beneath this folder to be omitted, and the system will see all files below this directory as belonging to this directory.  That is useful mainly when there is a very large number of files that live at the same "level" from a URL perspective, but you want an easier way to organize them on disk.  That includes large blog archives, large product catalogs, etc.
+
+So, for example:
+
+```text
+/blog
+  /folder.midy
+  /2025/site-launch.md
+  /2025/now-hiring.md
+  /2025/merry-christmas.md
+  /2026/2026-02-14_happy-valentines-day.md
+  /2026/2026-03-15_happy-ides-of-march.md
+  /2026/2026-07-04_happy-4th.md
+```
+
+If `flatten` is `true` in `blog/folder.midy`, then the resulting URLs will be `/blog/site-launch`, `/blog/now-hiring` `/blog/happy-valentines-day`, `/blog/happy-4th`, etc.
+
+Finally, the `defaults` block replicates the same front-matter as pages themselves, and provides fallback default values for any file in that folder (or its descendants if `flatten` is enabled).  The most useful default property is `template`, which specifies which page template to use for Markdown files after they've been rendered.  However, it can also be used to set a tag across all files in a given page, for example.
+
+### Templating
 
 Templating is provided by the [Latte template engine](https://latte.nette.org/en/).  (If there's interest, I can explore supporting Twig as well, though doing both at once could be tricky.)  If you've used Twig, it's very similar but uses a more PHP-ish syntax.  Several enhancement functions are included as well.
 
@@ -138,11 +345,20 @@ Pre-renders all static files (images, JS, CSS, etc.) to the `public` directory, 
 
 Pre-generates the entire site, excluding PHP pages.  If there are no PHP pages, then the result is a `public` directory that you can upload on its own somewhere as a fully static site.  (Though probably remove the `index.php` file first.)
 
-## Feedback
+## Contributing
 
 MiDy is still in active development.  Please try it out, poke around, kick the tires, and otherwise see how it could be made better.  If you have suggestions, please either open an issue or reach out to me on the [PHPC Discord](https://phpc.chat/) server.
 
-## Contributing
+To file PRs against MiDy, you can run this repository locally:
+
+1. Clone this repository
+2. Run `docker compose build && docker compose up -d`
+3. Run `./Taskfile shell` to open a shell on the fpm container.
+4. Run `composer install`
+5. Go to `http://localhost:30000` in your browser and get a 404 page. :-)
+6. Now start populating the `/routes` folder with your content!
+
+See the [`tests/test-routes`](tests/test-routes) folder for many examples.  (That's the fixture used for integration tests.)
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) and [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) for details.
 
