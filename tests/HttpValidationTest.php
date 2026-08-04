@@ -134,11 +134,20 @@ class HttpValidationTest extends TestCase
         self::assertEquals($expectedLocation, $response->getHeader('location')[0]);
     }
 
-    #[Test]
-    #[TestDox('An undefined path returns a 404 with error page.')]
-    public function not_found_handling(): void
+    public static function not_found_examples(): \Generator
     {
-        $serverRequest = $this->makeRequest('/missing');
+        // A missing root page.
+        yield ['/missing'];
+        // A missing child page of a path that does exist.
+        yield ['/blog/missing'];
+    }
+
+    #[Test]
+    #[DataProvider('not_found_examples')]
+    #[TestDox('An undefined path returns a 404 with error page.')]
+    public function not_found_handling(string $path): void
+    {
+        $serverRequest = $this->makeRequest($path);
 
         $response = $this->app->handle($serverRequest);
 

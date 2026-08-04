@@ -63,6 +63,8 @@ class PageTreeRouter implements Router
                         if ($result = $handler->handle($request, $page, $ext, $trailing)) {
                             return $result;
                         }
+                    } else {
+                        return new RouteNotFound();
                     }
                 } elseif ($result = $handler->handle($request, $page, $ext)) {
                     return $result;
