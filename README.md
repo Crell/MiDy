@@ -66,7 +66,14 @@ That will create a new empty project with almost no files in it, just a starter 
 
 MiDy should be usable right out of the box, but many parts may be reconfigured.
 
-There are five paths that matter, all of which have a reasonable default but may be overridden by an environment variable if desired:
+The only really mandatory setup is setting your `BASE_URL`.  For security reasons, any absolute URLs generated that point to the current site use a fixed base URL, rather than deriving it from the request.  (Most frameworks do the same.)  The easiest way to set the base URL is via an environment variable named `BASE_URL`.   There is support for a `.env` file included if you want to go that route, though setting it via your hosting provider is preferred.
+
+```ini
+# .env
+BASE_URL=https://example.com/
+```
+
+There are five paths that matter, all of which have a reasonable default but may also be overridden by an environment variable if desired:
 
 | Directory                       | Default         | Env Var override |
 | ------------------------------- | --------------- | ---------------- |
@@ -76,7 +83,7 @@ There are five paths that matter, all of which have a reasonable default but may
 | Site Templates                  | ./templates     | TEMPLATES_PATH   |
 | Public web pages                | ./public        | PUBLIC_PATH      |
 
-Support is also included for using a `.env` file to specify the environment variables.  However, in 99% of cases you should not need to change these.
+In 99% of cases you should not need to change these.
 
 The cache directory will need to be writeable by the web server.  The others may be readonly in production if you are using a Git deployment approach.  If you'd rather just edit the content directly on the production server, that will need to be writeable as well.
 
