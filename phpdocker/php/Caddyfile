@@ -1,0 +1,10 @@
+{
+	skip_install_trust
+}
+
+{$SERVER_NAME::80} {
+	root {$SERVER_ROOT:/app/public}
+
+	encode zstd br gzip
+	php_server
+}

@@ -1,11 +1,13 @@
-FROM phpdockerio/php:8.5-fpm
+FROM dunglas/frankenphp:php8.5
+
 WORKDIR "/app"
+
+COPY --from=composer/composer:2-bin /composer /usr/local/bin/composer
 
 RUN apt-get update \
     && apt-get -y --no-install-recommends install \
         git \
-        php8.5-xdebug \
-        php8.5-sqlite \
-        php8.5-pdo-sqlite \
+        unzip \
     && apt-get clean \
+    && install-php-extensions xdebug \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*

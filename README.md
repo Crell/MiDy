@@ -387,7 +387,7 @@ To file PRs against MiDy, you can run this repository locally:
 
 1. Clone this repository
 2. Run `docker compose build && docker compose up -d`
-3. Run `./Taskfile shell` to open a shell on the fpm container.
+3. Run `./Taskfile shell` to open a shell on the php container.
 4. Run `composer install`
 5. Go to `http://localhost:30000` in your browser and get a 404 page. :-)
 6. Now start populating the `/routes` folder with your content!
