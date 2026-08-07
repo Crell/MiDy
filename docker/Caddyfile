@@ -6,5 +6,10 @@
 	root {$SERVER_ROOT:/app/public}
 
 	encode zstd br gzip
-	php_server
+	php_server {
+		worker {
+			file {$SERVER_ROOT:/app/public}/index.php
+			watch
+		}
+	}
 }

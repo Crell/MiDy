@@ -9,5 +9,5 @@ RUN apt-get update \
         git \
         unzip \
     && apt-get clean \
-    && install-php-extensions xdebug \
+    && install-php-extensions xdebug dom pdo \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*

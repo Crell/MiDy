@@ -6,4 +6,12 @@ use Crell\MiDy\MiDy;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-new MiDy()->run();
+$midy = new MiDy();
+if (!($_SERVER['FRANKENPHP_WORKER'] ?? false)) {
+    $midy->run();
+    return;
+}
+
+while (\frankenphp_handle_request(static fn() => $midy->run())) {
+    gc_collect_cycles();
+}
