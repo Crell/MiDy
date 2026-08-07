@@ -1,11 +1,11 @@
 services:
     php:
-        build: phpdocker/php
+        build: docker
         working_dir: /app
         volumes:
             - '.:/app'
-            - './phpdocker/php/Caddyfile:/etc/frankenphp/Caddyfile'
-            - './phpdocker/php/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini'
+            - './docker/Caddyfile:/etc/frankenphp/Caddyfile'
+            - './docker/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini'
         environment:
             PHP_IDE_CONFIG: "serverName=Docker"
         ports:
