@@ -30,7 +30,7 @@
         "mikey179/vfsstream": "^1.6.12",
         "phpbench/phpbench": "^1.7.0",
         "phpstan/phpstan": "^2.1.39",
-        "phpunit/phpunit": "^13.3.5",
+        "phpunit/phpunit": "^13.3.0",
         "tracy/tracy": "^2.11.1"
     },
     "autoload": {
