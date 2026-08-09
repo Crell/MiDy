@@ -21,3 +21,15 @@ services:
             - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.4/cli/conf.d/99-overrides.ini'
         environment:
             PHP_IDE_CONFIG: "serverName=Docker"
+
+    frankenphp:
+        build: phpdocker/frankenphp
+        working_dir: /app
+        volumes:
+            - '.:/app'
+            - './phpdocker/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile'
+            - './phpdocker/php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini'
+        environment:
+            PHP_IDE_CONFIG: "serverName=Docker"
+        ports:
+            - '30002:80'

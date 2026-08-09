@@ -509,9 +509,26 @@ class MiDy implements RequestHandlerInterface
 
     public function run(): void
     {
+        if (!($_SERVER['FRANKENPHP_WORKER'] ?? false)) {
+            $this->runOneRequest();
+        } else {
+            $this->runFrankenPHP();
+        }
+    }
+
+    protected function runOneRequest(): void
+    {
         $serverRequest = $this->container->get(ServerRequestCreator::class)->fromGlobals();
         $response = $this->handle($serverRequest);
 
         $this->container->get(SapiEmitter::class)->emit($response);
     }
+
+    protected function runFrankenPHP(): void
+    {
+        while (\frankenphp_handle_request(fn() => $this->runOneRequest())) {
+            gc_collect_cycles();
+        }
+    }
+
 }

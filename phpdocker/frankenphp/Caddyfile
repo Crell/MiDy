@@ -1,0 +1,24 @@
+{
+	skip_install_trust
+}
+
+{$SERVER_NAME::80} {
+	root {$SERVER_ROOT:/app/public}
+
+	encode zstd br gzip
+
+	@xdebug header Cookie *XDEBUG_SESSION=*
+	handle @xdebug {
+		php_fastcgi php-fpm:9000
+		file_server
+	}
+
+	handle {
+		php_server {
+			worker {
+				file {$SERVER_ROOT:/app/public}/index.php
+				watch
+			}
+		}
+	}
+}
