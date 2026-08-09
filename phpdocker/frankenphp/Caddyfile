@@ -7,12 +7,6 @@
 
 	encode zstd br gzip
 
-	@xdebug header Cookie *XDEBUG_SESSION=*
-	handle @xdebug {
-		php_fastcgi php-fpm:9000
-		file_server
-	}
-
 	handle {
 		php_server {
 			worker {
