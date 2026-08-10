@@ -62,6 +62,10 @@ composer create-project crell/midy-skeleton mysite
 
 That will create a new empty project with almost no files in it, just a starter skeleton.  All of MiDy itself is included as a composer dependency, making future upgrades easier.
 
+Under php-fpm, MiDy boots and handles a single request. Under [FrankenPHP worker mode](https://frankenphp.dev/docs/worker/) MiDy boots once and handles requests in a loop instead.
+
+To run MiDy another way, such as for RoadRunner or Swoole, override `run()` on your `class App extends MiDy` class.
+
 ## Setup
 
 MiDy should be usable right out of the box, but many parts may be reconfigured.
@@ -389,8 +393,9 @@ To file PRs against MiDy, you can run this repository locally:
 2. Run `docker compose build && docker compose up -d`
 3. Run `./Taskfile shell` to open a shell on the fpm container.
 4. Run `composer install`
-5. Go to `http://localhost:30001` in your browser and get a 404 page. :-)
-6. Now start populating the `/routes` folder with your content!
+5. Go to `http://localhost:30001` (nginx -> php-fpm) in your browser and get a 404 page. :-)
+6. Go go `http://localhost:30002` (frankenphp) in your browser and get a 404 page. :-)
+7. Now start populating the `/routes` folder with your content!
 
 See the [`tests/test-routes`](tests/test-routes) folder for many examples.  (That's the fixture used for integration tests.)
 

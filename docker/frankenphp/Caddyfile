@@ -1,0 +1,18 @@
+{
+	skip_install_trust
+}
+
+{$SERVER_NAME::80} {
+	root {$SERVER_ROOT:/app/public}
+
+	encode zstd br gzip
+
+	handle {
+		php_server {
+			worker {
+				file {$SERVER_ROOT:/app/public}/index.php
+				watch
+			}
+		}
+	}
+}

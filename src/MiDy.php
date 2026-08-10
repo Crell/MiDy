@@ -509,6 +509,32 @@ class MiDy implements RequestHandlerInterface
 
     public function run(): void
     {
+        if (!($_SERVER['FRANKENPHP_WORKER'] ?? false)) {
+            $this->runRequest();
+            return;
+        }
+
+        ignore_user_abort(true);
+
+        $server = array_filter($_SERVER, static fn (string $key) => !str_starts_with($key, 'HTTP_'), \ARRAY_FILTER_USE_KEY);
+
+        $handler = function () use ($server): void {
+            if (\extension_loaded('xdebug') && \function_exists('xdebug_connect_to_client')) {
+                xdebug_connect_to_client();
+            }
+
+            $_SERVER += $server;
+
+            $this->runRequest();
+        };
+
+        while (\frankenphp_handle_request($handler)) {
+            gc_collect_cycles();
+        }
+    }
+
+    protected function runRequest(): void
+    {
         $serverRequest = $this->container->get(ServerRequestCreator::class)->fromGlobals();
         $response = $this->handle($serverRequest);
 
