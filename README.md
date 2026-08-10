@@ -389,7 +389,7 @@ To file PRs against MiDy, you can run this repository locally:
 2. Run `docker compose build && docker compose up -d`
 3. Run `./Taskfile shell` to open a shell on the fpm container.
 4. Run `composer install`
-5. Go to `http://localhost:30000` in your browser and get a 404 page. :-)
+5. Go to `http://localhost:30001` in your browser and get a 404 page. :-)
 6. Now start populating the `/routes` folder with your content!
 
 See the [`tests/test-routes`](tests/test-routes) folder for many examples.  (That's the fixture used for integration tests.)
