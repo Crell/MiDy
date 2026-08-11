@@ -54,7 +54,7 @@ The `index.md` file in the above example will be used as the "file" representati
 
 MiDy requires PHP 8.5 and SQLite.  It needs no other services or extensions.
 
-MiDy is compatible out of the box with `php-fpm` and `frankenphp`. While under php-fpm or FrankenPHP's regular mode it will serve a single request and then exit, under FrankenPHP worker mode, it boots once and keeps the application in memory.  If you use a different PHP runtime like RoadRunner or Swoole, you can override MiDy's `run()` method in your app.
+MiDy is compatible out of the box with Apache, PHP-FPM, and FrankenPHP.  While under Apache, PHP-FPM, or FrankenPHP's regular mode it will serve a single request and then exit.  Under FrankenPHP worker mode, it boots once and keeps the application in memory.  If you use a different PHP runtime like RoadRunner or Swoole, you can override MiDy's `run()` method in your app.
 
 The best way to use MiDy is to use the starter skeleton, available on Packagist:
 
