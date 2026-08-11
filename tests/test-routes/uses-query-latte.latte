@@ -1,0 +1,12 @@
+{layout template('layout.latte')}
+
+{varType Crell\MiDy\PageTree\Router\HttpQuery $query}
+
+{define title}Tag Test{/define}
+
+{block content}
+
+    {* This should error if the query isn't available. *}
+    {$query->getInt('page', 1)}
+
+{/block}
