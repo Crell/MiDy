@@ -509,10 +509,10 @@ class MiDy implements RequestHandlerInterface
 
     public function run(): void
     {
-        if (!($_SERVER['FRANKENPHP_WORKER'] ?? false)) {
-            $this->runOneRequest();
-        } else {
+        if (($_SERVER['FRANKENPHP_WORKER'] ?? false) && \extension_loaded('frankenphp')) {
             $this->runFrankenPHPWorker();
+        } else {
+            $this->runOneRequest();
         }
     }
 
@@ -526,7 +526,15 @@ class MiDy implements RequestHandlerInterface
 
     protected function runFrankenPHPWorker(): void
     {
-        while (\frankenphp_handle_request(fn() => $this->runOneRequest())) {
+        ignore_user_abort(true);
+        $handler = function (): void {
+            if (\extension_loaded('xdebug') && \function_exists('xdebug_connect_to_client')) {
+                xdebug_connect_to_client();
+            }
+
+            $this->runOneRequest();
+        };
+        while (\frankenphp_handle_request($handler)) {
             gc_collect_cycles();
         }
     }

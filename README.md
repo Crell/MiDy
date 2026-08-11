@@ -54,6 +54,8 @@ The `index.md` file in the above example will be used as the "file" representati
 
 MiDy requires PHP 8.5 and SQLite.  It needs no other services or extensions.
 
+MiDy is compatible out of the box with `php-fpm` and `frankenphp`. While under php-fpm or FrankenPHP's regular mode it will serve a single request and then exit, under FrankenPHP worker mode, it boots once and keeps the application in memory.  If you use a different PHP runtime like RoadRunner or Swoole, you can override MiDy's `run()` method in your app.
+
 The best way to use MiDy is to use the starter skeleton, available on Packagist:
 
 ```shell
@@ -91,7 +93,7 @@ The cache directory will need to be writeable by the web server.  The others may
 
 All configuration files are optional and are pretty small.  The only really necessary one is `template-variables.ini`, which allows you to specify arbitrary additional values to be made available to all templates.  Here's where you'd include, say, `siteName = Your Site Name`, to make that available to templates.
 
-All configuration files are based off of classes and map to them exactly.  They can all be found in the [`src/Config`](src/Config) directory (or `vendor/crell/midy/src/Config` if you're using the skelton as recommended).  At this time only `.ini` files are supported, but if there is demand that could very easily be expanded to other formats.
+All configuration files are based off of classes and map to them exactly.  They can all be found in the [`src/Config`](src/Config) directory (or `vendor/crell/midy/src/Config` if you're using the skeleton as recommended).  At this time only `.ini` files are supported, but if there is demand that could very easily be expanded to other formats.
 
 ### Content
 
@@ -389,7 +391,8 @@ To file PRs against MiDy, you can run this repository locally:
 2. Run `docker compose build && docker compose up -d`
 3. Run `./Taskfile shell` to open a shell on the fpm container.
 4. Run `composer install`
-5. Go to `http://localhost:30001` in your browser and get a 404 page. :-)
+5. Go to `http://localhost:30001` in your browser and get a 404 page from Nginx + PHP-FPM. :-)
+5. Go to `http://localhost:30002` in your browser and get a 404 page from FrankenPHP. :-)
 6. Now start populating the `/routes` folder with your content!
 
 See the [`tests/test-routes`](tests/test-routes) folder for many examples.  (That's the fixture used for integration tests.)
