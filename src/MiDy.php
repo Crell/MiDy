@@ -146,11 +146,11 @@ class MiDy implements RequestHandlerInterface
 
         $this->loadEnvironment();
 
-        $this->cachePath = $this->ensurePath($cachePath, $_ENV['CACHE_PATH'] ?? '/cache');
-        $this->routePath = $this->ensurePath($routesPath, $_ENV['ROUTES_PATH'] ?? '/routes');
-        $this->configPath = $this->ensurePath($configPath, $_ENV['CONFIG_PATH'] ?? '/configuration');
-        $this->templatesPath = $this->ensurePath($templatesPath, $_ENV['TEMPLATES_PATH'] ?? '/templates');
-        $this->publicPath = $this->ensurePath($publicPath, $_ENV['PUBLIC_PATH'] ?? '/public');
+        $this->cachePath = $this->ensurePath($cachePath ?? $this->env('CACHE_PATH'), 'cache');
+        $this->routePath = $this->ensurePath($routesPath ?? $this->env('ROUTES_PATH'), 'routes');
+        $this->configPath = $this->ensurePath($configPath ?? $this->env('CONFIG_PATH'), 'configuration');
+        $this->templatesPath = $this->ensurePath($templatesPath ?? $this->env('TEMPLATES_PATH'), 'templates');
+        $this->publicPath = $this->ensurePath($publicPath ?? $this->env('PUBLIC_PATH'), 'public');
 
         $this->midyPath = $this->ensurePath(dirname(__FILE__) . '/..', '');
 
@@ -159,7 +159,7 @@ class MiDy implements RequestHandlerInterface
         // However, it would be better to have an allow-list and then derive
         // details off of the request, like Symfony does.
         // @TODO Derive baseUrl off of an allow list and the request.
-        $this->baseUrl = $baseUrl ?? $_ENV['BASE_URL'] ?? 'https://localhost/';
+        $this->baseUrl = $baseUrl ?? $this->env('BASE_URL') ?? 'https://localhost/';
 
         $this->container = $this->buildContainer();
         $this->setupListeners();
@@ -187,9 +187,18 @@ class MiDy implements RequestHandlerInterface
         }
     }
 
+    protected function env(string $name): ?string
+    {
+        return $_SERVER[$name] ?? $_ENV[$name] ?? null;
+    }
+
     protected function ensurePath(?string $override, string $default): string
     {
-        $dir = $override ?? ($this->appRoot . '/' . trim($default, '/'));
+        $dir = $override ?? $default;
+
+        if (!str_starts_with($dir, '/') && !str_contains($dir, '://')) {
+            $dir = $this->appRoot . '/' . trim($dir, '/');
+        }
 
         return ensure_dir($dir);
     }
