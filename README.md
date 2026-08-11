@@ -392,8 +392,8 @@ To file PRs against MiDy, you can run this repository locally:
 3. Run `./Taskfile shell` to open a shell on the fpm container.
 4. Run `composer install`
 5. Go to `http://localhost:30001` in your browser and get a 404 page from Nginx + PHP-FPM. :-)
-5. Go to `http://localhost:30002` in your browser and get a 404 page from FrankenPHP. :-)
-6. Now start populating the `/routes` folder with your content!
+6. Go to `http://localhost:30002` in your browser and get a 404 page from FrankenPHP. :-)
+7. Now start populating the `/routes` folder with your content!
 
 See the [`tests/test-routes`](tests/test-routes) folder for many examples.  (That's the fixture used for integration tests.)
 
