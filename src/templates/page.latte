@@ -1,6 +1,8 @@
-{layout template('layout.latte')}
 {varType \Crell\MiDy\PageTree\Page $currentPage}
+{varType Crell\MiDy\PageTree\Router\HttpQuery $query}
 {varType string $content}
+
+{layout template('layout.latte'), currentPage: $currentPage, query: $query}
 
 {define title}{$currentPage->title}{/define}
 

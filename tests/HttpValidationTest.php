@@ -97,6 +97,8 @@ class HttpValidationTest extends TestCase
             'subdir page' => ['/subdir/page-three'],
             'subdir index' => ['/subdir'],
             'atom index' => ['/blog/atom', 'application/atom+xml'],
+            'latte with query' => ['/uses-query-latte'],
+            'md with query' => ['/uses-query-md'],
         ];
     }
 

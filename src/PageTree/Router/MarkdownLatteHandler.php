@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree\Router;
 
+use Crell\Carica\ExplicitActionMetadata;
 use Crell\Carica\ResponseBuilder;
 use Crell\Carica\Router\RouteResult;
 use Crell\Carica\Router\RouteSuccess;
@@ -41,18 +42,32 @@ class MarkdownLatteHandler implements PageHandler
             arguments: [
                 'file' => $page->variant($ext)->physicalPath,
                 'page' => $page,
+                'query' =>  $request->getQueryParams(),
             ],
+            actionDef: new ExplicitActionMetadata(
+                parameterTypes: [
+                    'request' => ServerRequestInterface::class,
+                    'file' => PhysicalPath::class,
+                    'page' => Page::class,
+                    'query' => 'array',
+                ],
+                requestParameter: 'request',
+            ),
         );
     }
 
-    public function action(ServerRequestInterface $request, Page $page, PhysicalPath $file): ResponseInterface
+    /**
+     * @param array<string, string|int|float> $query
+     */
+    public function action(ServerRequestInterface $request, Page $page, PhysicalPath $file, array $query): ResponseInterface
     {
-        return $this->cacher->handleCacheableFileRequest($request, (string)$file, function() use ($file, $page) {
+        return $this->cacher->handleCacheableFileRequest($request, (string)$file, function() use ($file, $page, $query) {
             $mdPage = $this->loader->load((string)$file);
 
             $template = $this->themeExtension->findTemplatePath($page->other['template'] ?? $this->config->defaultPageTemplate);
 
             $args['currentPage'] = $page;
+            $args['query'] = new HttpQuery($query);
             // Pre-render the Content rather than making the template do it.
             $args['content'] = new Html($this->converter->convert($mdPage->content));
 
