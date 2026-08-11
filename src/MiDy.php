@@ -168,13 +168,16 @@ class MiDy implements RequestHandlerInterface
     /**
      * Determines the project root, from which all other paths are derived.
      *
-     * This is a seriously screwy way of doing it, but somehow it works.
-     * This particular class out of Composer is always exactly 3 directories
-     * deep from the project root, so we can use it as a pivot to find the
-     * root relative to it.
+     * Composer's runtime API knows where the root package lives, so ask it.
+     * The fallback assumes `vendor` lives directly under the project root.
      */
     protected function deriveProjectRoot(): string
     {
+        $path = \Composer\InstalledVersions::getRootPackage()['install_path'];
+        if ($root = realpath($path)) {
+            return $root;
+        }
+
         return dirname(new \ReflectionClass(\Composer\Autoload\ClassLoader::class)->getFileName(), 3);
     }
 
