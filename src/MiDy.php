@@ -55,6 +55,7 @@ use Crell\MiDy\PageTree\Router\PageTreeRouter;
 use Crell\MiDy\PageTree\Router\PhpHandler;
 use Crell\MiDy\PageTree\Router\StaticFileHandler;
 use Crell\MiDy\Services\HeaderBrandingMiddleware;
+use Crell\MiDy\Services\LatteUtilsExtension;
 use Crell\MiDy\Services\PrintLogger;
 use Crell\MiDy\Services\ResponseCacher;
 use Crell\Serde\Serde;
@@ -453,6 +454,7 @@ class MiDy implements RequestHandlerInterface
                 ->method('setFeature', Feature::StrictTypes, false) // Not entirely sure why this is needed, but the CommonMarkExtension behaves weirdly without it.
                 ->method('addExtension', get(CommonMarkExtension::class))
                 ->method('addExtension', get(PageTreeExtension::class))
+                ->method('addExtension', get(LatteUtilsExtension::class))
                 ->method('addExtension', get(LatteThemeExtension::class))
                 ->method('setTempDirectory', get('paths.cache.latte'))
             ,
