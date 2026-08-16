@@ -361,6 +361,10 @@ This function accepts a `Page` object and returns its full URL as a string.  Two
 
 This function generates a unique ID for a given page following the format required for Atom feeds.  See [RFC 4151](https://datatracker.ietf.org/doc/html/rfc4151) for details, or just use this function when builiding an Atom feed and ignore the details.
 
+### `readingTime(string $text, int $minWpm = 200, int $maxWpm=250)`
+
+This function computes the approximate reading time of a string of text, such as `$content` (the body of a markdown-based page).  You can specify the min/max word-per-minute to use for the calculation or just accept the defaults.
+
 ## Shell commands
 
 A few basic management commands are included as composer executables.
