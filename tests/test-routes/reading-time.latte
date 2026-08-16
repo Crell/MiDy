@@ -1,0 +1,15 @@
+{layout template('layout.latte')}
+{var $name = "larry garfield"}
+
+{*---
+title: Reading time validation
+---*}
+
+{block content}
+
+    {foreach range(10, 100_000, 100) as $wordCount}
+        {var $str = trim(str_repeat('banana ', $wordCount))}
+        <p>Reading time for {$wordCount} words: {readingTime($str)}</p>
+    {/foreach}
+
+{/block}
