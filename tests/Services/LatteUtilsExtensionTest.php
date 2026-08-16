@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Crell\MiDy\Services;
 
+use Latte\Runtime\Html;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\Attributes\Test;
@@ -50,13 +53,20 @@ class LatteUtilsExtensionTest extends TestCase
     public function readingTime(int $wordCount, int $minWpm, int $maxWpm, string $expected): void
     {
         $ext = new LatteUtilsExtension();
-        $result = $ext->readingTime($this->testString($wordCount), $minWpm, $maxWpm);
+        $result = $ext->readingTime($this->mockString($wordCount), $minWpm, $maxWpm);
+        self::assertSame($expected, $result);
 
+        $result = $ext->readingTime($this->mockHtml($wordCount), $minWpm, $maxWpm);
         self::assertSame($expected, $result);
     }
 
-    private function testString(int $wordCount): string
+    private function mockString(int $wordCount): string
     {
         return trim(str_repeat('banana ', $wordCount));
+    }
+
+    private function mockHtml(int $wordCount): Html
+    {
+        return new Html($this->mockString($wordCount));
     }
 }

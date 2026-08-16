@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\Services;
 
 use Latte\Extension;
+use Latte\Runtime\Html;
 
 class LatteUtilsExtension extends Extension
 {
@@ -27,9 +28,9 @@ class LatteUtilsExtension extends Extension
      * an exception makes little sense here and the worst case is the numbers
      * appear a bit odd.
      */
-    public function readingTime(string $text, int $minWpm = 200, int $maxWpm=250): string
+    public function readingTime(string|Html $text, int $minWpm = 200, int $maxWpm=250): string
     {
-        $words = str_word_count($text);
+        $words = str_word_count((string)$text);
         $slowTime = floor($words / $minWpm);
         $fastTime = ceil($words / $maxWpm);
 
