@@ -55,3 +55,29 @@ function ensure_dir(string $path): string
         ? $path
         : \realpath($path);
 }
+
+/**
+ * Recursively removes all files in a directory, but not the directory itself.
+ *
+ * @param string $dir
+ *   The directory to dlear.
+ * @param \Closure|null $filter
+ *   If specified, only files/directories that evaulate to true when passed to this
+ *   callback will be removed.
+ */
+function rmdir_contents(string $dir, ?\Closure $filter = null): void {
+    $it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new \RecursiveIteratorIterator($it,
+        \RecursiveIteratorIterator::CHILD_FIRST);
+    if ($filter) {
+        $files = new \CallbackFilterIterator($files, $filter);
+    }
+    /** @var \SplFileInfo $file */
+    foreach($files as $file) {
+        if ($file->isDir()){
+            rmdir($file->getPathname());
+        } else {
+            unlink($file->getPathname());
+        }
+    }
+}

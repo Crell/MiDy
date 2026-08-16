@@ -370,9 +370,17 @@ This function computes the approximate reading time of a string of text, such as
 
 A few basic management commands are included as composer executables.
 
+### `vendor/bin/midy-clear-cache`
+
+Deletes all cache files.
+
+### `vendor/bin/midy-clear-static`
+
+Deletes all generated static files.
+
 ### `vendor/bin/midy-clean`
 
-Deletes all cache files and generated static files.
+Deletes all cache files and generated static files.  (It runs both of the previous commands.)
 
 ### `vendor/bin/midy-reindex`
 

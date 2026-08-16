@@ -4,7 +4,6 @@
 declare(strict_types=1);
 
 namespace Crell\MiDy;
-use Crell\MiDy\Commands\ClearGeneratedFiles;
 use Crell\MiDy\Commands\ClearCache;
 
 include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
@@ -13,8 +12,5 @@ $app = new MiDy();
 
 /** @var ClearCache $cmd */
 $cmd = $app->container->get(ClearCache::class);
-$cmd->run();
 
-/** @var ClearGeneratedFiles $cmd */
-$cmd = $app->container->get(ClearGeneratedFiles::class);
 $cmd->run();
