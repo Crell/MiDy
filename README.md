@@ -313,11 +313,12 @@ When referencing another template (such as for extending from a common layout), 
 A typical Latte route page will look something like this:
 
 ```latte
-{* Specify the layout file to use.  Aka, parent template. *}
-{layout template('layout.latte')}
-
 {* Type-specify the parameters the template is expected to get, for type hinting. *}
 {varType \Crell\MiDy\PageTree\Page $currentPage}
+{varType Crell\MiDy\PageTree\Router\HttpQuery $query}
+
+{* Specify the layout file to use.  Aka, parent template. You can pass any arguments up to it, but should always include $currentPage and $query. *}
+{layout template('layout.latte'), currentPage: $currentPage, query: $query}
 
 {*---
 YAML Frontmatter here, much like Markdown files often have.  Always include a title.
