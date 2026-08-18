@@ -206,8 +206,6 @@ class DoctrinePageCache implements PageCache
             ->where('NOT logicalPath = folder')  // To exclude index pages as children.
         ;
 
-        // @todo Validate the $orderBy format with a nice error message.
-
         // Order by these after whatever the user provides.
         $orderBy += [
             '`order`' => SORT_ASC,
