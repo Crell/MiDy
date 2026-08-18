@@ -835,6 +835,29 @@ class DoctrinePageCacheTest extends TestCase
         $cache->queryPages(folder: '/foo', orderBy: ['title']);
     }
 
+    #[Test]
+    #[TestDox('A lookup for all paths in the system excludes unpublished or unroutable pages')]
+    public function all_paths(): void
+    {
+        $cache = new DoctrinePageCache($this->conn);
+        $cache->reinitialize();
+
+        $cache->writeFolder(self::makeParsedFolder(physicalPath: '/foo'));
+        $cache->writePage(new PageData('/foo/published', [
+            '/foo/published.md' => self::makeParsedFile(physicalPath: '/foo/published.md')
+        ]));
+        $cache->writePage(new PageData('/foo/future-date', [
+            '/foo/future-date.md' => self::makeParsedFile(physicalPath: '/foo/future-date.md', publishDate: new \DateTimeImmutable('2099-01-01'))
+        ]));
+        $cache->writePage(new PageData('/foo/not-routable', [
+            '/foo/not-routable.md' => self::makeParsedFile(physicalPath: '/foo/not-routable.md', routable: false)
+        ]));
+
+        $paths = $cache->allPaths();
+
+        self::assertArraysAreEqualIgnoringOrder(['/foo/published'], iterator_to_array($paths));
+    }
+
     /**
      * For introspecting the DB as part of test validation.
      */

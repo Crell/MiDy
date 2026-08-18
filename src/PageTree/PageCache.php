@@ -61,7 +61,7 @@ interface PageCache
     ): QueryResult;
 
     /**
-     * Returns a list of all paths that exist in the system.
+     * Returns a list of all published, routable paths that exist in the system.
      *
      * This is for the pre-generator logic.  Don't use it otherwise.
      *

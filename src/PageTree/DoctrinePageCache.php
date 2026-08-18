@@ -282,7 +282,11 @@ class DoctrinePageCache implements PageCache
 
     public function allPaths(): iterable
     {
-        return $this->conn->executeQuery("SELECT logicalPath from page")->fetchFirstColumn();
+        return $this->conn->executeQuery("SELECT logicalPath
+            FROM page
+            WHERE publishDate <= current_timestamp
+                AND routable=1
+        ")->fetchFirstColumn();
     }
 
     /**
