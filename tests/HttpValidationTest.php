@@ -144,6 +144,8 @@ class HttpValidationTest extends TestCase
         yield ['/blog/missing'];
         // This page exists, but it isn't published yet so should be a 404.
         yield ['/exclusions/future-date'];
+        // This exists, but is not routable.
+        yield ['exclusions/not-routable'];
     }
 
     #[Test]
