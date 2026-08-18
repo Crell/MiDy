@@ -48,6 +48,10 @@ class PageTreeRouter implements Router
             return new RouteNotFound();
         }
 
+        if ($page->publishDate > new \DateTimeImmutable()) {
+            return new RouteNotFound();
+        }
+
         if (!$page->routable) {
             return new RouteNotFound();
         }

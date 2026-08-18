@@ -142,6 +142,8 @@ class HttpValidationTest extends TestCase
         yield ['/missing'];
         // A missing child page of a path that does exist.
         yield ['/blog/missing'];
+        // This page exists, but it isn't published yet so should be a 404.
+        yield ['/exclusions/future-date'];
     }
 
     #[Test]
