@@ -20,11 +20,13 @@ use Crell\MiDy\SetupFilesystem;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\Large;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
+#[Large]
 class PageTreeRouterTest extends TestCase
 {
     use SetupFilesystem;

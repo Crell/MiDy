@@ -8,9 +8,11 @@ use Crell\MiDy\PageTree\Parser\FileParserError;
 use Crell\MiDy\PageTree\Parser\FolderDef;
 use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+#[Medium]
 class ParserTest extends TestCase
 {
     use SetupFilesystem;

@@ -8,11 +8,13 @@ use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
+use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 #[IgnoreDeprecations]
+#[Medium]
 class DoctrinePageCacheTest extends TestCase
 {
     use SetupFilesystem;

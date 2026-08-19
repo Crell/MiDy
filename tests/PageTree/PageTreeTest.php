@@ -6,6 +6,7 @@ namespace Crell\MiDy\PageTree;
 
 use Crell\MiDy\SetupFilesystem;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -21,6 +22,7 @@ use PHPUnit\Framework\TestCase;
  * we flag each test individually to be in its own process, so we can selectively
  * disable that for debugging.  This makes no sense and needs to be fixed.
  */
+#[Medium]
 class PageTreeTest extends TestCase
 {
     use SetupRepo;

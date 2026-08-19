@@ -7,10 +7,12 @@ namespace Crell\MiDy\PageTree\Latte;
 use Crell\MiDy\PageTree\MockPage;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PageTree;
+use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
+#[Medium]
 class PageTreeExtensionTest extends TestCase
 {
     #[Test]

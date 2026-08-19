@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Crell\MiDy\PageTree;
 
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+#[Small]
 class LogicalPathTest extends TestCase
 {
     #[Test]

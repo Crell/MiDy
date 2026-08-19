@@ -4,9 +4,11 @@ namespace Crell\MiDy\PageTree;
 
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+#[Small]
 class BasicPageSetTest extends TestCase
 {
     use MakerUtils;

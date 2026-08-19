@@ -6,9 +6,11 @@ namespace Crell\MiDy\Router;
 
 use Crell\MiDy\PageTree\Router\HttpQuery;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+#[Small]
 class HttpQueryTest extends TestCase
 {
     public static function type_filter_examples(): iterable
