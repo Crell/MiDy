@@ -51,6 +51,8 @@
         "bin/midy-build-all",
         "bin/midy-build-static",
         "bin/midy-clean",
+        "bin/midy-clear-cache",
+        "bin/midy-clear-static",
         "bin/midy-reindex"
     ],
     "config": {
