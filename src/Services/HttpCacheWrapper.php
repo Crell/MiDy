@@ -53,10 +53,10 @@ class ResponseCacher
         $etag = hash_file(self::ETAG_HASH_ALGORITHM, $filePath);
 
         $ifModifiedSince = $request->getHeaderLine('if-modified-since');
+
         if ($ifModifiedSince && new \DateTimeImmutable($ifModifiedSince) >= new \DateTimeImmutable('@' . $mtime)) {
             return $this->responseBuilder->notModified();
         }
-
         if ($request->getHeaderLine('if-none-match') === $etag) {
             return $this->responseBuilder->notModified();
         }
