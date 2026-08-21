@@ -32,6 +32,7 @@ use Crell\Config\IniFileSource;
 use Crell\Config\LayeredLoader;
 use Crell\Config\PhpFileSource;
 use Crell\Config\SerializedFilesystemCache;
+use Crell\EnvMapper\EnvMapper;
 use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\MarkdownLatte\CommonMarkExtension;
@@ -121,6 +122,8 @@ class MiDy implements RequestHandlerInterface
 
     private readonly bool $debug;
 
+    protected readonly EnvSettings $envSettings;
+
     /**
      * @param string|null $appRoot
      *   The source root of the application. The default assumes the running
@@ -150,22 +153,22 @@ class MiDy implements RequestHandlerInterface
 
         $this->loadEnvironment();
 
-        $this->cachePath = $this->ensurePath($cachePath ?? $this->env('CACHE_PATH'), 'cache');
-        $this->routePath = $this->ensurePath($routesPath ?? $this->env('ROUTES_PATH'), 'routes');
-        $this->configPath = $this->ensurePath($configPath ?? $this->env('CONFIG_PATH'), 'configuration');
-        $this->templatesPath = $this->ensurePath($templatesPath ?? $this->env('TEMPLATES_PATH'), 'templates');
-        $this->publicPath = $this->ensurePath($publicPath ?? $this->env('PUBLIC_PATH'), 'public');
+        $this->cachePath = $this->ensurePath($cachePath ?? $this->envSettings->cachePath);
+        $this->routePath = $this->ensurePath($routesPath ?? $this->envSettings->routePath);
+        $this->configPath = $this->ensurePath($configPath ?? $this->envSettings->configPath);
+        $this->templatesPath = $this->ensurePath($templatesPath ?? $this->envSettings->templatesPath);
+        $this->publicPath = $this->ensurePath($publicPath ?? $this->envSettings->publicPath);
 
-        $this->midyPath = $this->ensurePath(dirname(__FILE__) . '/..', '');
+        $this->midyPath = $this->ensurePath(dirname(__FILE__) . '/..');
 
-        $this->debug = $debug ?? $this->env('APP_DEBUG') ?? false;
+        $this->debug = $debug ?? $this->envSettings->appDebug;
 
         // The base URL is currently hard coded site-wide, as a security measure.
         // That way, an incoming request cannot poison the generated URLs.
         // However, it would be better to have an allow-list and then derive
         // details off of the request, like Symfony does.
         // @TODO Derive baseUrl off of an allow list and the request.
-        $this->baseUrl = $baseUrl ?? $this->env('BASE_URL') ?? 'https://localhost/';
+        $this->baseUrl = $baseUrl ?? $this->envSettings->baseUrl;
 
         $this->container = $this->buildContainer();
         $this->setupListeners();
@@ -194,17 +197,13 @@ class MiDy implements RequestHandlerInterface
         if (file_exists($envFile)) {
             $dotenv->loadEnv($envFile);
         }
+
+        // Use getenv() here to avoid issues with servers configured to not populate $_ENV correctly.
+        $this->envSettings = new EnvMapper()->map(EnvSettings::class, false, getenv());
     }
 
-    protected function env(string $name): ?string
+    protected function ensurePath(?string $dir): string
     {
-        return $_SERVER[$name] ?? $_ENV[$name] ?? null;
-    }
-
-    protected function ensurePath(?string $override, string $default): string
-    {
-        $dir = $override ?? $default;
-
         if (!str_starts_with($dir, '/') && !str_contains($dir, '://')) {
             $dir = $this->appRoot . '/' . trim($dir, '/');
         }
@@ -419,7 +418,7 @@ class MiDy implements RequestHandlerInterface
                     streamFactory: get(StreamFactoryInterface::class),
                 ),
             HttpCacheWrapper::class => autowire()
-                ->constructorParameter('enableCache', env('ENABLE_HTTP_CACHE', true))
+                ->constructorParameter('enableCache', $this->envSettings->httpCacheEnable)
             ,
             ResponseBuilder::class => autowire(),
         ]);
