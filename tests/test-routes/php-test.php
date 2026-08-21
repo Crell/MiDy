@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 use Crell\Carica\ResponseBuilder;
-use Crell\MiDy\Services\ResponseCacher;
+use Crell\MiDy\Services\HttpCacheWrapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class PhpTest
 {
     public function __construct(
-        private readonly ResponseCacher $cacher,
-        private readonly ResponseBuilder $builder,
+        private readonly HttpCacheWrapper $cacher,
+        private readonly ResponseBuilder  $builder,
     ) {}
 
     public function get(ServerRequestInterface $request): ResponseInterface

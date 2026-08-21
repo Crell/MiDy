@@ -57,7 +57,7 @@ use Crell\MiDy\PageTree\Router\StaticFileHandler;
 use Crell\MiDy\Services\HeaderBrandingMiddleware;
 use Crell\MiDy\Services\LatteUtilsExtension;
 use Crell\MiDy\Services\PrintLogger;
-use Crell\MiDy\Services\ResponseCacher;
+use Crell\MiDy\Services\HttpCacheWrapper;
 use Crell\Serde\Serde;
 use Crell\Serde\SerdeCommon;
 use Crell\Tukio\DebugEventDispatcher;
@@ -418,8 +418,8 @@ class MiDy implements RequestHandlerInterface
                     uploadedFileFactory: get(Psr17Factory::class),
                     streamFactory: get(StreamFactoryInterface::class),
                 ),
-            ResponseCacher::class => autowire()
-                ->constructorParameter('enableCache', env('ENABLE_CACHE', true))
+            HttpCacheWrapper::class => autowire()
+                ->constructorParameter('enableCache', env('ENABLE_HTTP_CACHE', true))
             ,
             ResponseBuilder::class => autowire(),
         ]);
@@ -557,5 +557,4 @@ class MiDy implements RequestHandlerInterface
             gc_collect_cycles();
         }
     }
-
 }

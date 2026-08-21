@@ -10,7 +10,7 @@ use Crell\Carica\Router\RouteSuccess;
 use Crell\MiDy\Config\StaticRoutes;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
-use Crell\MiDy\Services\ResponseCacher;
+use Crell\MiDy\Services\HttpCacheWrapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -23,7 +23,7 @@ class StaticFileHandler implements PageHandler
     }
 
     public function __construct(
-        private readonly ResponseCacher $cacher,
+        private readonly HttpCacheWrapper $cacher,
         private readonly ResponseBuilder $builder,
         private readonly StreamFactoryInterface $streamFactory,
         private readonly StaticRoutes $config,

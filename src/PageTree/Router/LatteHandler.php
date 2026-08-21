@@ -10,7 +10,7 @@ use Crell\Carica\Router\RouteResult;
 use Crell\Carica\Router\RouteSuccess;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
-use Crell\MiDy\Services\ResponseCacher;
+use Crell\MiDy\Services\HttpCacheWrapper;
 use Crell\MiDy\Services\TemplateRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,8 +21,8 @@ class LatteHandler implements PageHandler
     private(set) array $supportedExtensions = ['latte'];
 
     public function __construct(
-        private readonly ResponseCacher $cacher,
-        private readonly ResponseBuilder $builder,
+        private readonly HttpCacheWrapper $cacher,
+        private readonly ResponseBuilder  $builder,
         private readonly TemplateRenderer $renderer,
     ) {}
 

@@ -13,7 +13,7 @@ use Crell\MiDy\LatteTheme\LatteThemeExtension;
 use Crell\MiDy\MarkdownDeserializer\MarkdownPageLoader;
 use Crell\MiDy\PageTree\Page;
 use Crell\MiDy\PageTree\PhysicalPath;
-use Crell\MiDy\Services\ResponseCacher;
+use Crell\MiDy\Services\HttpCacheWrapper;
 use Crell\MiDy\Services\TemplateRenderer;
 use Latte\Runtime\Html;
 use League\CommonMark\ConverterInterface;
@@ -27,7 +27,7 @@ class MarkdownLatteHandler implements PageHandler
 
     public function __construct(
         private readonly ResponseBuilder $builder,
-        private readonly ResponseCacher $cacher,
+        private readonly HttpCacheWrapper $cacher,
         private readonly MarkdownPageLoader $loader,
         private readonly LatteThemeExtension $themeExtension,
         private readonly TemplateRenderer $renderer,

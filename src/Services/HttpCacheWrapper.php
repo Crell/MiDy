@@ -8,7 +8,7 @@ use Crell\Carica\ResponseBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class ResponseCacher
+class HttpCacheWrapper
 {
     public const string ETAG_HASH_ALGORITHM = 'xxh3';
 
