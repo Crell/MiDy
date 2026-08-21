@@ -10,7 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class HttpCacheWrapper
 {
-    public const string ETAG_HASH_ALGORITHM = 'xxh3';
+    public const string EtagHashAlgorithm = 'xxh3';
 
     private bool $enableCache;
 
@@ -50,7 +50,7 @@ class HttpCacheWrapper
         }
 
         $mtime = filemtime($filePath);
-        $etag = hash_file(self::ETAG_HASH_ALGORITHM, $filePath);
+        $etag = hash_file(self::EtagHashAlgorithm, $filePath);
 
         $ifModifiedSince = $request->getHeaderLine('if-modified-since');
 
