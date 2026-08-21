@@ -75,6 +75,25 @@ The only really mandatory setup is setting your `BASE_URL`.  For security reason
 BASE_URL=https://example.com/
 ```
 
+The other optional env vars and their defaults include:
+
+```ini
+#.env
+# Set to true to enable display of error messages. You may still need to enable
+# display_errors in your php.ini file.
+APP_DEBUG=false
+
+# Enable the use of HTTP cache headers, and respect ETag and if-modified-since headers.
+# If enabled, the site will return a 304 if a particular file has not been modified.
+# Note that if the page is querying other pages, those pages will not influence
+# the freshness of this page so there may be a lag.
+# If set to false, all HTTP caching wil lbe disabled.
+HTTP_CACHE_ENABLE=true
+
+# The number of seconds the page should be cached for by HTTP.  
+HTTP_CACHE_LIFETIME=300
+```
+
 There are five paths that matter, all of which have a reasonable default but may also be overridden by an environment variable if desired:
 
 | Directory                       | Default         | Env Var override |

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crell\MiDy\Services;
 
 use Crell\Carica\ResponseBuilder;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -12,19 +13,13 @@ class HttpCacheWrapper
 {
     public const string EtagHashAlgorithm = 'xxh3';
 
-    private bool $enableCache;
-
     public function __construct(
         private ResponseBuilder $responseBuilder,
-        bool|string $enableCache = true,
-    ) {
-        // This is to work around a dumb bug in PHP-DI: https://github.com/PHP-DI/PHP-DI/issues/900
-        $this->enableCache = match ($enableCache) {
-            true, 'true', 'on', 'yes' => true,
-            false, 'false', 'off', 'no' => false,
-            default => false,
-        };
-    }
+        private ClockInterface $clock,
+        private bool $enableCache = true,
+        /** The cache lifetime in seconds. The default is 5 minutes. */
+        private int $cacheLifetime = 300,
+    ) {}
 
     /**
      * Wraps a request handler in HTTP cache handling, based on a specified file.
@@ -46,23 +41,36 @@ class HttpCacheWrapper
     public function handleCacheableFileRequest(ServerRequestInterface $request, string $filePath, \Closure $generator): ResponseInterface
     {
         if (!$this->enableCache) {
-            return $generator();
+            return $generator()
+                ->withHeader('cache-control', 'no-cache');
         }
 
-        $mtime = filemtime($filePath);
+        $mtime = new \DateTimeImmutable('@' . filemtime($filePath));
         $etag = hash_file(self::EtagHashAlgorithm, $filePath);
+
+        // If the page is older than the cache lifetime, we'll regenerate it anyway.
+        // That way, pages that transclude other pages (like listings) will regenerate eventually.
+        if ($mtime->modify("+ $this->cacheLifetime seconds") < $this->clock->now()) {
+            return $this->respond($generator(), $mtime, $etag);
+        }
 
         $ifModifiedSince = $request->getHeaderLine('if-modified-since');
 
-        if ($ifModifiedSince && new \DateTimeImmutable($ifModifiedSince) >= new \DateTimeImmutable('@' . $mtime)) {
+        if ($ifModifiedSince && new \DateTimeImmutable($ifModifiedSince) >= $mtime) {
             return $this->responseBuilder->notModified();
         }
         if ($request->getHeaderLine('if-none-match') === $etag) {
             return $this->responseBuilder->notModified();
         }
 
-        return $generator()
-            ->withHeader('last-modified', new \DateTimeImmutable('@' . $mtime)->format('r'))
-            ->withHeader('etag', $etag);
+        return $this->respond($generator(), $mtime, $etag);
+    }
+
+    private function respond(ResponseInterface $response, \DateTimeImmutable $mtime, string $etag): ResponseInterface
+    {
+        return $response
+            ->withHeader('last-modified', $mtime->format('r'))
+            ->withHeader('etag', $etag)
+            ->withHeader('cache-control', sprintf('max-age: %d', $this->cacheLifetime));
     }
 }

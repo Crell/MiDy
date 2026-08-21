@@ -82,6 +82,7 @@ use League\CommonMark\MarkdownConverter;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
+use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
@@ -120,8 +121,6 @@ class MiDy implements RequestHandlerInterface
 
     private readonly string $baseUrl;
 
-    private readonly bool $debug;
-
     protected readonly EnvSettings $envSettings;
 
     /**
@@ -147,7 +146,6 @@ class MiDy implements RequestHandlerInterface
         ?string $templatesPath = null,
         ?string $publicPath = null,
         ?string $baseUrl = null,
-        ?bool $debug = null,
     ) {
         $this->appRoot = $appRoot ?? $this->deriveProjectRoot();
 
@@ -160,8 +158,6 @@ class MiDy implements RequestHandlerInterface
         $this->publicPath = $this->ensurePath($publicPath ?? $this->envSettings->publicPath);
 
         $this->midyPath = $this->ensurePath(dirname(__FILE__) . '/..');
-
-        $this->debug = $debug ?? $this->envSettings->appDebug;
 
         // The base URL is currently hard coded site-wide, as a security measure.
         // That way, an incoming request cannot poison the generated URLs.
@@ -281,7 +277,7 @@ class MiDy implements RequestHandlerInterface
             EnforceHeadMiddleware::class => autowire(),
             DeriveActionMetadataMiddleware::class => autowire(),
             ExceptionCatcherMiddleware::class => autowire()
-                ->constructorParameter('debug', $this->debug)
+                ->constructorParameter('debug', $this->envSettings->appDebug)
             ,
             GenericMethodNotAllowedMiddleware::class => autowire(),
             GenericNotFoundMiddleware::class => autowire(),
@@ -401,6 +397,12 @@ class MiDy implements RequestHandlerInterface
             LoggerInterface::class => get(NullLogger::class),
         ]);
 
+        // Clock
+        $containerBuilder->addDefinitions([
+            SystemClock::class => autowire(),
+            ClockInterface::class => get(SystemClock::class)
+        ]);
+
         // HTTP handling.
         $containerBuilder->addDefinitions([
             ResponseFactoryInterface::class => get(Psr17Factory::class),
@@ -419,6 +421,7 @@ class MiDy implements RequestHandlerInterface
                 ),
             HttpCacheWrapper::class => autowire()
                 ->constructorParameter('enableCache', $this->envSettings->httpCacheEnable)
+                ->constructorParameter('cacheLifetime', $this->envSettings->httpCacheLifetime)
             ,
             ResponseBuilder::class => autowire(),
         ]);
