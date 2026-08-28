@@ -121,6 +121,8 @@ class MiDy implements RequestHandlerInterface
 
     private readonly string $baseUrl;
 
+    private readonly bool $debug;
+
     protected readonly EnvSettings $envSettings;
 
     /**
@@ -146,6 +148,7 @@ class MiDy implements RequestHandlerInterface
         ?string $templatesPath = null,
         ?string $publicPath = null,
         ?string $baseUrl = null,
+        ?bool $debug = null,
     ) {
         $this->appRoot = $appRoot ?? $this->deriveProjectRoot();
 
@@ -158,6 +161,8 @@ class MiDy implements RequestHandlerInterface
         $this->publicPath = $this->ensurePath($publicPath ?? $this->envSettings->publicPath);
 
         $this->midyPath = $this->ensurePath(dirname(__FILE__) . '/..');
+
+        $this->debug = $debug ?? $this->envSettings->appDebug;
 
         // The base URL is currently hard coded site-wide, as a security measure.
         // That way, an incoming request cannot poison the generated URLs.
@@ -277,7 +282,7 @@ class MiDy implements RequestHandlerInterface
             EnforceHeadMiddleware::class => autowire(),
             DeriveActionMetadataMiddleware::class => autowire(),
             ExceptionCatcherMiddleware::class => autowire()
-                ->constructorParameter('debug', $this->envSettings->appDebug)
+                ->constructorParameter('debug', $this->debug)
             ,
             GenericMethodNotAllowedMiddleware::class => autowire(),
             GenericNotFoundMiddleware::class => autowire(),
