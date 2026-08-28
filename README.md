@@ -87,7 +87,7 @@ APP_DEBUG=false
 # If enabled, the site will return a 304 if a particular file has not been modified.
 # Note that if the page is querying other pages, those pages will not influence
 # the freshness of this page so there may be a lag.
-# If set to false, all HTTP caching wil lbe disabled.
+# If set to false, all HTTP caching will be disabled.
 HTTP_CACHE_ENABLE=true
 
 # The number of seconds the page should be cached for by HTTP.  
