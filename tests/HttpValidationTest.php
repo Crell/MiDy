@@ -8,6 +8,7 @@ use Nyholm\Psr7Server\ServerRequestCreator;
 use Nyholm\Psr7Server\ServerRequestCreatorInterface;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Large;
@@ -40,6 +41,7 @@ class HttpValidationTest extends TestCase
 
         $this->app = new MiDy(
             routesPath: $root->getChild('routes')->url(),
+            debug: true,
         );
     }
 
@@ -250,5 +252,44 @@ class HttpValidationTest extends TestCase
         $body = $response->getBody()->getContents();
         self::assertStringContainsString('<p>Published: 31 October 2024</p>', $body);
         self::assertStringContainsString('<p>Updated: 25 December 2024</p>', $body);
+    }
+
+    #[Test]
+    #[BackupGlobals(true)]
+    #[TestDox('If a response generates output prematurely, the actual body is still delivered, in debug mode')]
+    public function premature_output(): void
+    {
+        $path = '/premature-output';
+
+        $_SERVER['REQUEST_URI'] = $path;
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $this->app->run();
+
+        $out = $this->getActualOutputForAssertion();
+        self::assertStringContainsString('This is incorrect.', $out);
+        self::assertStringContainsString('Output already sent.', $out);
+        self::assertStringContainsString('The remaining content is:', $out);
+        self::assertStringContainsString('Display this', $out);
+    }
+
+    #[Test]
+    #[BackupGlobals(true)]
+    #[TestDox('If a response generates headers prematurely, the actual body is still delivered, in debug mode')]
+    public function premature_header(): void
+    {
+        $this->markTestSkipped('I have not figured out how to even trigger this case, so it cannot be tested yet.');
+
+        $path = '/premature-header';
+
+        $_SERVER['REQUEST_URI'] = $path;
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $this->app->run();
+
+        $out = $this->getActualOutputForAssertion();
+        self::assertStringContainsString('Headers already sent from', $out);
+        self::assertStringContainsString('The remaining content is:', $out);
+        self::assertStringContainsString('Display this', $out);
     }
 }

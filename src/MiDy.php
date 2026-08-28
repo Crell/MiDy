@@ -68,6 +68,8 @@ use DI\ContainerBuilder;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
+use HttpSoft\Emitter\Exception\HeadersAlreadySentException;
+use HttpSoft\Emitter\Exception\OutputAlreadySentException;
 use HttpSoft\Emitter\SapiEmitter;
 use Latte\Engine;
 use Latte\Feature;
@@ -544,10 +546,37 @@ class MiDy implements RequestHandlerInterface
 
     protected function runOneRequest(): void
     {
+        /** @var LoggerInterface $logger */
+        $logger = $this->container->get(LoggerInterface::class);
+
         $serverRequest = $this->container->get(ServerRequestCreator::class)->fromGlobals();
         $response = $this->handle($serverRequest);
 
-        $this->container->get(SapiEmitter::class)->emit($response);
+        try {
+            $this->container->get(SapiEmitter::class)->emit($response);
+        }
+        catch (HeadersAlreadySentException) {
+            $file = null;
+            $line = null;
+            headers_sent($file, $line);
+            $logger->error('Headers already sent from {file}:{line}', [
+                'file' => $file,
+                'line' => $line,
+            ]);
+            if ($this->debug) {
+                printf("<p>Headers already sent from %s:%d.</p>\n<p>The remaining content is:</p>\n\n%s", $file, $line, (string)$response->getBody());
+            } else {
+                printf('<p>Internal server error.  Sorry.</p>');
+            }
+        }
+        catch (OutputAlreadySentException) {
+            $logger->error('Output already sent before the emitter was called.');
+            if ($this->debug) {
+                printf("<p>Output already sent.</p>\n<p>The remaining content is:</p>\n\n%s", (string)$response->getBody());
+            } else {
+                printf('<p>Internal server error.  Sorry.</p>');
+            }
+        }
     }
 
     protected function runFrankenPHPWorker(): void
