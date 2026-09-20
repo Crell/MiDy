@@ -16,6 +16,16 @@ MiDy sits between static site generators and full CMSes and frameworks.  It's fo
 
 In practice, it can also be used as a Latte-and-Markdown-based static site generator.  Or a little of each, which is where the real power comes from.
 
+## Installation
+
+Generally you do not want to clone this repository unless you are developing on MiDy itself.  To create a site with MiDy, use the starter skeleton like so:
+
+```bash
+composer create-project crell/midy-skeleton mysite
+```
+
+That will set up a fresh site to build from, with MiDy itself as a dependency.  That way, future upgrading is just a `composer update` as there's no other code to modify.
+
 ## How it works
 
 MiDy is built on the following assumptions:
